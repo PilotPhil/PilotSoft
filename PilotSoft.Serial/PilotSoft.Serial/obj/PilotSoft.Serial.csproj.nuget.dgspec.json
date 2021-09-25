@@ -1,0 +1,72 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\Gitee\\PilotSoft\\PilotSoft.Serial\\PilotSoft.Serial\\PilotSoft.Serial.csproj": {}
+  },
+  "projects": {
+    "D:\\Gitee\\PilotSoft\\PilotSoft.Serial\\PilotSoft.Serial\\PilotSoft.Serial.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Gitee\\PilotSoft\\PilotSoft.Serial\\PilotSoft.Serial\\PilotSoft.Serial.csproj",
+        "projectName": "PilotSoft.Serial",
+        "projectPath": "D:\\Gitee\\PilotSoft\\PilotSoft.Serial\\PilotSoft.Serial\\PilotSoft.Serial.csproj",
+        "packagesPath": "C:\\Users\\dwb\\.nuget\\packages\\",
+        "outputPath": "D:\\Gitee\\PilotSoft\\PilotSoft.Serial\\PilotSoft.Serial\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\dwb\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "dependencies": {
+            "System.IO.Ports": {
+              "target": "Package",
+              "version": "[5.0.1, )"
+            },
+            "System.Runtime": {
+              "target": "Package",
+              "version": "[4.3.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.401\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

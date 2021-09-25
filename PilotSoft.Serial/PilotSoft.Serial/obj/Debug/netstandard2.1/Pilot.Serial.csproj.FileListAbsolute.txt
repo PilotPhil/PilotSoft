@@ -1,0 +1,9 @@
+D:\Gitee\MyNugetPro\Pilot.Serial\Pilot.Serial\bin\Debug\netstandard2.1\Pilot.Serial.deps.json
+D:\Gitee\MyNugetPro\Pilot.Serial\Pilot.Serial\bin\Debug\netstandard2.1\Pilot.Serial.dll
+D:\Gitee\MyNugetPro\Pilot.Serial\Pilot.Serial\bin\Debug\netstandard2.1\Pilot.Serial.pdb
+D:\Gitee\MyNugetPro\Pilot.Serial\Pilot.Serial\obj\Debug\netstandard2.1\Pilot.Serial.GeneratedMSBuildEditorConfig.editorconfig
+D:\Gitee\MyNugetPro\Pilot.Serial\Pilot.Serial\obj\Debug\netstandard2.1\Pilot.Serial.AssemblyInfoInputs.cache
+D:\Gitee\MyNugetPro\Pilot.Serial\Pilot.Serial\obj\Debug\netstandard2.1\Pilot.Serial.AssemblyInfo.cs
+D:\Gitee\MyNugetPro\Pilot.Serial\Pilot.Serial\obj\Debug\netstandard2.1\Pilot.Serial.csproj.CoreCompileInputs.cache
+D:\Gitee\MyNugetPro\Pilot.Serial\Pilot.Serial\obj\Debug\netstandard2.1\Pilot.Serial.dll
+D:\Gitee\MyNugetPro\Pilot.Serial\Pilot.Serial\obj\Debug\netstandard2.1\Pilot.Serial.pdb
