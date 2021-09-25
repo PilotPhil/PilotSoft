@@ -8,6 +8,11 @@
     <PackageId>PilotSoft.Serial</PackageId>
     <Authors>Pilot</Authors>
     <Description>Simply packing of serial port class</Description>
+    <PackageProjectUrl>https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.Serial</PackageProjectUrl>
+    <Copyright>MIT</Copyright>
+    <RepositoryUrl>https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.Serial</RepositoryUrl>
+    <RepositoryType>Gitee</RepositoryType>
+    <NeutralLanguage>zh-CN</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,9 @@
+C:\Users\dwb\Desktop\PilotSoft.ProjConfig\PilotSoft.ProjConfig\bin\Debug\netcoreapp3.1\PilotSoft.ProjConfig.deps.json
+C:\Users\dwb\Desktop\PilotSoft.ProjConfig\PilotSoft.ProjConfig\bin\Debug\netcoreapp3.1\PilotSoft.ProjConfig.dll
+C:\Users\dwb\Desktop\PilotSoft.ProjConfig\PilotSoft.ProjConfig\bin\Debug\netcoreapp3.1\PilotSoft.ProjConfig.pdb
+C:\Users\dwb\Desktop\PilotSoft.ProjConfig\PilotSoft.ProjConfig\obj\Debug\netcoreapp3.1\PilotSoft.ProjConfig.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\dwb\Desktop\PilotSoft.ProjConfig\PilotSoft.ProjConfig\obj\Debug\netcoreapp3.1\PilotSoft.ProjConfig.AssemblyInfoInputs.cache
+C:\Users\dwb\Desktop\PilotSoft.ProjConfig\PilotSoft.ProjConfig\obj\Debug\netcoreapp3.1\PilotSoft.ProjConfig.AssemblyInfo.cs
+C:\Users\dwb\Desktop\PilotSoft.ProjConfig\PilotSoft.ProjConfig\obj\Debug\netcoreapp3.1\PilotSoft.ProjConfig.csproj.CoreCompileInputs.cache
+C:\Users\dwb\Desktop\PilotSoft.ProjConfig\PilotSoft.ProjConfig\obj\Debug\netcoreapp3.1\PilotSoft.ProjConfig.dll
+C:\Users\dwb\Desktop\PilotSoft.ProjConfig\PilotSoft.ProjConfig\obj\Debug\netcoreapp3.1\PilotSoft.ProjConfig.pdb

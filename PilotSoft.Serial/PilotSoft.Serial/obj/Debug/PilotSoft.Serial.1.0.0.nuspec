@@ -4,7 +4,10 @@
     <id>PilotSoft.Serial</id>
     <version>1.0.0</version>
     <authors>Pilot</authors>
+    <projectUrl>https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.Serial</projectUrl>
     <description>Simply packing of serial port class</description>
+    <copyright>MIT</copyright>
+    <repository type="Gitee" url="https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.Serial" />
     <dependencies>
       <group targetFramework=".NETStandard2.1">
         <dependency id="System.IO.Ports" version="5.0.1" exclude="Build,Analyzers" />
