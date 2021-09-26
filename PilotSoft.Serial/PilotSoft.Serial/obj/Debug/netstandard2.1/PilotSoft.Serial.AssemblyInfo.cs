@@ -13,13 +13,13 @@ using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("PilotSoft")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
-[assembly: System.Reflection.AssemblyCopyrightAttribute("MIT")]
+[assembly: System.Reflection.AssemblyCopyrightAttribute("CopyRight @ Pilot.Phil")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Simply packing of serial port class")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.2")]
 [assembly: System.Reflection.AssemblyProductAttribute("PilotSoft.Serial")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PilotSoft.Serial")]
-[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.2")]
 [assembly: System.Reflection.AssemblyMetadataAttribute("RepositoryUrl", "https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.Serial")]
 [assembly: System.Resources.NeutralResourcesLanguageAttribute("zh-CN")]
 

@@ -2,22 +2,33 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Company>PilotSoft</Company>
     <Product>PilotSoft.Serial</Product>
     <PackageId>PilotSoft.Serial</PackageId>
     <Authors>Pilot</Authors>
     <Description>Simply packing of serial port class</Description>
     <PackageProjectUrl>https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.Serial</PackageProjectUrl>
-    <Copyright>MIT</Copyright>
+    <Copyright>CopyRight @ Pilot.Phil</Copyright>
     <RepositoryUrl>https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.Serial</RepositoryUrl>
     <RepositoryType>Gitee</RepositoryType>
     <NeutralLanguage>zh-CN</NeutralLanguage>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
+    <FileVersion>1.0.0.2</FileVersion>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="5.0.1" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -7,7 +7,7 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "PilotSoft.Serial/1.0.0": {
+      "PilotSoft.Serial/1.0.2": {
         "dependencies": {
           "System.IO.Ports": "5.0.1",
           "System.Runtime": "4.3.1"
@@ -122,7 +122,7 @@
     }
   },
   "libraries": {
-    "PilotSoft.Serial/1.0.0": {
+    "PilotSoft.Serial/1.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

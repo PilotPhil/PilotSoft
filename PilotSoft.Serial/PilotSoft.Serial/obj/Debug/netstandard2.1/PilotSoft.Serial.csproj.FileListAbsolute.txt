@@ -7,3 +7,4 @@ D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.1\Pi
 D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.1\PilotSoft.Serial.csproj.CoreCompileInputs.cache
 D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.1\PilotSoft.Serial.dll
 D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.1\PilotSoft.Serial.pdb
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.1\PilotSoft.Serial.csproj.AssemblyReference.cache

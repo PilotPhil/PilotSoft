@@ -3,14 +3,14 @@ using System.IO.Ports;
 
 namespace PilotSoft.Serial
 {
-    public class SerialPortFactory
+    public class SerialPortFactory:IDisposable
     {
         /// <summary>
         /// 快速创建9600波特率串口对象 常用
         /// </summary>
         /// <param name="portName">端口名，如COM12</param>
         /// <returns></returns>
-        public SerialPort QuickCreateSerialPort9600(string portName)
+        public static SerialPort QuickCreateSerialPort9600(string portName)
         {
             return new SerialPort(portName, 9600, Parity.None, 8, StopBits.One);
         }
@@ -20,7 +20,7 @@ namespace PilotSoft.Serial
         /// </summary>
         /// <param name="portName">端口名，如COM12</param>
         /// <returns></returns>
-        public SerialPort QuickCreateSerialPort19200(string portName)
+        public static SerialPort QuickCreateSerialPort19200(string portName)
         {
             return new SerialPort(portName, 19200, Parity.None, 8, StopBits.One);
         }
@@ -31,7 +31,7 @@ namespace PilotSoft.Serial
         /// <param name="portName">端口名，如：COM12</param>
         /// <param name="baudRate">波特率，如：9600</param>
         /// <returns></returns>
-        public SerialPort QuickCreateSerialPort19200(string portName, int baudRate)
+        public static SerialPort QuickCreateSerialPort19200(string portName, int baudRate)
         {
             return new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One);
         }
@@ -45,7 +45,7 @@ namespace PilotSoft.Serial
         /// <param name="databits"></param>
         /// <param name="stopbits"></param>
         /// <returns></returns>
-        public SerialPort CreateSerialPortNormal(string portName,
+        public static SerialPort CreateSerialPortNormal(string portName,
                                                       int baudrate,
                                                       string parity,
                                                       int databits,
@@ -106,13 +106,18 @@ namespace PilotSoft.Serial
         /// <param name="databits"></param>
         /// <param name="stopbits"></param>
         /// <returns></returns>
-        public SerialPort CreateSerialPortByString(string portName,
+        public static SerialPort CreateSerialPortByString(string portName,
                                                         string baudrate,
                                                         string parity,
                                                         string databits,
                                                         string stopbits)
         {
             return CreateSerialPortNormal(portName, int.Parse(baudrate), parity, int.Parse(databits), stopbits);
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }
