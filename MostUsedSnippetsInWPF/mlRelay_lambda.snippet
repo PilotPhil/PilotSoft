@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      
+      <Title>mlRelayCommand with lambda style</Title>
+      <Author>pilot</Author>
+      <Description>mvvmlight中relay command 使用lambda的无参版本</Description>
+      <Shortcut>mlRelay_Lambda</Shortcut>
+    </Header>
+    
+    <Snippet>
+      <Declarations>
+        <Literal Editable="true">
+          <ID>attribute</ID>
+          <ToolTip>Name of the attribute holding the RelayCommand.</ToolTip>
+          <Default>_myCommand</Default>
+          <Function>
+          </Function>
+        </Literal>
+        
+        <Literal Editable="true">
+          <ID>commandname</ID>
+          <ToolTip>Name of the RelayCommand.</ToolTip>
+          <Default>MyCommand</Default>
+          <Function>
+          </Function>
+        </Literal>
+
+        <Literal Editable="true">
+          <ID>Annotation</ID>
+          <ToolTip>Annotation of the RelayCommand.</ToolTip>
+          <Default>Annotation</Default>
+          <Function>
+          </Function>
+        </Literal>
+      </Declarations>
+      
+      <Code Language="csharp">
+          <![CDATA[private RelayCommand $attribute$;
+        /// <summary>
+        /// $Annotation$ 的命令
+        /// </summary>
+        public RelayCommand $commandname$
+        {
+            get
+            {
+                return $attribute$ ?? ($attribute$ = new RelayCommand(() =>
+                    {
+                        $end$
+                    }));
+            }
+        }]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
