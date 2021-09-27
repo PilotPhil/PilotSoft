@@ -8,15 +8,16 @@ namespace SerialTest.ViewModel
     {
         public ViewModelLocator()
         {
-            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-            SimpleIoc.Default.Register<MainViewModel>();
+            //ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
+            //SimpleIoc.Default.Register<MainViewModel>();
         }
 
         public MainViewModel Main
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<MainViewModel>();
+                return new MainViewModel();
+                //return ServiceLocator.Current.GetInstance<MainViewModel>();
             }
         }
         

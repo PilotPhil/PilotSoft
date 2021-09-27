@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v5.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v5.0": {
+      "RF.Test/1.0.0": {
+        "dependencies": {
+          "PilotSoft.RainFlow": "1.0.0"
+        },
+        "runtime": {
+          "RF.Test.dll": {}
+        }
+      },
+      "PilotSoft.RainFlow/1.0.0": {
+        "runtime": {
+          "PilotSoft.RainFlow.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "RF.Test/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PilotSoft.RainFlow/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

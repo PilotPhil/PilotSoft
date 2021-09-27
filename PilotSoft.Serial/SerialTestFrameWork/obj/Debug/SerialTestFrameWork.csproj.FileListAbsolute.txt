@@ -1,0 +1,15 @@
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\bin\Debug\SerialTestFrameWork.exe.config
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\bin\Debug\SerialTestFrameWork.exe
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\bin\Debug\SerialTestFrameWork.pdb
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\SerialTestFrameWork.csproj.AssemblyReference.cache
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\MainWindow.g.cs
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\App.g.cs
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\SerialTestFrameWork_MarkupCompile.cache
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\SerialTestFrameWork_MarkupCompile.lref
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\MainWindow.baml
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\SerialTestFrameWork.g.resources
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\SerialTestFrameWork.Properties.Resources.resources
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\SerialTestFrameWork.csproj.GenerateResource.cache
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\SerialTestFrameWork.csproj.CoreCompileInputs.cache
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\SerialTestFrameWork.exe
+D:\Gitee\PilotSoft\PilotSoft.Serial\SerialTestFrameWork\obj\Debug\SerialTestFrameWork.pdb

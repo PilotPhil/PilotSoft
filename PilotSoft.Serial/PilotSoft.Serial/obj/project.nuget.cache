@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "wPaLP0/krCU+wE34XJRF0Ru6TmMI8xaX//kGN68IssArLVrkqYsj+nFqGJbTAeHqoB4GwL6MSK9J2e10kaMWYg==",
+  "dgSpecHash": "T+DNQ2XBqBxPqSBd8FuLs8n/oMdAiiHjTXQM8nFFnwUhPWzY8KHNNYBrk62zC/jRdHSZU0BCscE7XZvwRWV51A==",
   "success": true,
   "projectFilePath": "D:\\Gitee\\PilotSoft\\PilotSoft.Serial\\PilotSoft.Serial\\PilotSoft.Serial.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\dwb\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.1\\microsoft.netcore.platforms.1.1.1.nupkg.sha512",
     "C:\\Users\\dwb\\.nuget\\packages\\microsoft.netcore.targets\\1.1.3\\microsoft.netcore.targets.1.1.3.nupkg.sha512",
     "C:\\Users\\dwb\\.nuget\\packages\\microsoft.win32.registry\\5.0.0\\microsoft.win32.registry.5.0.0.nupkg.sha512",
+    "C:\\Users\\dwb\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
     "C:\\Users\\dwb\\.nuget\\packages\\runtime.linux-arm.runtime.native.system.io.ports\\5.0.0\\runtime.linux-arm.runtime.native.system.io.ports.5.0.0.nupkg.sha512",
     "C:\\Users\\dwb\\.nuget\\packages\\runtime.linux-arm64.runtime.native.system.io.ports\\5.0.0\\runtime.linux-arm64.runtime.native.system.io.ports.5.0.0.nupkg.sha512",
     "C:\\Users\\dwb\\.nuget\\packages\\runtime.linux-x64.runtime.native.system.io.ports\\5.0.0\\runtime.linux-x64.runtime.native.system.io.ports.5.0.0.nupkg.sha512",

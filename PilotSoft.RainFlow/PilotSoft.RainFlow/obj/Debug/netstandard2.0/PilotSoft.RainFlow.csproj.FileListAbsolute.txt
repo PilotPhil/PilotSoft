@@ -1,0 +1,10 @@
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\bin\Debug\netstandard2.0\PilotSoft.RainFlow.deps.json
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\bin\Debug\netstandard2.0\PilotSoft.RainFlow.dll
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\bin\Debug\netstandard2.0\PilotSoft.RainFlow.pdb
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\obj\Debug\netstandard2.0\PilotSoft.RainFlow.csproj.AssemblyReference.cache
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\obj\Debug\netstandard2.0\PilotSoft.RainFlow.GeneratedMSBuildEditorConfig.editorconfig
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\obj\Debug\netstandard2.0\PilotSoft.RainFlow.AssemblyInfoInputs.cache
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\obj\Debug\netstandard2.0\PilotSoft.RainFlow.AssemblyInfo.cs
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\obj\Debug\netstandard2.0\PilotSoft.RainFlow.csproj.CoreCompileInputs.cache
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\obj\Debug\netstandard2.0\PilotSoft.RainFlow.dll
+D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\obj\Debug\netstandard2.0\PilotSoft.RainFlow.pdb

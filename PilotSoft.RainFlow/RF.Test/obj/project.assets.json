@@ -1,0 +1,90 @@
+{
+  "version": 3,
+  "targets": {
+    "net5.0": {
+      "PilotSoft.RainFlow/0.1.1": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.0",
+        "compile": {
+          "bin/placeholder/PilotSoft.RainFlow.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/PilotSoft.RainFlow.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "PilotSoft.RainFlow/0.1.1": {
+      "type": "project",
+      "path": "../PilotSoft.RainFlow/PilotSoft.RainFlow.csproj",
+      "msbuildProject": "../PilotSoft.RainFlow/PilotSoft.RainFlow.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net5.0": [
+      "PilotSoft.RainFlow >= 0.1.1"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\dwb\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "D:\\Gitee\\PilotSoft\\PilotSoft.RainFlow\\RF.Test\\RF.Test.csproj",
+      "projectName": "RF.Test",
+      "projectPath": "D:\\Gitee\\PilotSoft\\PilotSoft.RainFlow\\RF.Test\\RF.Test.csproj",
+      "packagesPath": "C:\\Users\\dwb\\.nuget\\packages\\",
+      "outputPath": "D:\\Gitee\\PilotSoft\\PilotSoft.RainFlow\\RF.Test\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\dwb\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net5.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "net5.0",
+          "projectReferences": {
+            "D:\\Gitee\\PilotSoft\\PilotSoft.RainFlow\\PilotSoft.RainFlow\\PilotSoft.RainFlow.csproj": {
+              "projectPath": "D:\\Gitee\\PilotSoft\\PilotSoft.RainFlow\\PilotSoft.RainFlow\\PilotSoft.RainFlow.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net5.0": {
+        "targetAlias": "net5.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.401\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

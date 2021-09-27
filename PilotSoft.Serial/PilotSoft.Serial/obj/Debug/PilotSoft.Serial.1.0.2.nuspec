@@ -11,14 +11,14 @@
     <copyright>CopyRight @ Pilot.Phil</copyright>
     <repository type="Gitee" url="https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.Serial" />
     <dependencies>
-      <group targetFramework=".NETStandard2.1">
+      <group targetFramework=".NETStandard2.0">
         <dependency id="System.IO.Ports" version="5.0.1" exclude="Build,Analyzers" />
         <dependency id="System.Runtime" version="4.3.1" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\bin\Debug\netstandard2.1\PilotSoft.Serial.dll" target="lib\netstandard2.1\PilotSoft.Serial.dll" />
+    <file src="D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\bin\Debug\netstandard2.0\PilotSoft.Serial.dll" target="lib\netstandard2.0\PilotSoft.Serial.dll" />
     <file src="D:\Gitee\PilotSoft\LICENSE" target="LICENSE" />
   </files>
 </package>

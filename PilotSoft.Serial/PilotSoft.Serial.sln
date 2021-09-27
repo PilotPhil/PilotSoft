@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PilotSoft.Serial", "PilotSoft.Serial\PilotSoft.Serial.csproj", "{84F0030B-5801-49B4-A3FA-C1BBCE85018A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialTest", "SerialTest\SerialTest.csproj", "{E661C142-7396-4AE5-9C7A-7F8C980463F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerialTest", "SerialTest\SerialTest.csproj", "{E661C142-7396-4AE5-9C7A-7F8C980463F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialTestFrameWork", "SerialTestFrameWork\SerialTestFrameWork.csproj", "{4CCDE688-0313-40BD-B362-D9FF1DA81641}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{E661C142-7396-4AE5-9C7A-7F8C980463F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E661C142-7396-4AE5-9C7A-7F8C980463F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E661C142-7396-4AE5-9C7A-7F8C980463F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CCDE688-0313-40BD-B362-D9FF1DA81641}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CCDE688-0313-40BD-B362-D9FF1DA81641}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CCDE688-0313-40BD-B362-D9FF1DA81641}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CCDE688-0313-40BD-B362-D9FF1DA81641}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

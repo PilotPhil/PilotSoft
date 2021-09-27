@@ -1,0 +1,10 @@
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\bin\Debug\netstandard2.0\PilotSoft.Serial.deps.json
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\bin\Debug\netstandard2.0\PilotSoft.Serial.dll
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\bin\Debug\netstandard2.0\PilotSoft.Serial.pdb
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.0\PilotSoft.Serial.GeneratedMSBuildEditorConfig.editorconfig
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.0\PilotSoft.Serial.AssemblyInfoInputs.cache
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.0\PilotSoft.Serial.AssemblyInfo.cs
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.0\PilotSoft.Serial.csproj.CoreCompileInputs.cache
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.0\PilotSoft.Serial.dll
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.0\PilotSoft.Serial.pdb
+D:\Gitee\PilotSoft\PilotSoft.Serial\PilotSoft.Serial\obj\Debug\netstandard2.0\PilotSoft.Serial.csproj.AssemblyReference.cache

@@ -48,19 +48,13 @@
           }
         }
       },
-      "MvvmLightLibs/5.4.1.1": {
+      "MvvmLightLibsStd10/5.4.1.1": {
         "type": "package",
         "compile": {
-          "lib/net45/GalaSoft.MvvmLight.Extras.dll": {},
-          "lib/net45/GalaSoft.MvvmLight.Platform.dll": {},
-          "lib/net45/GalaSoft.MvvmLight.dll": {},
-          "lib/net45/System.Windows.Interactivity.dll": {}
+          "lib/netstandard1.0/GalaSoft.MvvmLight.dll": {}
         },
         "runtime": {
-          "lib/net45/GalaSoft.MvvmLight.Extras.dll": {},
-          "lib/net45/GalaSoft.MvvmLight.Platform.dll": {},
-          "lib/net45/GalaSoft.MvvmLight.dll": {},
-          "lib/net45/System.Windows.Interactivity.dll": {}
+          "lib/netstandard1.0/GalaSoft.MvvmLight.dll": {}
         }
       },
       "runtime.linux-arm.runtime.native.System.IO.Ports/5.0.0": {
@@ -183,9 +177,9 @@
           }
         }
       },
-      "PilotSoft.Serial/1.0.2": {
+      "PilotSoft.Serial/1.0.3": {
         "type": "project",
-        "framework": ".NETStandard,Version=v2.1",
+        "framework": ".NETStandard,Version=v2.0",
         "dependencies": {
           "System.IO.Ports": "5.0.1",
           "System.Runtime": "4.3.1"
@@ -300,48 +294,19 @@
         "version.txt"
       ]
     },
-    "MvvmLightLibs/5.4.1.1": {
-      "sha512": "xYpVzOYnIz/M6T0pdc3w5t0vrt2ZKspSS+CZjQ+pZE+5yHv9qXSWkncHJXb6D7Egstalso4ivnIUkA1xEClViw==",
+    "MvvmLightLibsStd10/5.4.1.1": {
+      "sha512": "zU9KXgq8dfnzxxOvvAVtasbhaQGoDlTr8Pw2AjZ1NB905GQljrxqkgh3jo5/47Vux5duw3/faUgcZjdfomGvFw==",
       "type": "package",
-      "path": "mvvmlightlibs/5.4.1.1",
+      "path": "mvvmlightlibsstd10/5.4.1.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "lib/SL5/GalaSoft.MvvmLight.Extras.dll",
-        "lib/SL5/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/SL5/GalaSoft.MvvmLight.Extras.xml",
-        "lib/SL5/GalaSoft.MvvmLight.dll",
-        "lib/SL5/GalaSoft.MvvmLight.pdb",
-        "lib/SL5/GalaSoft.MvvmLight.xml",
-        "lib/SL5/System.Windows.Interactivity.dll",
-        "lib/monoandroid1/GalaSoft.MvvmLight.Extras.XML",
-        "lib/monoandroid1/GalaSoft.MvvmLight.Extras.dll",
-        "lib/monoandroid1/GalaSoft.MvvmLight.Extras.pdb",
         "lib/monoandroid1/GalaSoft.MvvmLight.Platform.XML",
         "lib/monoandroid1/GalaSoft.MvvmLight.Platform.dll",
         "lib/monoandroid1/GalaSoft.MvvmLight.Platform.pdb",
         "lib/monoandroid1/GalaSoft.MvvmLight.XML",
         "lib/monoandroid1/GalaSoft.MvvmLight.dll",
         "lib/monoandroid1/GalaSoft.MvvmLight.pdb",
-        "lib/net35/GalaSoft.MvvmLight.Extras.dll",
-        "lib/net35/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/net35/GalaSoft.MvvmLight.Extras.xml",
-        "lib/net35/GalaSoft.MvvmLight.dll",
-        "lib/net35/GalaSoft.MvvmLight.pdb",
-        "lib/net35/GalaSoft.MvvmLight.xml",
-        "lib/net35/System.Windows.Interactivity.dll",
-        "lib/net35/System.Windows.Interactivity.xml",
-        "lib/net40/GalaSoft.MvvmLight.Extras.dll",
-        "lib/net40/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/net40/GalaSoft.MvvmLight.Extras.xml",
-        "lib/net40/GalaSoft.MvvmLight.dll",
-        "lib/net40/GalaSoft.MvvmLight.pdb",
-        "lib/net40/GalaSoft.MvvmLight.xml",
-        "lib/net40/System.Windows.Interactivity.dll",
-        "lib/net40/System.Windows.Interactivity.xml",
-        "lib/net45/GalaSoft.MvvmLight.Extras.dll",
-        "lib/net45/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/net45/GalaSoft.MvvmLight.Extras.xml",
         "lib/net45/GalaSoft.MvvmLight.Platform.dll",
         "lib/net45/GalaSoft.MvvmLight.Platform.pdb",
         "lib/net45/GalaSoft.MvvmLight.Platform.xml",
@@ -349,15 +314,9 @@
         "lib/net45/GalaSoft.MvvmLight.pdb",
         "lib/net45/GalaSoft.MvvmLight.xml",
         "lib/net45/System.Windows.Interactivity.dll",
-        "lib/portable-net45+wp8+wpa81+netcore45+monoandroid1+xamarin.ios10/GalaSoft.MvvmLight.Extras.XML",
-        "lib/portable-net45+wp8+wpa81+netcore45+monoandroid1+xamarin.ios10/GalaSoft.MvvmLight.Extras.dll",
-        "lib/portable-net45+wp8+wpa81+netcore45+monoandroid1+xamarin.ios10/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/portable-net45+wp8+wpa81+netcore45+monoandroid1+xamarin.ios10/GalaSoft.MvvmLight.XML",
-        "lib/portable-net45+wp8+wpa81+netcore45+monoandroid1+xamarin.ios10/GalaSoft.MvvmLight.dll",
-        "lib/portable-net45+wp8+wpa81+netcore45+monoandroid1+xamarin.ios10/GalaSoft.MvvmLight.pdb",
-        "lib/uap10.0/GalaSoft.MvvmLight.Extras.dll",
-        "lib/uap10.0/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/uap10.0/GalaSoft.MvvmLight.Extras.xml",
+        "lib/netstandard1.0/GalaSoft.MvvmLight.XML",
+        "lib/netstandard1.0/GalaSoft.MvvmLight.dll",
+        "lib/netstandard1.0/GalaSoft.MvvmLight.pdb",
         "lib/uap10.0/GalaSoft.MvvmLight.Platform.dll",
         "lib/uap10.0/GalaSoft.MvvmLight.Platform.pdb",
         "lib/uap10.0/GalaSoft.MvvmLight.Platform.pri",
@@ -365,56 +324,13 @@
         "lib/uap10.0/GalaSoft.MvvmLight.dll",
         "lib/uap10.0/GalaSoft.MvvmLight.pdb",
         "lib/uap10.0/GalaSoft.MvvmLight.xml",
-        "lib/windows81/GalaSoft.MvvmLight.Extras.dll",
-        "lib/windows81/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/windows81/GalaSoft.MvvmLight.Extras.xml",
-        "lib/windows81/GalaSoft.MvvmLight.Platform.dll",
-        "lib/windows81/GalaSoft.MvvmLight.Platform.pdb",
-        "lib/windows81/GalaSoft.MvvmLight.Platform.pri",
-        "lib/windows81/GalaSoft.MvvmLight.Platform.xml",
-        "lib/windows81/GalaSoft.MvvmLight.dll",
-        "lib/windows81/GalaSoft.MvvmLight.pdb",
-        "lib/windows81/GalaSoft.MvvmLight.xml",
-        "lib/wp8/GalaSoft.MvvmLight.Extras.dll",
-        "lib/wp8/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/wp8/GalaSoft.MvvmLight.Extras.xml",
-        "lib/wp8/GalaSoft.MvvmLight.Platform.dll",
-        "lib/wp8/GalaSoft.MvvmLight.Platform.pdb",
-        "lib/wp8/GalaSoft.MvvmLight.Platform.xml",
-        "lib/wp8/GalaSoft.MvvmLight.dll",
-        "lib/wp8/GalaSoft.MvvmLight.pdb",
-        "lib/wp8/GalaSoft.MvvmLight.xml",
-        "lib/wp8/System.Windows.Interactivity.dll",
-        "lib/wp81/GalaSoft.MvvmLight.Extras.dll",
-        "lib/wp81/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/wp81/GalaSoft.MvvmLight.Extras.xml",
-        "lib/wp81/GalaSoft.MvvmLight.Platform.dll",
-        "lib/wp81/GalaSoft.MvvmLight.Platform.pdb",
-        "lib/wp81/GalaSoft.MvvmLight.Platform.xml",
-        "lib/wp81/GalaSoft.MvvmLight.dll",
-        "lib/wp81/GalaSoft.MvvmLight.pdb",
-        "lib/wp81/GalaSoft.MvvmLight.xml",
-        "lib/wp81/System.Windows.Interactivity.dll",
-        "lib/wpa81/GalaSoft.MvvmLight.Extras.XML",
-        "lib/wpa81/GalaSoft.MvvmLight.Extras.dll",
-        "lib/wpa81/GalaSoft.MvvmLight.Extras.pdb",
-        "lib/wpa81/GalaSoft.MvvmLight.Platform.XML",
-        "lib/wpa81/GalaSoft.MvvmLight.Platform.dll",
-        "lib/wpa81/GalaSoft.MvvmLight.Platform.pdb",
-        "lib/wpa81/GalaSoft.MvvmLight.Platform.pri",
-        "lib/wpa81/GalaSoft.MvvmLight.XML",
-        "lib/wpa81/GalaSoft.MvvmLight.dll",
-        "lib/wpa81/GalaSoft.MvvmLight.pdb",
-        "lib/xamarin.ios10/GalaSoft.MvvmLight.Extras.XML",
-        "lib/xamarin.ios10/GalaSoft.MvvmLight.Extras.dll",
-        "lib/xamarin.ios10/GalaSoft.MvvmLight.Extras.pdb",
         "lib/xamarin.ios10/GalaSoft.MvvmLight.Platform.XML",
         "lib/xamarin.ios10/GalaSoft.MvvmLight.Platform.dll",
         "lib/xamarin.ios10/GalaSoft.MvvmLight.XML",
         "lib/xamarin.ios10/GalaSoft.MvvmLight.dll",
         "lib/xamarin.ios10/GalaSoft.MvvmLight.pdb",
-        "mvvmlightlibs.5.4.1.1.nupkg.sha512",
-        "mvvmlightlibs.nuspec"
+        "mvvmlightlibsstd10.5.4.1.1.nupkg.sha512",
+        "mvvmlightlibsstd10.nuspec"
       ]
     },
     "runtime.linux-arm.runtime.native.System.IO.Ports/5.0.0": {
@@ -730,7 +646,7 @@
         "version.txt"
       ]
     },
-    "PilotSoft.Serial/1.0.2": {
+    "PilotSoft.Serial/1.0.3": {
       "type": "project",
       "path": "../PilotSoft.Serial/PilotSoft.Serial.csproj",
       "msbuildProject": "../PilotSoft.Serial/PilotSoft.Serial.csproj"
@@ -739,8 +655,8 @@
   "projectFileDependencyGroups": {
     "net5.0-windows7.0": [
       "CommonServiceLocator >= 2.0.6",
-      "MvvmLightLibs >= 5.4.1.1",
-      "PilotSoft.Serial >= 1.0.2"
+      "MvvmLightLibsStd10 >= 5.4.1.1",
+      "PilotSoft.Serial >= 1.0.3"
     ]
   },
   "packageFolders": {
@@ -790,7 +706,7 @@
             "target": "Package",
             "version": "[2.0.6, )"
           },
-          "MvvmLightLibs": {
+          "MvvmLightLibsStd10": {
             "target": "Package",
             "version": "[5.4.1.1, )"
           }
@@ -816,17 +732,5 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.401\\RuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "已使用“.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8”而不是项目目标框架“net5.0-windows7.0”还原包“MvvmLightLibs 5.4.1.1”。此包可能与项目不完全兼容。",
-      "libraryId": "MvvmLightLibs",
-      "targetGraphs": [
-        "net5.0-windows7.0"
-      ]
-    }
-  ]
+  }
 }
