@@ -6,7 +6,7 @@ using System.Text;
 namespace PilotSoft.RainFlow
 {
     using DF = List<float>;
-    public class Damage
+    public class CmltDamage
     {
         //param k in S-N Cruve
         public double K { get; set; } = 5.8E12;

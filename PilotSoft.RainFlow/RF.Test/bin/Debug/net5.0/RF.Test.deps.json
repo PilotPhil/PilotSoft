@@ -8,13 +8,13 @@
     ".NETCoreApp,Version=v5.0": {
       "RF.Test/1.0.0": {
         "dependencies": {
-          "PilotSoft.RainFlow": "1.0.0"
+          "PilotSoft.RainFlow": "0.1.1"
         },
         "runtime": {
           "RF.Test.dll": {}
         }
       },
-      "PilotSoft.RainFlow/1.0.0": {
+      "PilotSoft.RainFlow/0.1.1": {
         "runtime": {
           "PilotSoft.RainFlow.dll": {}
         }
@@ -27,7 +27,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "PilotSoft.RainFlow/1.0.0": {
+    "PilotSoft.RainFlow/0.1.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
