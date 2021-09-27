@@ -3,17 +3,18 @@ using System.Collections.Generic;
 
 namespace PilotSoft.RainFlow
 {
+    using DF = List<float>;
     /// <summary>
     /// model used in rainflow algorithm
     /// </summary>
     public class RFModel
     {
-        public List<float> Index { get; set; } = new List<float>();//index
-        public List<float> Range { get; set; } = new List<float>();//range
-        public List<float> Mean { get; set; } = new List<float>(); //mean
-        public List<float> Count { get; set; } = new List<float>();//count
-        public List<float> Start { get; set; } = new List<float>();//start index
-        public List<float> End { get; set; } = new List<float>();  //end index
+        public DF Index { get; set; } = new DF();//index
+        public DF Range { get; set; } = new DF();//range
+        public DF Mean { get; set; } = new DF(); //mean
+        public DF Count { get; set; } = new DF();//count
+        public DF Start { get; set; } = new DF();//start index
+        public DF End { get; set; } = new DF();  //end index
 
         /// <summary>
         /// clear all properties
@@ -28,21 +29,32 @@ namespace PilotSoft.RainFlow
             End.Clear();
         }
 
+        /// <summary>
+        /// formate output temp res
+        /// </summary>
+        /// <param name="point1"></param>
+        /// <param name="point2"></param>
+        /// <param name="count"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
         public void FormatOutput(double point1, double point2,
                                     double count,
                                     double start, double end)
         {
-            Range.Add((float)Math.Abs(point1 - point2)); //添加幅值
-            Mean.Add((float)((point1 + point2) * 0.5)); //添加均值
-            Count.Add((float)count);                     //添加计数
-            Start.Add((float)start);                      //添加开始点
-            End.Add((float)end);                        //添加结束点
+            Range.Add((float)Math.Abs(point1 - point2)); //add range value
+            Mean.Add((float)((point1 + point2) * 0.5)); //add mean value
+            Count.Add((float)count);                     //add count
+            Start.Add((float)start);                      //add start point
+            End.Add((float)end);                        //add end point
         }
 
+        /// <summary>
+        /// for Console.WriteLine
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             var str = string.Empty;
-
             str += "Index" + "\t" + "Count" + "\t" + "Range" + "\t" + "Mean" + "\t" + "Start" + "\t" + "End" + "\n";
             str += "-----" + "\t" + "-----" + "\t" + "-----" + "\t" + "----" + "\t" + "-----" + "\t" + "---" + "\n";
             for (int i = 0; i < Count.Count; i++)
@@ -55,7 +67,6 @@ namespace PilotSoft.RainFlow
                 str += End[i] + "\t";
                 str += "\n";
             }
-
             return str;
         }
     }

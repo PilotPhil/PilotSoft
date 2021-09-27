@@ -5,10 +5,19 @@ using System.Text;
 
 namespace PilotSoft.RainFlow
 {
-    using DF = List<float>;//类似于typedef
+    //like typedef
+    using DF = List<float>;
 
+    /// <summary>
+    /// template method used
+    /// </summary>
     public class RainFlow
     {
+        /// <summary>
+        /// remove points which are not peak and vally
+        /// </summary>
+        /// <param name="series"></param>
+        /// <param name="rfm"></param>
         protected virtual void ExtractPeakValley(ref DF series, ref RFModel rfm)
         {
             int id = 1;
@@ -34,6 +43,11 @@ namespace PilotSoft.RainFlow
             rfm.Index.Add(lt - 1);
         }
 
+        /// <summary>
+        /// extract cycles use rainflow alg
+        /// </summary>
+        /// <param name="series"></param>
+        /// <param name="rfm"></param>
         protected virtual void ExtractCycles(ref DF series, ref RFModel rfm)
         {
             List<double> points = new List<double>();
@@ -101,10 +115,19 @@ namespace PilotSoft.RainFlow
             }
         }
 
+        /// <summary>
+        /// use rainflow
+        /// </summary>
+        /// <param name="series"></param>
+        /// <returns></returns>
         public RFModel Apply(DF series)
         {
             RFModel rfm = new RFModel();
+
+            //1.
             ExtractPeakValley(ref series,ref rfm);
+
+            //2.
             ExtractCycles(ref series,ref rfm);
 
             return rfm;

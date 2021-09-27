@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>PilotSoft.RainFlow</id>
+    <version>0.1.1</version>
+    <authors>PilotSoft.RainFlow</authors>
+    <license type="file">LICENSE</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <projectUrl>https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.RainFlow</projectUrl>
+    <description>Package Description</description>
+    <repository type="gitee" url="https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.RainFlow" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="D:\Gitee\PilotSoft\PilotSoft.RainFlow\PilotSoft.RainFlow\bin\Debug\netstandard2.0\PilotSoft.RainFlow.dll" target="lib\netstandard2.0\PilotSoft.RainFlow.dll" />
+    <file src="D:\Gitee\PilotSoft\LICENSE" target="LICENSE" />
+  </files>
+</package>

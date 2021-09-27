@@ -18,6 +18,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyProductAttribute("PilotSoft.RainFlow")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PilotSoft.RainFlow")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.1.0")]
+[assembly: System.Reflection.AssemblyMetadataAttribute("RepositoryUrl", "https://gitee.com/pilot12138/pilot-soft/tree/master/PilotSoft.RainFlow")]
 
 // 由 MSBuild WriteCodeFragment 类生成。
 
