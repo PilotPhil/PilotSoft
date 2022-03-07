@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SMOS</class>
+ <widget class="QMainWindow" name="SMOS">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1252</width>
+    <height>808</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>SMOS</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="confg">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="GB_WAN">
+          <property name="title">
+           <string>局域网</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="GB_serial">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>700</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>450</width>
+            <height>750</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>串口通信</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="SerialCfg" name="WG_serial" native="true"/>
+           </item>
+           <item>
+            <widget class="DynamicChart" name="WG_chart" native="true"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="display"/>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1252</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_COM_CONFG">
+    <property name="title">
+     <string>通信</string>
+    </property>
+    <addaction name="fastConnect"/>
+    <addaction name="comCfg"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>显示</string>
+    </property>
+   </widget>
+   <addaction name="menu_COM_CONFG"/>
+   <addaction name="menu"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="fastConnect">
+   <property name="text">
+    <string>快速连接</string>
+   </property>
+  </action>
+  <action name="comCfg">
+   <property name="text">
+    <string>配置</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>SerialCfg</class>
+   <extends>QWidget</extends>
+   <header location="global">serialcfg.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DynamicChart</class>
+   <extends>QWidget</extends>
+   <header location="global">dynamicchart.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ico/1.png</file>
+        <file>ico/2.png</file>
+        <file>ico/3.png</file>
+        <file>ico/4.png</file>
+        <file>ico/5.png</file>
+        <file>ico/6.png</file>
+        <file>ico/7.png</file>
+        <file>ico/8.png</file>
+        <file>ico/9.png</file>
+        <file>ico/10.png</file>
+        <file>ico/11.png</file>
+        <file>ico/12.png</file>
+        <file>ico/13.png</file>
+        <file>ico/14.png</file>
+        <file>ico/15.png</file>
+        <file>ico/16.png</file>
+        <file>ico/17.png</file>
+        <file>ico/18.png</file>
+        <file>ico/19.png</file>
+        <file>ico/20.png</file>
+        <file>ico/21.png</file>
+        <file>ico/22.png</file>
+        <file>ico/23.png</file>
+        <file>ico/24.jpg</file>
+        <file>ico/25.jpg</file>
+        <file>ico/26.png</file>
+        <file>ico/27.png</file>
+    </qresource>
+    <qresource prefix="/\"/>
+</RCC>

@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/toolBoxIcon">
+        <file>toolBoxIcon/关于.png</file>
+        <file>toolBoxIcon/裂缝.png</file>
+        <file>toolBoxIcon/日志.png</file>
+        <file>toolBoxIcon/数据库.png</file>
+        <file>toolBoxIcon/通信.png</file>
+        <file>toolBoxIcon/转换.png</file>
+    </qresource>
+    <qresource prefix="/softwareICON">
+        <file>softwareIcon/boat.png</file>
+        <file>softwareIcon/ship.png</file>
+        <file>softwareIcon/qt.png</file>
+        <file>softwareIcon/zhifubao.png</file>
+    </qresource>
+    <qresource prefix="/toolBarICON">
+        <file>toolBarICON/实时曲线.png</file>
+        <file>toolBarICON/条形图.png</file>
+    </qresource>
+</RCC>

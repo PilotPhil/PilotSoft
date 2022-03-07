@@ -1,0 +1,38 @@
+<RCC>
+    <qresource prefix="/">
+        <file>故障分析.png</file>
+        <file>beauty.qss</file>
+        <file>ico_标题栏/全屏最大化.png</file>
+        <file>ico_标题栏/全屏最大化pressed.png</file>
+        <file>ico_标题栏/最小化 .png</file>
+        <file>ico_标题栏/最小化pressed.png</file>
+        <file>ico_标题栏/关闭(1).png</file>
+        <file>ico_标题栏/关闭.png</file>
+        <file>ico_标题栏/圆.png</file>
+        <file>ico_1/裂缝.png</file>
+        <file>ico_1/人物-人.png</file>
+        <file>ico_1/设置.png</file>
+        <file>ico_1/推力.png</file>
+        <file>ico_1/裂缝 (2).png</file>
+        <file>ico_1/人物-人 (2).png</file>
+        <file>ico_1/设置 (2).png</file>
+        <file>ico_1/推力 (2).png</file>
+        <file>ico_1/信息(1).png</file>
+        <file>ico_1/信息.png</file>
+        <file>ico_1/导出(1).png</file>
+        <file>ico_1/导出.png</file>
+        <file>ico_1/查询.png</file>
+        <file>ico_1/查询2.png</file>
+        <file>ico_1/交换(1).png</file>
+        <file>ico_1/交换.png</file>
+        <file>ico_1/刷新(1).png</file>
+        <file>ico_1/刷新.png</file>
+        <file>ico_1/播放(1).png</file>
+        <file>ico_1/确认(1).png</file>
+        <file>ico_1/确认.png</file>
+        <file>ico_1/导入.png</file>
+        <file>ico_1/打开.png</file>
+        <file>pixmap/mysql.jpg</file>
+        <file>pixmap/qt.jpg</file>
+    </qresource>
+</RCC>
