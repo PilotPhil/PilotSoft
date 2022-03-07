@@ -1,0 +1,477 @@
+@charset "UTF-8";
+/* 文本控件系列样式统一管理 -- end */
+
+.sui-btngroup {
+    display: inline-block;
+}
+
+/*新参与者样式*/
+
+.hid {
+    display: none;
+}
+
+.participants-child-next > label > div, .participants-next > label > div {
+    margin-right: 10px;
+}
+
+.manager-title {
+    display: inline-block;
+    padding-right: 10px;
+}
+
+.manager-content {
+    display: inline-block;
+    width: calc(100% - 20px);
+}
+/* 解决会签子节点选中后再取消选中行高增加的问题 */
+.manager-content:empty {
+    display: block;
+}
+
+.participants-next > select {
+    width: 100% !important;
+}
+
+.participants-concurrent {
+    /*border-top: 2px solid #e5e5e5;*/
+    margin-bottom: 0 !important;
+}
+
+.sui-newparticipants .form-tr {
+    /*padding: 0 15px;*/
+}
+
+.sui-newparticipants .box {
+    margin-bottom: 10px;
+}
+.sui-newparticipants .col-xs-12{
+    padding: 0;
+}
+.sui-newparticipants .form-control:not(textarea){
+    height: 34px;
+}
+
+.sui-newparticipants .participants-manager .sui-selectpersonneltool{
+    display: inline-block;
+    vertical-align: middle;
+    width: 100%;
+}
+.sui-newparticipants .participants-child-manager .sui-selectpersonneltool{
+    display: inline-block;
+    vertical-align: middle;
+    width: 100%;
+}
+.sui-newparticipants .participants-concurrent .participants-child-next{
+    line-height: 35px;
+}
+.sui-newparticipants label{
+    margin-bottom: 0;
+}
+.sui-newparticipants .participants-child-manager .select2{
+    vertical-align: middle;
+}
+.sui-newparticipants .participants-attach-radios{
+    margin-bottom:10px;
+}
+.concurrent-list .form-table {
+    padding: 0 30px;
+}
+
+.concurrent-list td {
+    padding: 8px 0 !important;
+}
+
+.sui-newparticipants > .col-xs-12 {
+    padding: 0 !important;
+}
+.sui-newparticipants .multi-par-pc{
+    height: 34px;
+}
+.sui-newparticipants .multi-par-pc .show-multi-participants{
+    line-height: 34px;
+}
+
+.participants-child-manager > select {
+    width: 100%;
+}
+
+.participants-attach-manager {
+    display: inline-block;
+    width: calc(100% - 66px);
+    vertical-align: bottom;
+    line-height: 30px;
+}
+
+.participants-attach-radios .item-value {
+    display: inline-block;
+}
+
+.participants-child-manager {
+    margin-left: 25px !important;
+    width: calc(100% - 25px);
+}
+
+.concurrent-child > td[colspan="2"] {
+    padding: 0 !important;
+}
+
+.participants-attach-content {
+    line-height: 34px;
+    margin-top: 5px;
+}
+
+.select-par {
+    display: inline;
+    width: calc(100% - 60px);
+    height: 34px;
+    vertical-align: middle;
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.select-par-button {
+    width: 60px;
+    border: 1px solid #eeeeee;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+
+}
+
+/*.sui-newparticipants {*/
+    /*overflow: hidden;*/
+/*}*/
+.sui-newparticipants .clear-float{
+    clear: both;
+}
+/*.sui-newparticipants .col-sm-5,.sui-newparticipants .col-sm-6,.sui-newparticipants .col-sm-7,.sui-newparticipants .col-xs-12{*/
+    /*padding: 0;*/
+/*}*/
+.sui-newparticipants table {
+    margin-left: 25px;
+}
+
+.node-left {
+    position: relative;
+    left: -33px;
+}
+
+.sui-newparticipants .form-table .form-tr .form-td {
+    background-color: transparent;
+}
+/*意见样式*/
+.opinion-title {
+    width: 100px;
+    float: left;
+    margin: 10px 0;
+}
+
+.opinion-content {
+    width: calc(100% - 224px);
+    float: left;
+    position: relative;
+    margin: 10px 0;
+}
+
+.opinion-save {
+    float: left;
+    margin: 10px 0;
+}
+
+.opinion-search-input {
+    display: inline-block;
+    width: calc(100% - 56px);
+}
+
+.opinion-search {
+    position: absolute;
+    display: inline-block;
+}
+
+.strategy-opinion-title {
+    width: 70px;
+    height: 34px;
+    line-height: 34px;
+    display: inline-block;
+    /*margin: 10px 0;*/
+    float: left;
+}
+
+.strategyOpinion {
+    margin-top: 5px;
+}
+
+.strategy-opinion-select {
+    width: calc(100% - 75px) !important;
+}
+
+.person-opinion-mar {
+    margin: 5px 0;
+    height: 34px;
+    overflow: hidden;
+}
+.person-opinion-mar .person-opinion-content .showOpinion{
+    height: 34px!important;
+    text-align: left;
+}
+
+.person-opinion-title {
+    float: left;
+    width: 70px;
+    height: 34px;
+    line-height: 34px;
+}
+
+.person-opinion-content {
+    /*margin-left: 70px;*/
+    width: calc(100% - 154px);
+    height: 32px;
+    display: inline-block;
+}
+
+.person-opinion-show {
+    float: right;
+    margin-right: 15px;
+    margin-top: -15px;
+}
+
+.person-opinion-arrow {
+    border-color: #888 transparent transparent transparent;
+    border-style: solid;
+    border-width: 5px 4px 0 4px;
+    height: 0;
+    left: 50%;
+    margin-left: -4px;
+    position: absolute;
+    top: 50%;
+    width: 0;
+}
+
+.person-opinion-handle {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    z-index: 100;
+    top: 28px;
+    right: 0;
+    left: 0;
+    max-height: 200px;
+    overflow-y: scroll;
+    border: 1px solid #c6c6c6;
+    margin-top: 6px;
+}
+
+.person-opinion-table {
+    margin-bottom: 0;
+}
+
+.person-opinion-table-p {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.person-opinion-table-td {
+    vertical-align: middle;
+}
+
+.person-opinion-save {
+    float: right;
+    /*position: relative;*/
+    /*bottom: 34px;*/
+}
+
+.sui-fileupload .file-items .file-item,.sui-newfileupload .file-items .file-item{
+    padding: 2px 0;
+}
+
+.sui-datatable .form-item-success {
+    vertical-align: inherit !important;
+}
+
+.opinion-history-fr {
+    float: right;
+}
+
+.sui-opinionhistory .flow-body {
+    margin-bottom: 10px;
+}
+
+/*管理页面列表操作列 不对齐*/
+.sui-tablelist table tr .text-center {
+    text-align: center !important;
+}
+
+/*模态框控件默认边距*/
+.modal-padding {
+    padding: 15px;
+}
+
+.file-imageview img {
+    max-height: 150px;
+}
+.input-group.date .input-group-addon i{
+    width: auto!important;
+}
+.ranges-tab {
+    /*display: none !important;*/
+}
+
+/*datatable控件中的控件每个控件给一个最小宽度*/
+.sui-datatable .sui-input, .sui-datatable .sui-select, .sui-datatable .sui-date, .sui-datatable .sui-number,
+.sui-datatable .sui-selectpersonneltool,.sui-datatable .sui-fileupload,.sui-datatable .sui-multiselect,
+.sui-datatable .sui-selectmechanismtool {
+    min-width: 150px;
+}
+.sui-datatable .sui-rating{
+    min-width: 180px;
+}
+.sui-datatable .sui-daterange{
+    min-width: 350px;
+}
+.sui-datatable .sui-daterangepicker{
+    min-width: 240px;
+}
+.sui-datatable .sui-editor{
+    min-width: 200px;
+}
+.sui-datatable .sui-input[mode="readOnly"], .sui-datatable .sui-date[mode="readOnly"], .sui-datatable .sui-number[mode="readOnly"],
+.sui-datatable .sui-selectpersonneltool[mode="readOnly"],.sui-datatable .sui-rating[mode="readOnly"],.sui-datatable .sui-fileupload[mode="readOnly"],
+.sui-datatable .sui-selectmechanismtool[mode="readOnly"] {
+    min-width: auto;
+}
+.sui-datatable .sui-select[mode="readOnly"],.sui-datatable .sui-multiselect[mode="readOnly"]{
+    min-width: 200px;
+}
+.sui-datatable .sui-daterange[mode="readOnly"]{
+    min-width: auto;
+}
+.sui-datatable .sui-daterangepicker[mode="readOnly"]{
+    min-width: auto;
+}
+.sui-datatable .sui-editor[mode="readOnly"]{
+    min-width: auto;
+}
+
+/*.sui-opinion,.sui-opinionone,.sui-multiopinion{*/
+    /*position: static!important;*/
+/*}*/
+.sui-submit>.btn,.sui-closewindow>.btn,.sui-draft>.btn,.sui-print>.btn,.sui-model>.btn,.sui-button>.btn,
+.sui-rollback>.btn,.sui-terminate>.btn,.sui-flowhistorygraph>.btn,.sui-circulation>.btn,.sui-untreat>.btn,.sui-checksendmsg{
+    margin: 10px 0;
+}
+.sui-datatable .table-tr-btn{
+    margin: 2px 4px;
+}
+a.wf-fileView{
+    padding: 7px 10px 7px 0;
+}
+
+.sui-select .radio-group label,.sui-multiselect .checkbox-group label{
+    height: 35px;
+    line-height: 35px;
+}
+.sui-select .sui-component,.sui-multiselect .sui-component{
+    padding: 0;
+}
+.current_next_name{
+    vertical-align: middle;
+}
+.show-multi-participants{
+    width: calc(100% - 54px);
+    display: inline-block;
+    height: 34px;
+    line-height: 34px;
+    padding: 0 5px;
+    vertical-align: middle;
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    cursor: pointer;
+    border:1px solid #eeeeee;
+    border-right: none;
+    border-radius: 4px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.multi-select-par{
+    display: inline-block;
+    width: 53px;
+    color: #555555;
+    height: 34px;
+    line-height: 20px;
+    vertical-align: middle;
+    padding: 5px 10px;
+    border: 1px solid #eeeeee;
+    border-radius: 4px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.no-select-multi{
+    color: #a1a1a1;
+}
+.participants-modal{
+    margin: 0;
+}
+.participants-modal .col-md-2{
+    padding: 140px 0;
+    text-align: center;
+}
+.selected-button,.not-select-button{
+    margin: 5px 0;
+    width: 100%;
+    vertical-align: middle;
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.participants-modal .not-select-title,.participants-modal .selected-title{
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+}
+.participants-modal .not-select-list,.participants-modal .selected-list{
+    height: 335px;
+    overflow: auto;
+}
+.modal-layer-pc .layui-layer-title{
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+/* 解决ie其他后的输入框上移问题 */
+.show-custom {
+    vertical-align: bottom;
+}
+/*弹窗按钮鼠标悬浮颜色*/
+.layui-layer-btn a:hover{
+    color: #333333;
+}
+.layui-layer>.layui-layer-btn>.layui-layer-btn0{
+    color: #ffffff;
+}
+/*模态框标题不居中*/
+.layui-layer.modal-layer-pc  .layui-layer-title{
+    padding: 0 80px;
+}
+.personal-signature{
+    max-width: 150px;
+    max-height: 50px;
+    margin: 0 5px;
+}
+/*datatable控件表头标题过长换行的样式*/
+.sui-datatable table>thead>tr>th{
+    vertical-align: middle;
+}
+.sui-datatable table>thead>tr>th div{
+    white-space: normal;
+}
+.daterangepicker.remove_BA:before,.daterangepicker.remove_BA:after{
+    content: none;
+}
+.sui-daterange .data-value {
+    display: none;
+}

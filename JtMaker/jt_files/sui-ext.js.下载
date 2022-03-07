@@ -1,0 +1,38 @@
+//新建编辑完成后
+function setEditFile(fileId){
+	var fileArr = [];
+	var fileIds = $(fileDiv).sui().getValue();
+	if(null != fileIds && fileIds.length > 0){
+		fileArr = SUI.Util.parseJSON(fileIds);
+		
+	}
+	fileArr.push(fileId);
+	$(fileDiv).sui().setValue(SUI.Util.toJsonString(fileArr));
+}
+
+//pdf和图片转换完成后处理
+function afterConvert(editKey, fileKey, type){
+	var fileIds = $(fileDiv).sui().getValue();
+	if(null == fileIds || fileIds.length < 1){
+		return ;
+	}
+	var idArr = JSON.parse(fileIds);
+	var lastArr = [];
+	for(var i=0; i<idArr.length; i++){
+		var fileObj = JSON.parse(idArr[i]);
+		if(editKey == fileObj.word){
+			if("pdf" == type){
+				fileObj.pdf = fileKey;
+			}else{
+				fileObj.img = fileKey;
+			}
+		}else if(editKey == fileObj.pdf && "img"==type){
+			fileObj.img = fileKey;
+		}
+		
+		
+		lastArr.push(fileObj);
+	}
+	var idArrStr = JSON.stringify(lastArr);
+	$(fileDiv).sui().setValue(idArrStr);
+}

@@ -1,0 +1,144 @@
+(function(){
+	var agent = window.navigator.userAgent.toLowerCase();
+	var isPortal = agent.indexOf('iportal') > -1;
+	var isWeixin = agent.indexOf('micromessenger') > -1;
+
+	if(isPortal){
+		return;
+	}else if(isWeixin){
+		window.iPortal || (window.iPortal={});
+		var iPortal = (function(){
+			window.addEventListener('message',function(e){
+                var msg = e.data;
+				if(msg.mtype == 'close'){
+					window.MyCallbackTemp(msg.data);
+				}
+            },false);
+			var portal={
+				"openWindow" : function(url, callBack, options) {
+					var div = document.createElement("div");
+					div.innerHTML = '<a href="' + url + '">temp</a>';
+					var alink = div.firstChild;
+					url = alink.href;
+					var store = {
+						height : document.body.style.height || document.body.offsetHeight,
+						width: document.body.style.width || document.body.offsetWidth,
+						overflow: document.body.style.overflow || "auto"
+					};
+					window.MyCallbackTemp = function(mdata){
+						document.getElementById("__myPop__")!=null?document.getElementById("__myPop__").remove():'';
+						// document.body.style.height = store.height;
+						// document.body.style.width = store.width;
+						document.body.style.overflow = "auto";
+                        // $(document.body).css('width',store.width);
+                        // $(document.body).css('height',store.height);
+						/* 关闭后 页面仍然在浏览位置 */
+						var offsetTop = JSON.parse(mdata).offsetTop;
+						if(typeof offsetTop !='undefined'){
+							window.scrollTo(0,offsetTop);
+						}
+						callBack(mdata);
+					};
+					var win = document.getElementById("__myPop__") || document.createElement("div");
+					win.id = "__myPop__";
+					win.style.zIndex="9999999999999999";
+					win.style.width = "100%";
+					win.style.height = "100%";
+					win.style.position = 'fixed';
+					win.style.top = '0';
+					win.style.left = '0';
+					win.innerHTML='<iframe src="'+url+'" style="width:100%;height:100%;margin:0;background-color:white;" frameborder="0"></iframe>';
+					document.getElementById("__myPop__") || document.body.appendChild(win);
+					// document.body.style.width = "0px";
+					// document.body.style.height = "0px";
+					document.body.style.overflow = "hidden";
+
+				},
+				"closeWindow" : function(result) {
+					window.parent.postMessage({mtype:'close', data: result}, '*');
+				}
+			}
+			return portal;
+		})();
+		window.addEventListener('load',function(){
+			setTimeout(function(){
+				iPortal.parent = window.iPortal;
+				iPortal.context = window.iPortal.context;
+				window.iPortal= iPortal;
+				iPortal.isReady = true;
+				setTimeout(function(){
+					if (iPortal.parent.onReady) {
+						iPortal.parent.onReady(true);
+					}
+				},0);
+			},0);
+		});
+	}else{
+        window.iPortal || (window.iPortal={});
+        var iPortal = (function(){
+            window.addEventListener('message',function(e){
+                var msg = e.data;
+                if(msg.mtype == 'close'){
+                    window.MyCallbackTemp(msg.data);
+                }
+            },false);
+            var portal={
+                "openWindow" : function(url, callBack, options) {
+                    var div = document.createElement("div");
+                    div.innerHTML = '<a href="' + url + '">temp</a>';
+                    var alink = div.firstChild;
+                    url = alink.href;
+                    var store = {
+                        height : document.body.style.height || document.body.offsetHeight,
+                        width: document.body.style.width || document.body.offsetWidth,
+                        overflow: document.body.style.overflow || 'auto'
+                    };
+                    window.MyCallbackTemp = function(mdata){
+                        document.getElementById("__myPop__")!=null?document.getElementById("__myPop__").remove():'';
+                        // document.body.style.height = store.height;
+                        // document.body.style.width = store.width;
+						document.body.style.overflow = "auto";
+                        // $(document.body).css('width',store.width);
+                        // $(document.body).css('height',store.height);
+						/* 关闭后 页面仍然在浏览位置 */
+						var offsetTop = JSON.parse(mdata).offsetTop;
+						if(typeof offsetTop !='undefined'){
+							window.scrollTo(0,offsetTop);
+						}
+                        callBack(mdata);
+                    };
+                    var win = document.getElementById("__myPop__") || document.createElement("div");
+                    win.id = "__myPop__";
+                    win.style.zIndex="9999999999999999";
+                    win.style.width = "100%";
+                    win.style.height = "100%";
+                    win.style.position = 'fixed';
+                    win.style.top = '0';
+                    win.style.left = '0';
+                    win.innerHTML='<iframe src="'+url+'" style="width:100%;height:100%;margin:0;background-color:white;" frameborder="0"></iframe>';
+                    document.getElementById("__myPop__") || document.body.appendChild(win);
+                    // document.body.style.width = "0px";
+                    // document.body.style.height = "0px";
+                    document.body.style.overflow = "hidden";
+                },
+                "closeWindow" : function(result) {
+                    window.parent.postMessage({mtype:'close', data: result}, '*');
+                }
+            }
+            return portal;
+        })();
+        window.addEventListener('load',function(){
+            setTimeout(function(){
+                iPortal.parent = window.iPortal;
+                iPortal.context = window.iPortal.context;
+                window.iPortal= iPortal;
+                iPortal.isReady = true;
+                setTimeout(function(){
+                    if (iPortal.parent.onReady) {
+                        iPortal.parent.onReady(true);
+                    }
+                },0);
+            },0);
+        });
+	}
+})();

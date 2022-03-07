@@ -1,0 +1,423 @@
+(function(mobile){
+    var coreplus_mobile = function(){
+        var _this = this;
+        var htmlConfig = {
+            'groupMark':'<div class="cm-group-mark"></div>',
+            'block':'<div class="cm-show-block cm-show-vertical-center">',
+            'inline':'<div class="cm-show-inline cm-show-vertical-center">',
+            'inlineChildContent':'<div class="cm-show-inline-content">',
+            'inlineChildTitle':'<div class="cm-show-inline-title">',
+            'inlineChildGroup':'<div class="cm-show-inline-group cm-show-vertical-center">',
+            'trMark':'<div class="tr-mark">'
+        };
+        // var showType = 1; 1是默认一行两列 2是1行1列
+        this.init = function(formContent,showType){
+            _this.addHeaderStyle();
+            var tableList = $(formContent).find('table');
+            if(tableList.length){
+                tableList.each(function(i,table){
+                    // 这块的判断逻辑是针对项目上提的问题进行兼容的
+                    if($(table).find('tr').length>2) {
+                        var newContainer = '<div class="form-content table-content' + i + '"></div>';
+                        $(table).before(newContainer);
+                        _this.createNewBody(table, i, showType);
+                        $(table).remove();
+                    }
+                });
+            }else{
+                return false;
+            }
+        };
+        // 引入样式文件
+        this.addHeaderStyle = function(){
+            if(_this.getbrowserType() === 'phone'){
+                var head = document.getElementsByTagName('head')[0];
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = __basePath + "_libs/coreplus/coreplus-form-mobile.css";
+                head.appendChild(link);
+                if(_this.getbrowserType(true) == 'ipad'){
+                    var head_ipad = document.getElementsByTagName('head')[0];
+                    var link_ipad = document.createElement('link');
+                    link_ipad.rel = 'stylesheet';
+                    link_ipad.href = __basePath + "_libs/coreplus/coreplus-form-ipad.css";
+                    head_ipad.appendChild(link_ipad);
+                }
+            }
+        };
+        this.getbrowserType = function(isPad){
+            var sUserAgent = navigator.userAgent.toLowerCase();
+            var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+            var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+            var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+            var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+            var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+            var bIsAndroid = sUserAgent.match(/android/i) == "android";
+            var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+            var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+            if(!isPad) {
+                if (bIsIpad || bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) {
+                    return "phone";
+                } else {
+                    return "pc";
+                }
+            }else{
+                return sUserAgent.match(/ipad/i);
+            }
+        };
+        this.createNewBody = function(table,tableIndex,showType){
+            if(showType == 1){
+                this.showInline(table,tableIndex);
+            }else{
+                this.showBlock(table,tableIndex);
+            }
+        };
+        //默认每个td一行显示处理
+        this.showBlock = function(table,tableIndex){
+            var trList = $(table).find('tr');
+            // var bgColor_title = $(table).find('tr:eq(1)>td:first').css('background-color');
+            // var bgColor_content = $(table).find('tr:eq(1)>td:nth(1)').css('background-color');
+            var newContent = '';
+            // 块标记则不必寻找tr下的内容
+            // 否则遍历tr下所有td中内容进行重构;
+            if(trList && trList.length){
+                trList.each(function(i,tr){
+                    var trHtml = '<div class="tr-mark">';
+                    var template = {
+                        block:'',
+                        inline:''
+                    };
+                    var mspExpand = '';
+                    // 如果有折叠标记
+                    if($(tr).attr('msp-expand')){
+                        mspExpand = $(tr).attr('msp-expand');
+                        template.block = '<div class="cm-show-row"><div class="cm-show-block cm-show-vertical-center" msp-expand="'+ mspExpand +'">';
+                        template.inline = '<div class="cm-show-row"><div class="cm-show-inline cm-show-vertical-center" msp-expand="'+ mspExpand +'">';
+                    }else{
+                        template.block = '<div class="cm-show-row"><div class="cm-show-block cm-show-vertical-center">' ;
+                        template.inline = '<div class="cm-show-row"><div class="cm-show-inline cm-show-vertical-center">' ;
+                    }
+                    if($(tr).attr('data-uid')){
+                        if($(tr).children().length === 1){
+                            trHtml = '<div class="tr-mark" data-uid="'+$(tr).attr('data-uid')+'" style="'+($(tr).children().attr('style')?$(tr).children().attr('style')+' border:none;':'')+'">'
+                        }else{
+                            trHtml = '<div class="tr-mark" data-uid="'+$(tr).attr('data-uid')+'">'
+                        }
+                    }
+                    // 可编辑控件 增加换行属性
+                    _this.editableBr($(tr));
+                    if($(tr).attr('group-mark')){
+                        newContent +=htmlConfig.groupMark;
+                    }else{
+                        newContent +=trHtml;
+                        var tdList = $(tr).find('td');
+                        var inLineTdList = []; //存储多个td合并一行的唯一标记
+                        tdList.each(function(j,td){
+                            if($.trim($(td).html()) ==""){
+                                return true;
+                            }
+                            if($(td).attr('msp-inline')){
+                                var td_id = $(td).attr('msp-inline');
+                                if(inLineTdList.indexOf(td_id) == -1){
+                                    inLineTdList.push(td_id);
+                                    var inlineList = $("td[msp-inline="+td_id+"]");
+                                    var tdHtml_inline = _this.handleMultiTd(inlineList);
+                                    newContent +=tdHtml_inline + '</div>';
+                                }else{
+                                    return true;
+                                }
+                            }else{
+                                var tdHtml = template.block;
+                                var tdContent = _this.handleGrid($(td).html());
+                                tdHtml +=tdContent+'</div>'+'</div>';
+                                newContent +=tdHtml;
+                            }
+                        });
+                    }
+                    newContent +='</div>';
+                });
+                // 将重构的表单插入原来的位置，并remove旧table
+                $('.table-content'+tableIndex).html(_this.handleComponent(newContent));
+            }
+        };
+        //默认两个td一行显示处理
+        this.showInline = function(table,tableIndex){
+            var trList = $(table).find('tr');
+            var newContent = '';
+            // 块标记则不必寻找tr下的内容
+            // 否则遍历tr下所有td中内容进行重构;
+            if(trList && trList.length){
+                trList.each(function(i,tr){
+                    var trHtml = '<div class="tr-mark">';
+                    var template = {
+                        block:'',
+                        inline:''
+                    };
+                    var mspExpand = '';
+                    // 如果有折叠标记
+                    if($(tr).attr('msp-expand')){
+                        mspExpand = $(tr).attr('msp-expand');
+                        template.block = '<div class="cm-show-row"><div class="cm-show-block cm-show-vertical-center" msp-expand="'+ mspExpand +'">';
+                        template.inline = '<div class="cm-show-row"><div class="cm-show-inline cm-show-vertical-center" msp-expand="'+ mspExpand +'">';
+                    }else{
+                        template.block = '<div class="cm-show-row"><div class="cm-show-block cm-show-vertical-center">' ;
+                        template.inline = '<div class="cm-show-row"><div class="cm-show-inline cm-show-vertical-center">' ;
+                    }
+                    if($(tr).attr('data-uid')){
+                        if($(tr).children().length === 1){
+                            trHtml = '<div class="tr-mark" data-uid="'+$(tr).attr('data-uid')+'" style="'+($(tr).children().attr('style')?$(tr).children().attr('style')+' border:none;':'')+'">'
+                        }else{
+                            trHtml = '<div class="tr-mark" data-uid="'+$(tr).attr('data-uid')+'">'
+                        }
+                    }
+                     // 可编辑控件 增加换行属性
+                     _this.editableBr($(tr));
+                    if($(tr).attr('group-mark')){
+                        newContent +=htmlConfig.groupMark;
+                    }else{
+                        newContent +=trHtml;
+                        var tdList = $(tr).find('td');
+                        var inLineTdList = [];
+                        tdList.each(function(j,td){
+                            if($.trim($(td).html()) == ""){ //空td不作处理
+                                return true;
+                            }
+                            if($(td).attr('msp-inline')){
+                                var td_id = $(td).attr('msp-inline');
+                                if(inLineTdList.indexOf(td_id) == -1){
+                                    inLineTdList.push(td_id);
+                                    var inlineList = $("td[msp-inline="+td_id+"]");
+                                    var tdHtml_inline = _this.handleMultiTd(inlineList);
+                                    newContent +=tdHtml_inline + '</div>';
+                                }else{
+                                    return true;
+                                }
+                            }else{
+                                if($(td).attr('isBlock')){
+                                    var tdHtml = template.block;
+                                    var tdContent = _this.handleGrid($(td).html());
+                                    tdHtml +=tdContent+'</div>'+'</div>';
+                                    newContent +=tdHtml;
+                                }else{
+                                    if($(td).attr('isHandle')){
+                                        return true;
+                                    }else {
+                                        var tdHtml_inline = template.inline;
+                                        var tdHtmlTitle = htmlConfig.inlineChildTitle;
+                                        var tdHtmlContent = htmlConfig.inlineChildContent;
+                                        var tdHtml_special = '<div class="cm-show-row"><div class="cm-show-inline cm-show-vertical-center cm-show-special" msp-expand="'+mspExpand+'">';
+                                        var tdHtml = '';
+                                        if ((j + 1) % 2 == 0) {
+                                            tdHtml += tdHtmlContent + _this.handleGrid($(td).html()) + '</div>';
+                                            if(_this.isNewline($(td))){
+                                                tdHtml_special += tdHtml;
+                                                newContent += tdHtml_special + '</div>'+'</div>';
+                                            }else{
+                                                tdHtml_inline += tdHtml;
+                                                newContent += tdHtml_inline + '</div>'+'</div>';
+                                            }
+                                        } else {
+                                            //奇数td 如果相邻下一个td没有自定义设置 则和下一个td配对 做一行显示并把下一个td标记出来，后面不再处理
+                                            //如果相邻下一个td有自定义设置，则此td单独一行显示
+                                            if (j < tdList.length - 1) {
+                                                if (tdList.eq(j + 1).attr('msp-inline') || tdList.eq(j + 1).attr('isBlock')) {
+                                                    // tdHtml += tdHtmlContent + $(td).html() + '</div>';
+                                                    tdHtml += tdHtmlTitle + _this.handleGrid($(td).html()) +'</div>';
+                                                } else {
+                                                    tdHtml += tdHtmlTitle + _this.handleGrid($(td).html()) +'</div>' + tdHtmlContent + _this.handleGrid(tdList.eq(j + 1).html()) + '</div>';
+                                                    tdList.eq(j + 1).attr('isHandle', 'true');
+                                                }
+                                            } else {
+                                                tdHtml += tdHtmlContent + _this.handleGrid($(td).html()) + '</div>';
+                                            }
+                                            if(_this.isNewline(tdList.eq(j + 1))){
+                                                tdHtml_special += tdHtml;
+                                                newContent += tdHtml_special + '</div>'+'</div>';
+                                            }else{
+                                                tdHtml_inline += tdHtml;
+                                                newContent += tdHtml_inline + '</div>'+'</div>';
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        });
+                        newContent +='</div>';
+                    }
+                });
+                // 将重构的表单插入原来的位置，并remove旧table
+                $('.table-content'+tableIndex).html(_this.handleComponent(newContent));
+            }
+        };
+        //对于设置的多个td一行进行处理
+        this.handleMultiTd = function(inlineList){
+            var tdHtml_inline = '<div class="cm-show-row">'+htmlConfig.inline;
+            if(inlineList.length % 2 == 0){ // 如果是偶数个td 则每两个一组（标题+内容）每组均分
+                var tdHtml = "";
+                inlineList.each(function(m,v){
+                    if((m+1)%2 == 0){
+                        // tdHtml += htmlConfig.inlineChildGroup;
+                        tdHtml += htmlConfig.inlineChildTitle + inlineList.eq(m-1).html() + '</div>';
+                        tdHtml += htmlConfig.inlineChildContent + $(v).html() + '</div>';
+                        tdHtml +='</div>';
+                    }
+                });
+                tdHtml_inline +=tdHtml+'</div>';
+            }else if(inlineList.length == 3){ //标题+内容+内容(内容均分所在区域)
+                var tdHtml = '';
+                inlineList.each(function(n,v){
+                    if(n == 0){
+                        tdHtml +=htmlConfig.inlineChildTitle + $(v).html()+'</div>';
+                    }else if(n == 1){
+                        // tdHtml +=htmlConfig.inlineChildGroup;
+                        tdHtml +=htmlConfig.inlineChildContent + $(v).html() + '</div>';
+                        tdHtml +=htmlConfig.inlineChildContent + inlineList.eq(n+1).html() + '</div>';
+                        tdHtml +='</div>';
+                    }
+                });
+                tdHtml_inline +=tdHtml+'</div>';
+            }else{ //内容+内容.... （均分）
+                var tdHtml = '';
+                inlineList.each(function(m,v){
+                    tdHtml +=htmlConfig.inlineChildContent + $(v).html() + '</div>';
+                });
+                tdHtml_inline +=tdHtml+'</div>';
+            }
+            return tdHtml_inline+'</div>';
+        };
+        // 对td下控件进行处理
+        this.handleComponent = function(newContent){
+            var divList = $(newContent).find('div');
+            if(divList.length){
+                divList.each(function(i,d){
+                    if($(d).attr('class')){
+                        var classList = $(d).attr('class');
+                        if(classList.indexOf('sui-select') || classList.indexOf('sui-multiselect')){
+                            if($(d).attr('selectstyle')){
+                                if(!($(d).attr('keepstyleonphone')=='true' || $(d).attr('keepstyleonphone')==true)) {
+                                    if ($(d).attr('selectstyle') == 'radio') {
+                                        var divHtml = divList.eq(i)[0].outerHTML;
+                                        var divNewHtml = divHtml.replace(/selectstyle=\"radio\"/g, 'selectstyle=\"select\"');
+                                        newContent = newContent.replace(divHtml, divNewHtml)
+                                    } else if ($(d).attr('selectstyle') == 'checkbox') {
+                                        var divHtml = divList.eq(i)[0].outerHTML;
+                                        var divNewHtml = divHtml.replace(/selectstyle=\"checkbox\"/g, 'selectstyle=\"select\"');
+                                        newContent = newContent.replace(divHtml, divNewHtml)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+            return newContent;
+        };
+        // 对可编辑的控件进行
+        this.editableBr = function(tr){
+            var tdList = $(tr).find('td');
+            tdList.each(function(i,td){
+                if($(td).find('div[mode=editable]').length>0){
+                    if($(td).attr('msp-inline') && _this.specialComponent($(td))){
+                        var oldTd_id = $(td).attr('msp-inline');
+                        var newTd_id = _this.guid();
+                        $(td).attr('msp-inline',newTd_id);
+                        $(td).nextAll("td[msp-inline="+oldTd_id+"]").attr('msp-inline',newTd_id);
+                    }else{
+                        if(_this.specialComponent(tdList.eq(i))){
+                            tdList.eq(i).attr('isBlock','isBlock');
+                            tdList.eq(i).removeAttr('msp-inline');
+                        }
+                    }
+                }
+            })
+            // tdList.each(function(i,td){
+            //     if($(td).find('div[mode=editable]').length>0){
+            //         if($(td).attr('msp-inline')){
+            //             var oldTd_id = $(td).attr('msp-inline');
+            //             var newTd_id = _this.guid();
+            //             $(td).attr('msp-inline',newTd_id);
+            //             $(td).nextAll("td[msp-inline="+oldTd_id+"]").attr('msp-inline',newTd_id);
+            //         }else{
+            //             tdList.eq(i).attr('isBlock','isBlock');
+            //             tdList.eq(i).removeAttr('msp-inline');
+            //         }
+            //     }
+            // })
+        };
+        this.specialComponent = function(td){
+            var isHas = false;
+            // if(td.find('.sui-datatable').length || td.find('.sui-opinion').length || td.find('.sui-opinionone').length || td.find('.sui-multiopinion').length){
+            //     isHas = true;
+            // }
+            return isHas;
+        };
+        // 对特殊控件进行换行处理
+        this.isNewline = function(td){
+            var isNewline = false;
+            if((td.find('.sui-input').length && td.find('.sui-input').attr('inputtype')=='textarea') || (td.find('.sui-fileupload').length || td.find('.sui-newfileupload').length) || td.find('.sui-datatable').length || td.find('.sui-editor').length || td.find('.sui-opinion').length || td.find('.sui-opinionone').length || td.find('.sui-multiopinion').length){
+                isNewline = true;
+            }
+            return isNewline;
+        };
+        // 栅格布局 特殊处理
+        this.handleGrid = function(grid){
+            var handleGridHtml = '';
+            if($(grid).hasClass('msp-row')){
+                $.each($(grid),function(i,v){
+                    if($(this).hasClass('msp-row')){
+                        var uid = $(this).attr('data-uid')||'';
+                        var gridList = $(this).children('.msp-col');
+                        if(gridList.length){
+                            $.each(gridList,function(i,g){
+                                var html = '';
+
+                                if($(g).find('.msp-row').length){
+                                    html = _this.handleGrid($(g).find('.msp-row'));
+                                }else{
+                                    html = $(g).html();
+                                }
+                                var gHtml = '<div class="grid-phone" data-uid="'+uid+'">'+html+'</div>';
+                                handleGridHtml +=gHtml;
+                            })
+                        }
+                    }else{
+                        handleGridHtml +=$(this).html() || '';
+                    }
+                });
+                return handleGridHtml;
+            }else{
+                return grid;
+            }
+            // if($(grid).hasClass('msp-row')){
+            //     var uid = $(grid).attr('data-uid')||'';
+            //     var gridList = $(grid).children('.msp-col');
+            //     if(gridList.length){
+            //         $.each(gridList,function(i,g){
+            //             var html = '';
+            //
+            //             if($(g).find('.msp-row').length){
+            //                 html = _this.handleGrid($(g).find('.msp-row'));
+            //             }else{
+            //                 html = $(g).html();
+            //             }
+            //             var gHtml = '<div class="grid-phone" data-uid="'+uid+'">'+html+'</div>';
+            //             handleGridHtml +=gHtml;
+            //         })
+            //     }
+            //     return handleGridHtml;
+            // }else{
+            //     return grid;
+            // }
+
+        };
+        // 获取随机字符串
+        this.guid = function () {
+            function S4(){
+                return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+            }
+            return (S4() + S4());
+        }
+    };
+    window[mobile || "cMobile"] = new coreplus_mobile();
+})();

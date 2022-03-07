@@ -1,0 +1,2315 @@
+(function (prefer) {
+    var ctx = function () {
+        var _this = this;
+        var initConfig = {
+            "workItemId": "",
+            "process": "",
+            "entityType": "",
+            "loadWorkFlowBiz": "com.sudytech.portalone.base.workflow.queryEnv.biz.ext",
+            "getContextDataBiz": "com.sudytech.portalone.base.role.role.getUserObjectInfo.biz.ext",
+            "loadEntityBiz": "com.sudytech.portalone.base.workflow.queryEntityByWorkItemId.biz.ext",
+            "startWorkFlowBiz": "com.sudytech.portalone.base.workflow.start.biz.ext",
+            "finishWorkItemBiz": "com.sudytech.portalone.base.workflow.finishWorkItem.biz.ext",
+            "newFinishWorkItem": 'com.sudytech.portalone.base.runProcess.finishWorkItem.biz.ext',
+            "moveFile": "com.sudytech.portalone.base.core.file.fileMove.biz.ext",
+            "form": "form"
+        };
+        var loadIndex = null;
+
+        this.workflow = {};
+        this.entity = {};
+        this.isNewInPhone = true;
+        //初始化
+        this.init = function (config, callback) {
+            if(parent &&  parent.document){
+                $(parent.document).find('div[class^="layui-layer-load"]').remove();
+            }
+            loadIndex = layer.load(2,{
+                shade:[0.1,'#000']
+            });
+
+            initConfig = config ? $.extend(initConfig, config) : initConfig;
+            if (!initConfig.workItemId && !initConfig.process && !initConfig.processInstId) {
+                this.initUI(callback);
+                return;
+            }
+            this.loadWorkFlow(function () {
+                _this.initUI(callback);
+            });
+        };
+
+        //加载流程
+        this.loadWorkFlow = function (callback) {
+            var biz = initConfig.loadWorkFlowBiz;
+
+            $.ajax({
+                type: 'POST',
+                url: biz,
+                data: jsonString({
+                    workItemId: initConfig.workItemId,
+                    process: initConfig.process,
+                    processInstId: initConfig.processInstId
+                }),
+                async: true,
+                contentType: "text/json",
+                success: function (data) {
+                    // 兼容老流程取不到新增的attributes中的数据
+                    var userObject = data.data.userObject;
+                    for (var key in userObject) {
+                        if (key === 'attributes') {
+                            var relateContext1 = userObject[key];
+                            for (var index in relateContext1) {
+                                userObject[index] = relateContext1[index];
+                            }
+                        } else {
+                            userObject[key] = userObject[key];
+                        }
+                    }
+                    _this.workflow = data.data;
+                    if (!data.data.entity) {
+                        if (typeof Coreplus != 'undefined' && $.isFunction(Coreplus.businessData.processServiceTableData)) {
+                            Coreplus.setInitValue(_this.workflow.userObject || {});
+                            $(document).trigger('contextDone');
+                        }
+                    }
+                    if (initConfig.draftId) {
+                        $.ajax({
+                            url: "com.sudytech.portalone.base.draft.draftService.queryDraftById.biz.ext",
+                            type: "post",
+                            dataType: "json",
+                            data: {draftId: initConfig.draftId},
+                            success: function (result) {
+                                _this.entity = $.parseJSON(result.draft.entity);
+                                buildTree(_this.workflow.activityTree);
+                                if (callback) callback(data, _this);
+                            },
+                            error:function(){
+                                $('.body-loading').hide();
+                                layer.close(loadIndex);
+                            }
+                        });
+                    } else {
+                        _this.entity = data.data.entity || {};
+                        buildTree(_this.workflow.activityTree);
+                        if (callback) callback(data, _this);
+                        //请求封装context数据
+                        // $.ajax({
+                        //     type:   'POST',
+                        //     url:     'com.sudytech.portalone.base.role.role.getUserObjectInfo.biz.ext',
+                        //     async:  true,
+                        //     contentType: "text/json",
+                        //     success:function(res){
+                        //         var contextData = {};
+                        //         var res = res.result.userObject;
+                        //         for(var key in res){
+                        //             if(key === 'attributes'){
+                        //                 var relateContext  = res[key];
+                        //                 for(var index in relateContext){
+                        //                     contextData[index] = relateContext[index];
+                        //                 }
+                        //             }else{
+                        //                 contextData[key] = res[key];
+                        //             }
+                        //         }
+                        //         contextData['attributes'] = res['attributes'];
+                        //         data.data.userObject = contextData;
+                        //         if (callback) callback(data,_this);
+                        //     },
+                        //     error: function (msg) {
+                        //         if (callback) callback({Exception: msg});
+                        //     }
+                        // });
+                    }
+
+                    if ($(".sui-dispatch").sui()) {
+                        if(data.data.dispatch){
+                            $(".sui-dispatch").sui().setValue(data.data.dispatch);
+                        }
+                    }
+
+                },
+                error: function (msg) {
+                    $('.body-loading').hide();
+                    layer.close(loadIndex);
+                    if (callback) callback({Exception: msg});
+                }
+            });
+
+            function buildTree(tree) {
+                if (!tree) {
+                    return;
+                }
+                if (tree.children) {
+                    for (var i = 0; i < tree.children.length; i++) {
+                        var node = tree.children[i];
+                        buildTree(node);
+                        node.parent = $.extend(true, {}, tree);
+                        //去掉不必要的数据 避免出现大量数据 导致浏览器内存溢出 崩溃
+                        if (node.parent.children) {
+                            var cl = node.parent.children.length;
+                            delete node.parent.children;
+                            node.parent.children = cl;
+                        }
+                    }
+                }
+            }
+        };
+        /*加载dataTable字典表*/
+        var reqDictInTableDict = function (dictTypes, DataTables) {
+            function renderDict(dictData) {
+                DataTables.each(function () {
+                    //   var table = SUI.Util.parseJSON($(this).attr('table')
+                    //         .replace(/'/g, '"').replace(/&#34;/g, "\"").replace(/&#8629;/g,'\n').replace(/&semicolon;/g,'\;') || '[]', true)
+                    var table = SUI.Util.parseJSON(($(this).attr('table') || '[]').replace(/'/g, '"').replace(/&#34;/g, "\"").replace(/&#8629;/g, '\n').replace(/&semicolon;/g, '\;'), true);
+                    if (table.columns) {
+                        var columns = table.columns
+                        for (var i = 0; i < columns.length; i++) {
+                            var wfType = columns[i].component['wfType']
+                            if (wfType && wfType !== '') {
+                                columns[i].component.dataSource = dictData[wfType] || []
+                            }
+                        }
+                    }
+                    var dtConfig = $(this).sui().getConfig()
+                    dtConfig.dataTable = table
+                    $(this).sui().setConfig(dtConfig)
+                    $(this).trigger('loadDbDictDone')
+                })
+            }
+
+            if (dictTypes.length) {
+                $.ajax({
+                    type: 'POST',
+                    url: "com.sudytech.portalone.base.ui.queryDict.biz.ext",
+                    data: jsonString({dictTypes: dictTypes}),
+                    contentType: "text/json",
+                    async: true,
+                    success: function (data) {
+                        var dictData = {}
+                        var options = data.options;
+                        for (var i = 0; i < options.length; i++) {
+                            var type = options[i].type || options[i].TYPE
+                            if (type) {
+                                var item = {}
+                                item.name = options[i].name || options[i].NAME
+                                item.value = options[i].value || options[i].VALUE
+                                if (!dictData[type]) {
+                                    dictData[type] = []
+                                }
+                                dictData[type].push(item)
+                            }
+                        }
+                        renderDict(dictData)
+                    }
+                });
+            }
+
+        }
+        var loadDictInDataTable = function () {
+            var dictTypes = []
+            var dataTables = $('.sui-datatable').each(function () {
+                // var table = SUI.Util.parseJSON($(this).attr('table')
+                //     .replace(/'/g, '"').replace(/&#34;/g, "\"").replace(/&#8629;/g,'\n').replace(/&semicolon;/g,'\;') || '{}', true)
+                var table = SUI.Util.parseJSON(($(this).attr('table') || '{}').replace(/'/g, '"').replace(/&#34;/g, "\"").replace(/&#8629;/g, '\n').replace(/&semicolon;/g, '\;'), true)
+                if (table.columns) {
+                    var columns = table.columns
+                    for (var i = 0; i < columns.length; i++) {
+                        var wfType = columns[i].component['wfType']
+                        if (wfType && wfType !== '') {
+                            if ($.inArray(wfType, dictTypes) === -1) {
+                                dictTypes.push(wfType)
+                            }
+                        }
+                    }
+                }
+            })
+            reqDictInTableDict(dictTypes, dataTables)
+        }
+        //初始化ui界面
+        this.initUI = function (callback) {
+            var userObject = this.workflow.userObject;
+            SUI.Util.context.user = userObject;
+            //初始化字典
+            var dictTypes = [];
+            var dicts = $(".wf-dict").each(function (i) {
+                dictTypes[i] = $(this).attr("wf-type");
+            });
+            if (dictTypes.length) {
+                $.ajax({
+                    type: 'POST',
+                    url: "com.sudytech.portalone.base.ui.queryDict.biz.ext",
+                    data: jsonString({dictTypes: dictTypes}),
+                    contentType: "text/json",
+                    success: function (data) {
+                        var dictTypes = [];
+                        var dicts = $(".wf-dict").each(function (i) {
+                            dictTypes[i] = $(this).attr("wf-type");
+                        });
+                        var options = data.options;
+                        dicts.each(function () {
+                            var e = $(this);
+                            var dataSource = [];
+                            var type = e.attr("wf-type");
+                            for (var i = 0; i < options.length; i++) {
+                                if (options[i].type == type) {
+                                    dataSource[dataSource.length] = {value: options[i].value, name: options[i].name};
+                                    continue;
+                                }
+                                if (options[i].TYPE == type) {//oracle字段为大写
+                                    dataSource[dataSource.length] = {value: options[i].VALUE, name: options[i].NAME};
+                                }
+                            }
+                            if (this.zoo) {
+                                var config = this.zoo.getConfig();
+                                config.properties.dataSource = dataSource;
+                                this.zoo.setConfig(config);
+                                $(this).trigger('loadDictDataDone');
+                            }
+                        });
+                    },
+                    error:function (err) {
+                        $('.body-loading').hide();
+                        layer.close(loadIndex);
+                    }
+                });
+            }
+
+            var form = $("#" + initConfig.form);
+            if (form.length == 0) {
+                form = $(".sui-form");
+            }
+
+            //设置ui属性
+            var extAttrs = this.workflow.activityExt ? this.workflow.activityExt.attrs : {};
+
+            var editable = extAttrs.editable;//可编辑
+
+            if (extAttrs._editable) {
+                editable = editable + extAttrs._editable;
+            }
+
+            if (editable) {
+                var editables = editable.split(",");
+                $.each(editables, function (i, name) {
+                    if (!name) return;
+                    var com = form.find("[name='" + name + "']");
+                    com.attr("mode", "editable");
+                });
+            }
+
+
+            var readonly = extAttrs.readonly;//只读
+            if (extAttrs._readonly) {
+                readonly = readonly + extAttrs._readonly;
+            }
+            if (readonly) {
+                var readonlys = readonly.split(",");
+                $.each(readonlys, function (i, name) {
+                    if (!name) return;
+                    var com = form.find("[name='" + name + "']");
+                    com.attr("mode", "readOnly");
+                });
+            }
+            /* 如果是手机端 就进行重构 */
+            if (SUI.Util.browserType() == 'phone') {
+                var reconstruct_target = $(document).find('.sui-form');
+                var reconstruct_mode = $('style').attr('mobile_mode') || '1';
+                var isNewInPhone = $('style').attr('isnewinphone') || 'true';
+                if(isNewInPhone == 'false'){
+                    _this.isNewInPhone = false;
+                }
+                if(!_this.isNewInPhone){
+                    // 如果是标准模板（没有mobile_mode属性的模板）
+                    var $td = $('.mspplus-form').find('td');
+                    $td.each(function (_i, item) {
+                        if ($(this).html() == '') {
+                            // 空的td隐藏
+                            $(this).hide();
+                        } else {
+                            // 如果td内的内容全都是隐藏的 就隐藏
+                            var $children = $(this).children();
+                            var isHide = true;
+                            $children.each(function () {
+                                if ($(this).css('display') != 'none') {
+                                    isHide = false;
+                                }
+                            });
+                            if(isHide){
+                                $(this).hide();
+                            }
+                        }
+                    });
+                }else{
+                    if (reconstruct_target.length) {
+                        cMobile.init(reconstruct_target, reconstruct_mode);
+                        $(document).find('.cm-group-mark').prev().css('border-bottom', '0');
+                    }
+                }
+            } else {
+                //pc端隐藏分隔条
+                $(document).find('tr[group-mark=true]').remove();
+            }
+            var hide = extAttrs.hide;//隐藏
+            hideDiv(hide);
+            $('[hideWrapper=hide]').parent('.cm-show-block').hide();
+            function hideDiv(hide) {
+                if (hide) {
+                    var hides = hide.split(",");
+                    for (var i = 0; i < hides.length; i++) {
+                        $("#" + hides[i]).hide();
+                    }
+                    $.each(hides, function (i, name) {
+                        var com = $("[name='" + name + "']");
+                        if (com.sui()) {
+                            com.attr("mode", "hide");
+                        } else {
+                            com.hide();
+                        }
+                    });
+                    for (var i = 0; i < hides.length; i++) {
+                        var com = $("[data-uid='" + hides[i] + "']");
+                        com.hide();
+                        com.attr('hideWrapper', 'hide')
+                    }
+                }
+            }
+
+            if ("print" == initConfig.mode) {
+                $('[msp-print="false"]').hide();
+                //加载打印样式
+                var link = document.createElement('link');
+//				 link.href =  __basePath + '/_public/css/form_print.css';
+                link.href = __basePath + '/_libs/coreplus/form_print.css';
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                $('head')[0].appendChild(link);
+            }
+			if("modify"  == initConfig.mode){
+				$('.sui-opinion,.sui-opinionone,.sui-multiopinion').each(function(){
+					$(this).attr('mode','readOnly');
+				});
+			}
+
+            /*打印或者查看详情 所有控件设为只读模式*/
+            if (initConfig.mode == 'print' || initConfig.mode == 'preview') {
+                form.find('[class^="sui"][mode="editable"]').attr('mode', 'readOnly');
+                var suiList = form.find('[class^="sui"]');
+                $.each(suiList, function (i, c) {
+                    if (!$(c).attr('mode')) {
+                        $(c).attr('mode', 'readOnly');
+                    }
+                });
+                /*隐藏未填写意见的意见*/
+                if (SUI.Util.browserType() == 'phone') {    // 手机端隐藏意见
+                    $('.sui-opinion,.sui-opinionone,.sui-multiopinion', '.mspplus-form').each(function () {
+                        var fieldName = $(this).attr('name') || ''
+                        if (!fieldName || !_this.entity[fieldName]) {
+                            $(this).closest('.tr-mark').hide();
+                        }
+                    })
+                }
+
+				//存在纵向合并单元格时，非普通表格，此时不隐藏未填写的意见框
+				//获取表格中所有的td
+				var tds = $('.sui-form').find('td');
+				var isNormalTable = true;
+				for(var i=0; i<tds.length; i++){
+					if($(tds[i]).attr('rowspan') && $(tds[i]).attr('rowspan')>1){
+						isNormalTable =false;
+						break;
+					}
+				}
+				if(isNormalTable){
+					/*隐藏未填写意见的意见*/
+					$('.sui-opinion,.sui-opinionone,.sui-multiopinion','.mspplus-form').each(function(){
+						var fieldName=$(this).attr('name')||'';
+						if( !fieldName || !_this.entity[fieldName] ){
+							var hide = true;
+							//当一行出现了多个意见框时，如果有其他意见框是有值的，则不隐藏该行
+							$(this).closest('tr').find('.sui-opinion').each(function(){
+								var opinionField = $(this).attr('name');
+								if( opinionField != fieldName && _this.entity[opinionField]){
+									//其他的意见框有值
+									hide = false;
+								}
+							});
+							$(this).closest('tr').find('.sui-multiopinion').each(function(){
+								var opinionField = $(this).attr('name');
+								if( opinionField != fieldName && _this.entity[opinionField]){
+									//其他的意见框有值
+									hide = false;
+								}
+							});
+
+							if(hide){
+								$(this).closest('tr').hide();
+							}
+						}
+					})
+				}
+            }
+            /* 打印页面不出现 取消申请按钮 */
+            if (initConfig.mode == 'print') {
+                form.find('.sui-terminate').attr('mode', 'hide');
+            }
+
+            //统一意见填写
+            var $opinionDiv = $('#opinionOne');
+            if (extAttrs.opinion) {
+                $opinionDiv.show();
+                if ($(".sui-opinionone").length > 0) {
+
+                    var op = $(".sui-opinionone", $opinionDiv);
+                    op.attr('mode', "editable");
+
+                    var properties = extAttrs.opinion;
+                    properties.workItemId = initConfig.workItemId;
+                    op.attr('properties', properties);
+                }
+            }
+
+            if (this.workflow.activity) {
+                $(".wf-title").text(">>" + this.workflow.activity.name);
+                $(".m-activity").text(this.workflow.activity.name);
+            }
+            var entity = $.extend(true, {}, this.entity);
+
+
+            SUI.init(function () {
+                if("modify"  == initConfig.mode){
+                    $('.sui-opinion,.sui-opinionone,.sui-multiopinion').each(function(){
+                        var config = $(this).sui().getConfig();
+                        config.mode = "readOnly";
+                        $(this).sui().setConfig(config);
+                    });
+                }
+                var workItem = _this.workflow.workItem || {};
+                //初始化下一步
+                var activityTree = _this.workflow.activityTree;
+                var partis = $(".sui-participates").sui();
+                var morePartis = $(".sui-moreparticipates").sui();
+                var newPartis = $('.sui-newparticipants').sui();
+                //当前活动为多个工作项会签活动特殊处理
+                var activityExt = _this.workflow.activityExt;
+                var workitemCount = 0;
+                var displayName = "";
+                var multiWorkItem = "";
+                // 委办相应信息
+                var deleGateConfig = {
+                    delegate:_this.workflow.delegate?_this.workflow.delegate:'',
+                    workflowstatus:_this.workflow.workflowstatus?_this.workflow.workflowstatus:'',
+                    workItem:_this.workflow.workItem?_this.workflow.workItem.workItemID:'',
+                    mode:SUI.Util.getQueryString('mode')
+                };
+                if (activityExt && activityExt.attrs && activityExt.attrs.multiWorkItem) {
+                    multiWorkItem = activityExt.attrs.multiWorkItem;
+                    if (_this.workflow.currentWorkItems) {
+                        var currentWorkItems = _this.workflow.currentWorkItems;
+                        for (var i = 0; i < currentWorkItems.length; i++) {
+                            var item = currentWorkItems[i];
+                            if (item.currentState == 4 || item.currentState == 10) {
+                                workitemCount++;
+                                displayName += displayName.length = 0 ? item.partiName : "," + item.partiName;
+                            }
+                        }
+                    }
+                }
+                if (partis && activityTree) {
+                    var attrs = activityTree.exts ? activityTree.exts.attrs : {};
+                    var attach = attrs.attach;
+                    var config = partis.getConfig();
+                    config.tree = activityTree;
+                    config.process = workItem.processDefName;
+                    config.processInstId = workItem.processInstID;
+                    config.workItemId = workItem.workItemID || '';
+                    config.properties.attach = attach;
+                    config.processDefName = wf2.workflow.workItem ? wf2.workflow.workItem.processDefName : wf2.workflow.processDef.processDefName;
+                    config.processExt = _this.workflow.processDefExt.attrs;
+                    config.partiSet = wf2.workflow.partiSet;
+                    config.properties.opinionAtTop = attrs.opinionAtTop;
+                    config.sysConfig = wf2.workflow.config; // 系统管理的系统设置的控件配置的参数，有显示“请选择”和参与者控件显示格式，值为0或1
+                    if (workitemCount > 1) {
+                        config.displayName = displayName.substring(1);
+                    }
+                    config.multiWorkItem = multiWorkItem;
+                    partis.setConfig(config);
+                }
+                if (morePartis && activityTree) {
+                    var attrs = activityTree.exts ? activityTree.exts.attrs : {};
+                    var attach = attrs.attach;
+                    var config = morePartis.getConfig();
+                    config.tree = activityTree;
+                    config.process = workItem.processDefName;
+                    config.processInstId = workItem.processInstID;
+                    config.workItemId = workItem.workItemID || '';
+                    config.properties.attach = attach;
+                    config.processExt = _this.workflow.processDefExt.attrs;
+                    config.properties.opinionAtTop = attrs.opinionAtTop;
+                    config.processDefName = wf2.workflow.workItem ? wf2.workflow.workItem.processDefName : wf2.workflow.processDef.processDefName;
+                    config.splitType = wf2.workflow.activityExt.attrs.splitType;
+                    config.partiSet = wf2.workflow.partiSet;
+                    config.sysConfig = wf2.workflow.config; // 系统管理的系统设置的控件配置的参数，有显示“请选择”和参与者控件显示格式，值都为0或1
+                    if (workitemCount > 1) {
+                        config.displayName = displayName.substring(1);
+                    }
+                    config.multiWorkItem = multiWorkItem;
+                    morePartis.setConfig(config);
+                }
+
+
+                //会签意见
+                if ($(".sui-multiopinion").length > 0) {
+                    $(".sui-multiopinion").each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.properties.workItemId = initConfig.workItemId;
+                        config.opinionSettings = wf2.workflow.activityExt ? wf2.workflow.activityExt.attrs.opinionSettings ? wf2.workflow.activityExt.attrs.opinionSettings : '' : '';
+                        config.strategycode = wf2.workflow.activityExt ? wf2.workflow.activityExt.attrs.strategycode ? wf2.workflow.activityExt.attrs.strategycode : "" : '';
+                        $(this).sui().setConfig(config);
+                    });
+                }
+                //普通意见
+                if ($(".sui-opinion").length > 0) {
+                    $(".sui-opinion").each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.wfConfig = initConfig;
+                        config.opinionSettings = wf2.workflow.activityExt ? wf2.workflow.activityExt.attrs.opinionSettings ? wf2.workflow.activityExt.attrs.opinionSettings : '' : '';
+                        config.strategycode = wf2.workflow.activityExt ? wf2.workflow.activityExt.attrs.strategycode ? wf2.workflow.activityExt.attrs.strategycode : "" : '';
+                        $(this).sui().setConfig(config);
+                    });
+                }
+                //统一意见
+                if ($(".sui-opinionone").length > 0) {
+                    $(".sui-opinionone").each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.wfConfig = initConfig;
+                        config.opinionSettings = wf2.workflow.activityExt ? wf2.workflow.activityExt.attrs.opinionSettings ? wf2.workflow.activityExt.attrs.opinionSettings : '' : '';
+                        config.strategycode = wf2.workflow.activityExt ? wf2.workflow.activityExt.attrs.strategycode ? wf2.workflow.activityExt.attrs.strategycode : "" : '';
+                        var properties = {};
+                        try {
+                            properties = wf2.workflow.activityExt ? wf2.workflow.activityExt.attrs ? wf2.workflow.activityExt.attrs.opinion ? eval('(' + wf2.workflow.activityExt.attrs.opinion + ')') : {} : {} : {};
+                        } catch (e) {
+                            properties = {}
+                        }
+                        config.properties = $.extend(true, config.properties, properties);
+                        $(this).sui().setConfig(config);
+                    });
+                }
+
+                //待办急件
+                if ($(".sui-dispatch").length > 0) {
+                    $(".sui-dispatch").each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.dispatch = wf2.workflow.activityExt ? wf2.workflow.activityExt.attrs.dispatch : "";
+                        $(this).sui().setConfig(config);
+                    });
+
+                }
+
+                // 打印按钮
+                if ($(".sui-print").length > 0) {
+                    var uid = $(".sui-print").attr('data-uid');
+                    if (wf2.workflow.processDefExt.attrs.isPrint) {
+                        var isPrint = wf2.workflow.processDefExt.attrs.isPrint;
+                        if (isPrint === 'alwaysPrint') {
+                            if (wf2.workflow.activityExt) {
+                                if (wf2.workflow.activityExt.attrs.hide) {
+                                    if (wf2.workflow.activityExt.attrs.hide.indexOf(uid) > -1) {
+                                        $('#' + uid).hide();
+                                    } else {
+                                        $('.sui-print').css('display', 'inline-block');
+                                        showPrint();
+                                    }
+                                } else {
+                                    showPrint();
+                                }
+                            } else {
+                                // 已办和办结
+                                $('.sui-print').css('display', 'inline-block');
+                                showPrint();
+                            }
+                        } else {
+                            // 获取url里的mode
+                            var printMode = GetQueryString('mode');
+                            if (printMode === 'preview') {
+                                $('.sui-print').css('display', 'inline-block');
+                                showPrint();
+                            }
+                        }
+                    }
+
+                    // 获取url的mode,如果是preview,则显示打印按钮
+                    function GetQueryString(name) {
+                        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                        var r = window.location.search.substr(1).match(reg);
+                        if (r != null) return unescape(r[2]);
+                        return null;
+                    }
+
+                    function showPrint() {
+                        var showPrint = $('.sui-print').sui();
+                        var config = showPrint.getConfig();
+                        config.wfConfig = initConfig;
+                        config.properties = $.extend(false, config.properties, wf2.workflow);
+                        $('.sui-print').sui().setConfig(config);
+                    }
+                }
+                // 导出word/pdf
+                if ($('.sui-exportwordpdf').length > 0) {
+                    if (wf2.workflow.processDefExt.attrs.exportWordPdf) {
+                        var exportwordpdf = JSON.parse(wf2.workflow.processDefExt.attrs.exportWordPdf);
+                        var word = exportwordpdf.exportWord;
+                        var pdf = exportwordpdf.exportPdf;
+                        if (word || pdf) {
+                            var exportwordpdfList = $('.sui-exportwordpdf');
+                            $.each(exportwordpdfList, function (i, v) {
+                                exportConfig(v, exportwordpdf);
+                            });
+                        }
+                    }
+
+                    function exportConfig(weidget, exportwordpdf) {
+                        var config = $(weidget).sui().getConfig();
+                        config.properties = $.extend(false, config.properties, {exportWordPdf: exportwordpdf});
+                        $(weidget).sui().setConfig(config);
+                    }
+                }
+
+                //上传控件
+                if ($(".sui-fileupload").length > 0) {
+                    $(".sui-fileupload").each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.onLinePreview = wf2.workflow.onLinePreview;
+                        config.appStoreLoginParam = wf2.workflow.appstoreSignature;
+                        $(this).sui().setConfig(config);
+                    });
+                }
+                if ($(".sui-newfileupload").length > 0) {
+                    $(".sui-newfileupload").each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.onLinePreview = wf2.workflow.onLinePreview;
+                        config.appStoreLoginParam = wf2.workflow.appstoreSignature;
+                        $(this).sui().setConfig(config);
+                    });
+                }
+
+                //编辑控件
+                if ($(".sui-fileedit").length > 0) {
+                    $(".sui-fileedit").each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.properties.process = initConfig.process;
+                        config.onLinePreview = wf2.workflow.onLinePreview;
+                        config.appStoreLoginParam = wf2.workflow.appstoreSignature;
+                        $(this).sui().setConfig(config);
+                    });
+                }
+
+                //新编辑控件
+                if ($(".sui-filecompile").length > 0) {
+                    $(".sui-filecompile").each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.properties.process = initConfig.process;
+                        config.onLinePreview = wf2.workflow.onLinePreview;
+                        config.appStoreLoginParam = wf2.workflow.appstoreSignature;
+                        if (!initConfig.processInstId) {
+                            var activityId = wf2.workflow.activity.id;
+                            config.properties.workItemId = initConfig.workItemId;
+                            config.properties.process = initConfig.process;
+                            config.properties.activityId = activityId;
+                        }
+                        $(this).sui().setConfig(config);
+                    });
+                }
+                if ($('.sui-workstorage').length > 0) {
+                    $(".sui-workstorage").each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.entity = wf2.workflow.entity;
+                        $(this).sui().setConfig(config);
+                    });
+                }
+
+				//申请人部门控件
+				if($('.sui-applicantorg').length > 0){
+					//加载当前登录人所属的所有机构
+					var orgs = _this.workflow.userObject.EXTEND_ORG_ARRAY;
+					var dataSource = [];
+					for(var i in orgs){
+						var data = {};
+						data.name = orgs[i].name;
+						data.value = orgs[i].id;
+						dataSource.push(data);
+					}
+
+					$('.sui-applicantorg').each(function(){
+						$(this).sui().setDataSource(dataSource);
+					});
+				}
+
+                //设置子表的entityName属性
+                for (var key in wf2.workflow._ext) {
+                    if (wf2.workflow._ext[key].type == "cascadeProperty") {
+                        //这个属性是级联属性
+                        var entityType = wf2.workflow._ext[key].entityType;
+                        $("[name='" + key + "']").attr("entityType", entityType);
+                    }
+                }
+                //dataTable字典表
+                loadDictInDataTable();
+                //重新刷，为了带出默认意见
+                if (partis && activityTree) {
+                    var attrs = activityTree.exts ? activityTree.exts.attrs : {};
+                    var attach = attrs.attach;
+                    var config = partis.getConfig();
+                    config.tree = activityTree;
+                    config.process = workItem.processDefName;
+                    config.processInstId = workItem.processInstID;
+                    config.workItemId = workItem.workItemID || '';
+                    config.properties.attach = attach;
+                    config.processDefName = wf2.workflow.workItem ? wf2.workflow.workItem.processDefName : wf2.workflow.processDef.processDefName;
+                    config.processExt = _this.workflow.processDefExt.attrs;
+                    config.partiSet = wf2.workflow.partiSet;
+                    config.properties.opinionAtTop = attrs.opinionAtTop;
+                    config.sysConfig = wf2.workflow.config; // 系统管理的系统设置的控件配置的参数，有显示“请选择”和参与者控件显示格式，值为0或1
+                    if (workitemCount > 1) {
+                        config.displayName = displayName.substring(1);
+                    }
+                    config.multiWorkItem = multiWorkItem;
+                    partis.setConfig(config);
+
+                    var partiConfig = partis.getConfig();
+                    if ($(".sui-opinion").length > 0) {
+                        $(".sui-opinion").each(function () {
+                            var opinionValue = ''
+                            var opinionEntity = wf2.workflow.entity;
+                            var config = $(this).sui().getConfig();
+                            var emptyOpinion = $(this).attr('emptyOpinion') || 'true'; //是否回填意见
+                            if (config.mode == "editable") {
+                                if (!partiConfig.processExt || "false" == partiConfig.processExt.defaultCheck) {
+                                    return;
+                                }
+                                if (partiConfig.properties.attach) { //嵌套风格
+                                    var attachName = partiConfig.properties.attach;
+                                    if (opinionEntity && opinionEntity[attachName]) {
+                                        opinionValue = JSON.parse(opinionEntity[attachName]);
+                                        var activityId = opinionValue.activityId || '';
+                                        $(".sui-participates").find("input[type=radio][value='" + activityId + "']").iCheck("check");
+                                        if (emptyOpinion == 'true') {
+                                            $(".sui-participates").find("textarea").val(opinionValue.opinion);
+                                        }
+                                    }
+                                } else {
+                                    // $(".sui-participates").find("select").val(_value.activityId);
+                                }
+                            }
+
+                        });
+                    }
+
+                    if ($(".sui-opinionone").length > 0) {
+                        $(".sui-opinionone").each(function () {
+                            var opinionOneValue = '';
+                            var opinionOneEntity = wf2.workflow.entity;
+                            var config = $(this).sui().getConfig();
+                            var attachone = $(".sui-participates").attr("opiniononeattach");
+                            var name = $(this).attr('name');
+                            if (config.mode == "editable") {
+                                if (!partiConfig.processExt || "false" == partiConfig.processExt.defaultCheck) {
+                                    return;
+                                }
+                                if (partiConfig.properties.attach || attachone === "true") { //嵌套风格
+                                    if (opinionOneEntity && opinionOneEntity[name]) {
+                                        opinionOneValue = JSON.parse(opinionOneEntity[name]);
+                                        var activityId = opinionOneValue.activityId || '';
+                                        $(".sui-participates").find("input[type=radio][value='" + activityId + "']").iCheck("check");
+                                        $(".sui-participates").find("textarea").val(opinionOneValue.opinion);
+                                    }
+                                } else {
+                                    // $(".sui-participates").find("select").val(_value.activityId);
+                                }
+                            }
+                        })
+                    }
+                }
+                //重新刷，为了带出默认意见
+                if (morePartis && activityTree) {
+                    var attrs = activityTree.exts ? activityTree.exts.attrs : {};
+                    var attach = attrs.attach;
+                    var config = morePartis.getConfig();
+                    config.tree = activityTree;
+                    config.process = workItem.processDefName;
+                    config.processInstId = workItem.processInstID;
+                    config.workItemId = workItem.workItemID || '';
+                    config.properties.attach = attach;
+                    config.processExt = _this.workflow.processDefExt.attrs;
+                    config.properties.opinionAtTop = attrs.opinionAtTop;
+                    config.processDefName = wf2.workflow.workItem ? wf2.workflow.workItem.processDefName : wf2.workflow.processDef.processDefName;
+                    config.splitType = wf2.workflow.activityExt.attrs.splitType;
+                    config.partiSet = wf2.workflow.partiSet;
+                    config.sysConfig = wf2.workflow.config; // 系统管理的系统设置的控件配置的参数，有显示“请选择”和参与者控件显示格式，值为0或1
+                    if (workitemCount > 1) {
+                        config.displayName = displayName.substring(1);
+                    }
+                    config.multiWorkItem = multiWorkItem;
+                    morePartis.setConfig(config);
+
+                    var partiConfig = morePartis.getConfig();
+                    if ($(".sui-opinion").length > 0) {
+                        $(".sui-opinion").each(function () {
+                            var moreOpinionValue = '';
+                            var moreOpinionEntity = wf2.workflow.entity;
+                            var config = $(this).sui().getConfig();
+                            var emptyOpinion = $(this).attr('emptyOpinion') || 'true'; //是否回填意见
+                            if (config.mode == "editable") {
+                                if (!partiConfig.processExt || "false" == partiConfig.processExt.defaultCheck) {
+                                    return;
+                                }
+                                if (partiConfig.properties.attach) { //嵌套风格
+                                    var attachName = partiConfig.properties.attach;
+                                    if (moreOpinionEntity && moreOpinionEntity[attachName]) {
+                                        moreOpinionValue = JSON.parse(moreOpinionEntity[attachName]);
+                                        var activityId = moreOpinionValue.activityId || '';
+                                        $(".sui-moreparticipates").find("input[type=radio][value='" + activityId + "']").iCheck("check");
+                                        if (emptyOpinion == 'true') {
+                                            $(".sui-moreparticipates").find("textarea").val(moreOpinionValue.opinion);
+                                        }
+                                    }
+                                } else {
+                                    // $(".sui-participates").find("select").val(_value.activityId);
+                                }
+                            }
+
+                        });
+                    }
+
+                    if ($(".sui-opinionone").length > 0) {
+                        $(".sui-opinionone").each(function () {
+                            var moreOpinionOneValue = '';
+                            var moreOpinionOneEntity = wf2.workflow.entity;
+                            var config = $(this).sui().getConfig();
+                            var attachone = $(".sui-moreparticipates").attr("opiniononeattach");
+                            var name = $(this).attr('name');
+                            if (config.mode == "editable") {
+                                if (!partiConfig.processExt || "false" == partiConfig.processExt.defaultCheck) {
+                                    return;
+                                }
+                                if (partiConfig.properties.attach || attachone === "true") { //嵌套风格
+                                    if (moreOpinionOneEntity && moreOpinionOneEntity[name]) {
+                                        moreOpinionOneValue = JSON.parse(moreOpinionOneEntity[name]);
+                                        var activityId = moreOpinionOneValue.activityId || '';
+                                        $(".sui-moreparticipates").find("input[type=radio][value='" + activityId + "']").iCheck("check");
+                                        $(".sui-moreparticipates").find("textarea").val(moreOpinionOneValue.opinion);
+                                    }
+                                } else {
+                                    // $(".sui-participates").find("select").val(_value.activityId);
+                                }
+                            }
+                        })
+                    }
+                }
+                if (newPartis && activityTree) {
+                    var attrs = activityTree.exts ? activityTree.exts.attrs : {};
+                    var attach = attrs.attach;
+                    var config = newPartis.getConfig();
+                    config.tree = activityTree;
+                    config.process = workItem.processDefName;
+                    config.processInstId = workItem.processInstID;
+                    config.workItemId = workItem.workItemID || '';
+                    config.properties.attach = attach;
+                    config.processDefName = wf2.workflow.workItem ? wf2.workflow.workItem.processDefName : wf2.workflow.processDef.processDefName;
+                    config.processExt = _this.workflow.processDefExt.attrs;
+                    config.partiSet = wf2.workflow.partiSet;
+                    config.properties.opinionAtTop = attrs.opinionAtTop;
+                    config.sysConfig = wf2.workflow.config; // 系统管理的系统设置的控件配置的参数，有显示“请选择”和参与者控件显示格式，值为0或1
+                    if (workitemCount > 1) {
+                        config.displayName = displayName.substring(1);
+                    }
+                    config.multiWorkItem = multiWorkItem;
+                    newPartis.setConfig(config);
+
+                    var partiConfig = newPartis.getConfig();
+                    if ($(".sui-opinion").length > 0) {
+                        $(".sui-opinion").each(function () {
+                            var opinionValue = '';
+                            var opinionEntity = wf2.workflow.entity;
+                            var config = $(this).sui().getConfig();
+                            var name = config.properties.name;
+                            var emptyOpinion = $(this).attr('emptyOpinion') || 'true'; //是否回填意见
+                            if (config.mode == "editable") {
+                                if (!partiConfig.processExt || "false" == partiConfig.processExt.defaultCheck) {
+                                    return;
+                                }
+                                if (partiConfig.properties.attach) { //嵌套风格
+                                    var attachName = partiConfig.properties.attach;
+                                    if (opinionEntity && opinionEntity[attachName]) {
+                                        opinionValue = JSON.parse((opinionEntity && opinionEntity[attachName]) || "{}");
+                                        var activityId = opinionValue.activityId || '';
+                                        if(activityId){
+                                            $(".sui-newparticipants").find("input[type=radio][value='" + activityId + "']").iCheck("check").trigger('ifChecked');
+                                        }
+                                        if (emptyOpinion == 'true') {
+                                            $(".sui-newparticipants").find("textarea").val(opinionValue.opinion);
+                                        }
+                                    }
+                                } else {
+                                    opinionValue = JSON.parse((opinionEntity && opinionEntity[name]) || "{}");
+                                    activityId = opinionValue.activityId || '';
+                                    if(activityId){
+                                        if($(".sui-newparticipants").find("input[type=radio][value='" + activityId + "']").length){
+                                            $(".sui-newparticipants").find("input[type=radio][value='" + activityId + "']").iCheck("check").trigger('ifChecked');
+                                        }else{
+                                            $(".sui-newparticipants").find("select option[value='"+activityId+"']").val(activityId).trigger('change');
+                                        }
+                                    }
+                                }
+                            }
+
+                        });
+                    }
+
+                    if ($(".sui-opinionone").length > 0) {
+                        $(".sui-opinionone").each(function () {
+                            var opinionOneValue = '';
+                            var opinionOneEntity = wf2.workflow.entity;
+                            var config = $(this).sui().getConfig();
+                            var attachone = $(".sui-newparticipants").attr("opiniononeattach");
+                            var name = config.properties.name;
+                            if (config.mode == "editable") {
+                                if (!partiConfig.processExt || "false" == partiConfig.processExt.defaultCheck) {
+                                    return;
+                                }
+                                if (partiConfig.properties.attach || attachone === "true") { //嵌套风格
+                                    if (opinionOneEntity && opinionOneEntity[name]) {
+                                        opinionOneValue = JSON.parse((opinionOneEntity && opinionOneEntity[name]) || "{}");
+                                        var activityId = opinionOneValue.activityId || '';
+                                        if(activityId){
+                                            $(".sui-newparticipants").find("input[type=radio][value='" + activityId + "']").iCheck("check");
+                                        }
+                                        // $(".sui-newparticipants").find("textarea").val(opinionOneValue.opinion);//统一意见回填数据在控件的setValue里面做了
+                                    }
+                                } else {
+                                    opinionOneValue = JSON.parse((opinionOneEntity && opinionOneEntity[name]) || "{}");
+                                    var myKey = config.properties.mykey;
+                                    if(config.properties.multi=='true' || config.properties.multi == true){
+                                        if (myKey == "_user") {
+                                            myKey = "u_" + SUI.Util.getUser().userId;
+                                        } else if (myKey == "_org") {
+                                            myKey = "o_" + SUI.Util.getUser().userOrgId;
+                                        } else if (myKey == "_submit") {
+                                            myKey = "wi_" + config.properties.workItemId;
+                                        }
+                                    }
+                                    var activityId = opinionOneValue.activityId || (opinionOneValue[myKey] && opinionOneValue[myKey].activityId)||'';
+                                    if(activityId){
+                                        if($(".sui-newparticipants").find("input[type=radio][value='" + activityId + "']").length){
+                                            $(".sui-newparticipants").find("input[type=radio][value='" + activityId + "']").iCheck("check").trigger('ifChecked');
+                                        }else{
+                                            $(".sui-newparticipants").find("select option[value='"+activityId+"']").val(activityId).trigger('change');
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
+                //回填数据
+                var dictTypes = [];
+                var dicts = $(".wf-dict").each(function (i) {
+                    dictTypes[i] = $(this).attr("wf-type");
+                });
+                var businessData = Coreplus.businessData;
+                var service = new businessData();
+                if (dictTypes.length) {  //如果有字典表 应该在字典表数据回填之后再进行数据回填
+                    dicts.each(function (i, dict) {
+                        $(this).on('loadDictDataDone', function () {
+                            if (i == dicts.length - 1) {
+                                if (callback) {
+                                    callback(entity, function (data) {
+
+                                    // 人员选择器
+                                    if ($(".sui-selectpersonneltool").length > 0) {
+                                        $(".sui-selectpersonneltool").each(function () {
+                                            var config = $(this).sui().getConfig();
+                                            config.sysConfig = wf2.workflow.config;
+                                            $(this).sui().setConfig(config);
+                                        })
+                                    }
+                                    var entityData = $.extend(true, {}, data);
+                                    /*移除空的数据，避免set空值触发校验*/
+                                    for (var i in data) {
+                                        if (data[i] === '' || data[i] === null || data[i] === undefined) {
+                                            delete data[i]
+                                        }
+                                    }
+                                    var initvalueDiv = form.find('[initvalue]');
+                                    for (var i = 0; i < initvalueDiv.length; i++) {
+                                        var name = $(initvalueDiv[i]).attr('name');
+                                        var initvaluetype = $(initvalueDiv[i]).attr('initvaluetype');
+                                        if (initvaluetype && initvaluetype != 'userInfo' && initvaluetype != 'custom' && initvaluetype != "serviceTable") {
+                                            if (data[name]) {
+                                                delete data[name]
+                                            }
+                                        }
+                                    }
+                                    if (typeof Coreplus != 'undefined' && $.isFunction(service.processServiceTableData)) {
+                                        Coreplus.setInitValue(_this.workflow.userObject || {});
+                                        $(document).trigger('contextDone');
+                                    }
+                                    form.sui().setValue(data);
+                                        $('.body-loading').hide();
+                                        layer.close(loadIndex);
+                                    /*coreplus initvalue*/
+                                    if (typeof Coreplus != 'undefined' && $.isFunction(service.processServiceTableData)) {
+                                        // Coreplus.setInitValue(_this.workflow.userObject || {});
+                                        // $(document).trigger('contextDone');
+                                        if ($.isFunction(Coreplus.setExtraContext)) {
+                                            Coreplus.setExtraContext('activityName', _this.workflow.activity && _this.workflow.activity.name || '')
+                                            Coreplus.setExtraContext('processName', _this.workflow.processDef.processChName || '')
+                                        }
+                                        service.processServiceTableData(entityData);
+                                    }
+                                })
+                                }else{
+                                    $('.body-loading').hide();
+                                    layer.close(loadIndex);
+                                }
+                            }
+                        })
+                    })
+                } else {
+                    if (callback) {
+                        callback(entity, function (data) {
+                            // 人员选择器
+                            if ($(".sui-selectpersonneltool").length > 0) {
+                                $(".sui-selectpersonneltool").each(function () {
+                                    var config = $(this).sui().getConfig();
+                                    config.sysConfig = wf2.workflow.config;
+                                    $(this).sui().setConfig(config);
+                                })
+                            }
+                            var entityData = $.extend(true, {}, data);
+                            /*移除空的数据，避免set空值触发校验*/
+                            for (var i in data) {
+                                if (data[i] === '' || data[i] === null || data[i] === undefined) {
+                                    delete data[i]
+                                }
+                            }
+                            var initvalueDiv = form.find('[initvalue]');
+                            for (var i = 0; i < initvalueDiv.length; i++) {
+                                var name = $(initvalueDiv[i]).attr('name');
+                                var initvaluetype = $(initvalueDiv[i]).attr('initvaluetype');
+                                if (initvaluetype && initvaluetype != 'userInfo' && initvaluetype != 'custom' && initvaluetype != "serviceTable") {
+                                    if (data[name]) {
+                                        delete data[name]
+                                    }
+                                }
+                            }
+                            if (typeof Coreplus != 'undefined' && $.isFunction(service.processServiceTableData)) {
+                                Coreplus.setInitValue(_this.workflow.userObject || {});
+                                $(document).trigger('contextDone');
+                            }
+                            form.sui().setValue(data);
+                            $('.body-loading').hide();
+                            layer.close(loadIndex);
+                            /*coreplus initvalue*/
+                            if (typeof Coreplus != 'undefined' && $.isFunction(service.processServiceTableData)) {
+                                // Coreplus.setInitValue(_this.workflow.userObject||{} );
+                                // $(document).trigger('contextDone');
+                                if ($.isFunction(Coreplus.setExtraContext)) {
+                                    Coreplus.setExtraContext('activityName', _this.workflow.activity && _this.workflow.activity.name || '')
+                                    Coreplus.setExtraContext('processName', _this.workflow.processDef.processChName || '')
+                                }
+                                service.processServiceTableData(entityData);
+                            }
+
+                        });
+                    }else{
+                        $('.body-loading').hide();
+                        layer.close(loadIndex);
+                    }
+                }
+
+            });
+            var processInstId = this.workflow.workItem ? this.workflow.workItem.processInstID : initConfig.processInstId;
+            if (processInstId) {
+                var oHistory = $(".sui-opinionhistory");
+
+                if (oHistory.length > 0) {
+                    oHistory.each(function () {
+                        var config = $(this).sui().getConfig();
+                        config.properties.processInstId = processInstId;
+                        $(this).sui().setConfig(config);
+                    })
+                    // var config = oHistory.getConfig();
+                    // config.properties.processInstId = processInstId;
+                    // oHistory.setConfig(config);
+                }
+
+                //激活
+                $.ajax({
+                    type: 'POST',
+                    url: "com.sudytech.portalone.base.workflow.queryActivatedIds.biz.ext",
+                    async: true,
+                    data: jsonString({
+                        processInstId: processInstId,
+                        activityDefId: _this.workflow.activity ? _this.workflow.activity.id : ""
+                    }),
+                    contentType: "text/json",
+                    success: function (data) {
+                        var list = data.list;
+                        $.each(list, function (i, id) {
+                            $("#" + id).show();
+                        });
+                        var hide = extAttrs.forcehide;//隐藏forcehide属性配置的div
+                        if (hide) {
+                            hideDiv(hide);
+                        }
+
+                        if (initConfig.processInstId) {
+                            var ext = _this.workflow.processDefExt.attrs || {};
+                            hide = ext.previewHide;//隐藏
+                            hideDiv(hide);
+                        }
+
+
+                    },
+                    error: function (msg) {
+                        if (console) {
+                            console.log(msg);
+                        }
+                    }
+                });
+
+
+            }
+
+            var deleGateConfig = {
+                delegate:_this.workflow.delegate?_this.workflow.delegate:'',
+                workflowstatus:_this.workflow.workflowstatus?_this.workflow.workflowstatus:'',
+                workItem:_this.workflow.workItem?_this.workflow.workItem.workItemID:'',
+                mode:SUI.Util.getQueryString('mode')
+            };
+
+            //显示收回按钮
+            if ($(".sui-rollback").length > 0) {
+                var rollbackbtn = $(".sui-rollback").sui();
+                if ($.isArray(rollbackbtn)) {
+                    rollbackbtn = rollbackbtn[0];
+                }
+                var config = rollbackbtn.getConfig();
+                if (initConfig.currworkItemID) {
+                    config.currworkItemID = initConfig.currworkItemID;
+                } else {
+                    config.currworkItemID = initConfig.workItemId;
+                }
+
+                config.wfConfig = initConfig;
+                config.processInstId = initConfig.processInstId;
+                config['deleGateConfig'] = deleGateConfig;
+                rollbackbtn.setConfig(config);
+            }
+            // 取消申请
+            if($('.sui-terminate').length > 0){
+                $.each($('.sui-terminate'),function(){
+                    var config = $(this).sui().getConfig();
+                    config[deleGateConfig]= deleGateConfig;
+                    $(this).sui().setConfig(config);
+                })
+            }
+            //显示保存草稿按钮
+            if ($(".sui-draft").length > 0) {
+                var draftbtn = $(".sui-draft").sui();
+                if ($.isArray(draftbtn)) {
+                    draftbtn = draftbtn[0];
+                }
+                var config = draftbtn.getConfig();
+                config.draftId = initConfig.draftId;
+                config.process = initConfig.process;
+                config.processInstId = initConfig.processInstId;
+                config.workItemId = initConfig.workItemId;
+                config[deleGateConfig] = deleGateConfig;
+                draftbtn.setConfig(config);
+            }
+            //流转历史图
+            if ($(".sui-flowhistorygraph").length > 0) {
+                var graphBtn = $(".sui-flowhistorygraph ").sui();
+                if ($.isArray(graphBtn)) {
+                    graphBtn = graphBtn[0];
+                }
+                var config = graphBtn.getConfig();
+                config.processInstId = initConfig.processInstId;
+                config.processprogress = wf2.workflow.processDefExt.attrs.processprogress || 'false';
+                config.wfConfig = initConfig;
+                graphBtn.setConfig(config);
+            }
+            //显示终止按钮
+            if (_this.workflow && ((_this.workflow.processDefExt ? _this.workflow.processDefExt.attrs.allowTerminate : "") == "true")) {
+                var terminatebtn = $(".sui-terminate").sui();
+                if ($.isArray(terminatebtn)) {
+                    terminatebtn = terminatebtn[0];
+                }
+                if (terminatebtn) {
+                    var config = terminatebtn.getConfig();
+                    config.workItemId = initConfig.workItemId;
+                    config.processInstId = initConfig.processInstId;
+                    config[deleGateConfig] = deleGateConfig;
+                    terminatebtn.setConfig(config);
+                }
+            }
+            //暂存控件
+            if ($(".sui-workstorage").length > 0) {
+                var workStorage = $('.sui-workstorage').sui()
+                if (workStorage) {
+                    workStorage = $.isArray(workStorage) ? workStorage[0] : workStorage;
+                    var workStorageConfig = workStorage.getConfig();
+                    workStorageConfig.userId = _this.workflow.userObject.userId || ''
+                    workStorage.setConfig(workStorageConfig)
+                }
+            }
+
+            //显示是否发送待办提醒消息
+            if ($(".sui-checksendmsg").length > 0 && _this.workflow.activity) {
+                var checkSendMsg = $(".sui-checksendmsg").sui();
+                if ($.isArray(checkSendMsg)) {
+                    checkSendMsg = checkSendMsg[0];
+                }
+                var config = checkSendMsg.getConfig();
+                config.activityExt = _this.workflow.activityExt.attrs;
+                config[deleGateConfig] = deleGateConfig;
+                checkSendMsg.setConfig(config);
+            }
+
+
+            if (initConfig.processInstId) {
+                var ext = this.workflow.processDefExt.attrs || {};
+                hide = ext.previewHide;//隐藏
+                $("#selectParticipatesDiv").hide();
+                $("#post").hide();
+                if (hide) {
+                    var hides = hide.split(",");
+                    for (var i = 0; i < hides.length; i++) {
+                        $("#" + hides[i]).hide();
+                    }
+                    $.each(hides, function (i, name) {
+                        var com = $("[name='" + name + "']");
+                        if (com.sui()) {
+                            com.attr("mode", "hide");
+                        } else {
+                            com.hide();
+                        }
+                    });
+                }
+            }
+
+            //在线编辑属性
+            if (!initConfig.processInstId && $(".sui-fileedit").length > 0) {
+                var activityId = this.workflow.activity.id;
+                $(".sui-fileedit").each(function () {
+                    var config = $(this).sui().getConfig();
+                    config.properties.workItemId = initConfig.workItemId;
+                    config.properties.process = initConfig.process;
+                    config.properties.activityId = activityId;
+                    $(this).sui().setConfig(config);
+                });
+            }
+            // 提交
+            if ($(".sui-submit").length > 0) {
+                var config = $(".sui-submit").sui().getConfig();
+                config.wfConfig = initConfig;
+                config.processDef = this.workflow.processDef;
+                config[deleGateConfig] = deleGateConfig;
+                $(".sui-submit").sui().setConfig(config);
+            }
+            // 传阅
+            if ($(".sui-circulation").length > 0) {
+                var config = $(".sui-circulation").sui().getConfig();
+                config.wfConfig = initConfig;
+                config.processDef = this.workflow.processDef;
+                config[deleGateConfig] = deleGateConfig;
+                $(".sui-circulation").sui().setConfig(config);
+            }
+            // 退回
+            if ($(".sui-untreat").length > 0) {
+                var config = $(".sui-untreat").sui().getConfig();
+                config.wfConfig = initConfig;
+                config.processDef = this.workflow.processDef;
+                if (this.workflow.workItem && this.workflow.workItem.currentState) {
+                    config.workItem = {
+                        currentState: this.workflow.workItem.currentState,
+                        workItemID: this.workflow.workItem.workItemID,
+                    };
+                }
+                config[deleGateConfig] = deleGateConfig;
+                $(".sui-untreat").sui().setConfig(config);
+            }
+            // 模态框
+            if ($(".sui-model").length > 0) {
+                $.each($(".sui-model"),function(i,m){
+                    var config = $(".sui-model").eq(i).sui().getConfig();
+                    config.wfConfig = initConfig;
+                    config.workItem = _this.workflow.workItem;
+                    $(".sui-model").eq(i).sui().setConfig(config);
+                });
+            }
+            //关闭
+            if ($(".sui-closewindow").length > 0) {
+                var config = $(".sui-closewindow").sui().getConfig();
+                config.wfConfig = initConfig;
+                $(".sui-closewindow").sui().setConfig(config);
+            }
+            //流转历史
+            if ($(".sui-opinionhistory").length > 0) {
+                $(".sui-opinionhistory").each(function () {
+                    var config = $(this).sui().getConfig();
+                    config.wfConfig = $.extend(true, config.wfConfig, initConfig);
+                    config.processDef = _this.workflow.processDef;
+                    $(this).sui().setConfig(config);
+                });
+            }
+            // 转办
+            if($('.sui-allowdelegate').length>0){
+                $('.sui-allowdelegate').each(function(){
+                    var config = $(this).sui().getConfig();
+                    config.wfConfig = initConfig;
+                    config["deleGateConfig"] = deleGateConfig;
+                    $(this).sui().setConfig(config);
+                })
+            }
+            this.buildBtnForPhone();
+            this.addHeaderTab();
+        };
+
+
+        /**
+         *   动态创建一个或者多个与流程相关的sui控件。可以由流程控制其状态。
+         *  调用方法：
+         *    var sInput = wf2.suiBuild('<div class="sui-input" name="testName" validate="{require:true}"></div>');
+         *   sInput.sui().setValue('222');
+         *
+         **/
+        this.suiBuild = function (html) {//任意html
+            var extAttrs = this.workflow.activityExt ? this.workflow.activityExt.attrs : {};
+            var $div = $(html);
+            var editable = extAttrs.editable;//可编辑
+            if (editable) {
+                editables = editable.split(",");
+                $.each(editables, function (i, name) {
+                    if (!name) return;
+                    var com = $div.find("[name='" + name + "']");
+                    com.attr("mode", "editable");
+                });
+            }
+            var hide = extAttrs.hide;//隐藏
+            if (hide) {
+                var hides = hide.split(",");
+                for (var i = 0; i < hides.length; i++) {
+                    $("#" + hides[i]).hide();
+                }
+                $.each(hides, function (i, name) {
+                    var com = $("[name='" + name + "']", $div);
+                    if (com.sui()) {
+                        com.attr("mode", "hide");
+                    } else {
+                        com.hide();
+                    }
+                });
+            }
+            SUI.init(null, $div);
+            return $div;
+        };
+
+        //根据流程实例id 加载数据实体
+        this.loadEntity = function (callback) {
+            var biz = initConfig.loadEntityBiz;
+            $.ajax({
+                type: 'POST',
+                url: biz,
+                data: jsonString({workItemId: initConfig.workItemId, process: initConfig.process}),
+                contentType: "text/json",
+                async: true,
+                success: function (data) {
+                    _this.entity = data.entity;
+                    if (callback) callback(data, _this);
+                },
+                error: function (msg) {
+                    if (callback) callback({Exception: msg});
+                }
+            });
+        };
+        //将form转换为json实体，如果type为空，则不绑定实体
+        this.toDataJson = function (type, formId) {
+            var data = {};
+            if (type) {
+                data.__type = "sdo:" + type;
+            } else {
+                data.__type = "sdo:" + "com.sudytech.portalone.base.dataset.FormEntity";
+            }
+            formId = formId || initConfig.form;
+            var arry = $("#" + formId).serializeArray();
+            for (var i = 0; i < arry.length; i++) {
+                data[arry[i].name] = arry[i].value;
+            }
+            return data;
+        };
+
+
+        function buildcascadePropers(entity) {
+            var cascadePropers = [];
+            $(".sui-datatable").each(function () {
+                var name = $(this).attr("name");
+                var entityType = $(this).attr("entityType");
+                var isUpdate = $(this).attr('isupdate') || 'true';
+                if (isUpdate == 'true') {
+                    cascadePropers.push(name);
+                    if (entity[name] && entityType) {
+                        entity[name] = JSON.parse(entity[name]);
+                        $.each(entity[name], function (i, obj) {
+                            obj.__type = "sdo:" + entityType;
+                        });
+                    }
+                }
+            });
+            return cascadePropers;
+        }
+
+        //启动工作流 entity 实体, process 流程, relativeData 相关数据, callback 回调方法
+        /*
+          启动工作流
+            params{
+                entity: {}, //实体
+                process: "",
+                title: "",
+                desc: "",
+                relativeData: {}, //相关数据
+                aferRelData:{}, //启动工作流之后设置的相关数据
+                entityNO: {}
+            }
+        */
+        this.startWorkFlow = function (params, callback) {
+            if ($(".sui-dispatch").sui()) {
+                var dispatch = $(".sui-dispatch").sui().getValue();
+                params.dispatch = dispatch;
+            }
+            params.process = params.process || initConfig.process;
+            params.entity.__type = "sdo:com.sudytech.portalone.base.dataset.FormEntity";
+            params.entityNO = params.entityNO || {};
+            params.entity.workitem = jsonString({});
+            var step = params.relativeData.sudyKeys.steps[0];
+            if (!$('.sui-newparticipants').length) {
+                step = params.relativeData.sudyKeys.steps[0];
+                params.rollBack = step['rollBack'];
+            } else {
+                step = $.extend(true, {}, params.relativeData.sudyKeys.steps[0]);
+                var node = step.path.substring(step.path.lastIndexOf(',') + 1, step.path.length);
+                var opt = $('[value="' + node + '"]',$('.sui-newparticipants')).prop('opt');
+                step.optionExt = opt;
+                if ($('option[value="' + node + '"]').length) {
+                    step.activityType = $('option[value="' + node + '"]').prop('node').activity.type;
+                } else {
+                    step.activityType = $('input[value="' + node + '"]').prop('node').activity.type;
+                }
+                params.rollBack = $('[manager_to="' + node + '"]').attr('manager_rollback');
+            }
+            var activityExt = wf2.workflow.activityExt;
+            var pTitle = SUI.Util.getParticipateTitle();
+            var multiWorkItem = activityExt ? (activityExt.attrs ? activityExt.attrs.multiWorkItem : false) : false;
+            if (!multiWorkItem && params.relativeData.sudyKeys.steps.length == 1 && "finish" != step.activityType && null != step.who && step.who.length <= 0) {
+                if (callback) callback({exception: pTitle, checkParti: pTitle});
+                return;
+            }
+            var isPar = true;
+            if(step.activityType != "finish"){
+                if(params.relativeData.sudyKeys.steps.length){
+                    $.each(params.relativeData.sudyKeys.steps,function(i,step){
+                        if(step.activityType !='finish'){
+                            if(!(step.who && step.who.length)){
+                                isPar = false;
+                                if(step && step.to){
+                                    var node = $('input[value="'+step.to+'"]').prop('node');
+                                    if(node && node.activity && node.activity.type == 'route'){
+                                        isPar = true;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            if(!isPar){
+                if (callback) callback({exception: pTitle, checkParti: pTitle});
+                return;
+            }
+            var exts = SUI.Util.parseJSON(params.entity._ext);
+            for (var name in exts) {
+                var ext = exts[name];
+                if (ext.type == "sequence") {
+                    params.entityNO.type = ext.value;
+                    params.entityNO.field = name;
+                }
+            }
+            if (initConfig.draftId) {
+                params.draftId = initConfig.draftId;
+            }
+
+
+            var datatables = buildcascadePropers(params.entity);
+            if (params.cascadePropers) {
+                params.cascadePropers = params.cascadePropers.concat(datatables);
+            } else {
+                params.cascadePropers = datatables;
+            }
+
+            //下一步绑定的实体字段
+            var optionExt = step ? step.optionExt ? step.optionExt : {} || {} : {};
+            if (optionExt.property) {
+                var property = optionExt.property.split(',')
+                var value = optionExt.value.split(',')
+                for (var r = 0; r < property.length; r++) {
+                    params.entity[property[r]] = value[r];
+                }
+                // params.entity[optionExt.property] = optionExt.value;
+            }
+
+            //  如果是子表提交 那就不作处理 如果entity中字段有不是string类型的，转换为字符串 有null不做处理
+            var childList = params.cascadePropers;
+            for (var field in params.entity) {
+                if (typeof params.entity[field] != 'string') {
+                    if (params.entity[field] === null) {
+                    } else {
+                        if (!childList.length) {
+                            params.entity[field] = JSON.stringify(params.entity[field]);
+                        } else {
+                            if ($.inArray(field, childList) === -1) {
+                                params.entity[field] = JSON.stringify(params.entity[field]);
+                            }
+                        }
+
+                    }
+                } else {
+                    if (params.entity[field] === null) {
+                    } else {
+                        if ($.inArray(field, childList) > -1) {
+                            if (typeof params.entity[field] == 'string') {
+                                params.entity[field] = JSON.parse(params.entity[field]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            var post = jsonString(params);
+            var biz = initConfig.startWorkFlowBiz;
+            $.ajax({
+                type: 'POST',
+                url: biz,
+                data: post,
+                async: true,
+                contentType: "text/json",
+                success: function (data,status,xhr) {
+                    if (callback) callback(data,status,xhr);
+                },
+                error: function (msg,status,xhr) {
+                    if (callback) callback({exception: msg},status,xhr);
+                }
+            });
+        };
+
+        /*
+         完成工作项
+            params {
+                entity:{}, //实体
+                relativeData:{}, 相关数据
+                aferRelData:{}, //完成工作项之后设置的相关数据
+                workItemId:1, //工作项id
+                opinion: {}, //意见
+                shareSigns: {"signs": {key: 'userId', value: ""}}, //格式：{会签字段名：{key: 会签key, value: 会签数据}}
+                mode: "override"  // 覆盖模式还是修改模式 override || update, 默认是update
+            }
+
+        */
+        this.finishWorkItem = function (params, callback) {
+            if ($(".sui-dispatch").sui()) {
+                var dispatch = $(".sui-dispatch").sui().getValue();
+                params.dispatch = dispatch;
+            }
+            params.workItemId = params.workItemId || initConfig.workItemId;
+            params.mode = params.mode || "update";
+            params.entity.__type = "sdo:com.sudytech.portalone.base.dataset.FormEntity";
+            params.entity.workitem = jsonString(wf2.workflow.workItem);
+            if (params.mode == "update") {
+                var updateProperties = [];
+                for (var name in this.entity) {
+                    if (name == "__type") {
+                        continue;
+                    }
+                    if (!compare(this.entity[name], params.entity[name])) {
+                        updateProperties[updateProperties.length] = name;
+                    }
+                }
+                params.updateProperties = updateProperties;
+            }
+            //
+            params.opinion = params.opinion || {};
+            params.shareSigns = params.shareSigns || {};
+            params.entityNO = {};
+            var exts = SUI.Util.parseJSON(params.entity._ext);
+
+            var datatables = buildcascadePropers(params.entity);
+            if (params.cascadePropers) {
+                params.cascadePropers = params.cascadePropers.concat(datatables);
+            } else {
+                params.cascadePropers = datatables;
+            }
+            //选择的下一步
+            var step = null;
+            if (!$('.sui-newparticipants').length) {
+                step = params.relativeData.sudyKeys.steps[0];
+                params.rollBack = step['rollBack'];
+            } else {
+                step = $.extend(true, {}, params.relativeData.sudyKeys.steps[0]);
+                var node = step.path.substring(step.path.lastIndexOf(',') + 1, step.path.length);
+                var opt = $('[value="' + node + '"]',$('.sui-newparticipants')).prop('opt');
+                step.optionExt = opt;
+                if ($('option[value="' + node + '"]').length) {
+                    step.activityType = $('option[value="' + node + '"]').prop('node').activity.type;
+                } else {
+                    step.activityType = $('input[value="' + node + '"]').prop('node').activity.type;
+                }
+                params.rollBack = $('[manager_to="' + node + '"]').attr('manager_rollback');
+            }
+            var activityExt = wf2.workflow.activityExt;
+            var pTitle = SUI.Util.getParticipateTitle();
+            var multiWorkItem = activityExt ? (activityExt.attrs ? activityExt.attrs.multiWorkItem : false) : false;
+
+            if (!multiWorkItem && params.relativeData.sudyKeys.steps.length == 1 && "finish" != step.activityType && null != step.who && step.who.length <= 0) {
+                if (callback) callback({exception: pTitle, checkParti: pTitle});
+                return;
+            }
+            var isPar = true;
+            if(step.activityType != "finish"){
+                if(params.relativeData.sudyKeys.steps.length){
+                    $.each(params.relativeData.sudyKeys.steps,function(i,step){
+                        if(step.activityType !='finish'){
+                            if(!(step.who && step.who.length)){
+                                isPar = false;
+                                if(step && step.to){
+                                    var node = $('input[value="'+step.to+'"]').prop('node');
+                                    if(node && node.activity && node.activity.type == 'route'){
+                                        isPar = true;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            if(!isPar){
+                if (callback) callback({exception: pTitle, checkParti: pTitle});
+                return;
+            }
+            var opinion_pt = $('.sui-opinion');
+            if (opinion_pt.length) {
+                $.each(opinion_pt, function (i, o) {
+                    if ($(o).sui() && !$(o).is(':hidden') && $(o).attr('mode') === 'editable') {
+                        var ptname = $(o).sui().getConfig().properties.name;
+                        var ext = exts[ptname];
+                        if (ext) {
+                            params.opinion.myKey = ext.key;
+                            params.opinion.fieldName = ptname;
+                            params.opinion.dealResult = ext.value.decision;
+                            params.opinion.dealOpinion = parseOpinon(ext.value);
+                        }
+                    }
+                })
+            }
+            var opinion_hq = $('.sui-multiopinion');
+            if (opinion_hq.length) {
+                $.each(opinion_hq, function (i, o) {
+                    if ($(o).sui() && !$(o).is(':hidden') && $(o).attr('mode') === 'editable') {
+                        var ptname = $(o).sui().getConfig().properties.name;
+                        var ext = exts[ptname];
+                        if (ext) {
+                            params.shareSigns[ptname] = ext.value;
+                            params.opinion.myKey = ext.key;
+                            params.opinion.fieldName = ptname;
+                            params.opinion.dealResult = ext.value.value.decision;
+                            params.opinion.dealOpinion = parseOpinon(ext.value.value);
+                        }
+                    }
+                })
+            }
+            $.each(params.updateProperties, function (i, name) {
+                var ext = exts[name];
+                if (!ext) {
+                    return;
+                }
+                //会签意见控件。保存到工作项中
+                if (ext.type == "multiOpinion") {
+                    params.shareSigns[name] = ext.value;
+                    params.opinion.myKey = ext.key;
+                    params.opinion.fieldName = name;
+                    params.opinion.dealResult = ext.value.value.decision;
+                    params.opinion.dealOpinion = parseOpinon(ext.value.value);
+                    return;
+                }
+                //意见控件。保存到工作项中
+                if (ext.type == "opinion") {
+                    params.opinion.myKey = ext.key;
+                    params.opinion.fieldName = name;
+                    params.opinion.dealResult = ext.value.decision;
+                    params.opinion.dealOpinion = parseOpinon(ext.value);
+                }
+            });
+            //统一意见
+            var op = $(".sui-opinionone").sui();
+            if (op && !$('#opinionOne').is(':hidden') && $(".sui-opinionone").attr('mode') === 'editable') {
+                if (wf2.workflow.activityExt.attrs.opinion) {
+                    decisionFlag = false;
+                    var opinionConfig = wf2.workflow.activityExt.attrs.opinion;
+                    var name = SUI.Util.parseJSON(opinionConfig, true)['name'];
+                    var valString = op.getValue();
+                    var val = SUI.Util.parseJSON(valString);
+                    if (op.getConfig().properties.multi === 'true' || op.getConfig().properties.multi == true) {
+                        var extvalue = exts[name];
+                        if (extvalue) {
+                            params.shareSigns[name] = extvalue.value;
+                            params.opinion.myKey = extvalue.key;
+                            params.opinion.fieldName = name;
+                            params.opinion.dealResult = extvalue.value.value.decision;
+                            params.opinion.dealOpinion = parseOpinon(extvalue.value.value);
+                        }
+                    } else {
+
+                        params.entity[name] = valString;
+                        updateProperties[updateProperties.length] = name;
+
+                        params.opinion.dealResult = val.decision;
+                        params.opinion.dealOpinion = parseOpinon(val);
+                    }
+                }
+            }
+            var steps = params.relativeData.sudyKeys.steps;
+            if ($('.sui-newparticipants').length) {
+                var decisionList = [];
+                if(steps.length){
+                    $.each(steps,function(i,s){
+                        decisionList.push(s.decision);
+                    })
+                }
+                params.opinion.decision = decisionList.join(',');
+            } else {
+                var decisionList = [];
+                if(steps.length){
+                    $.each(steps,function(i,step){
+                        var decision_old = '';
+                        if (step.optionExt && step.optionExt.decision && step.optionExt.decision != true && step.optionExt.decision != false && step.optionExt.decision != 'false') {
+                            decision_old = step.optionExt.decision;
+                        } else if (step.optionExt && step.optionExt.name) {
+                            decision_old = step.optionExt.name;
+                        } else if (step.lineName) {
+                            decision_old = step.lineName;
+                        } else if (step.nodeName) {
+                            decision_old = step.nodeName;
+                        } else {
+                            decision_old = "";
+                        }
+                        decisionList.push(decision_old);
+                    })
+                }
+                params.opinion.decision = decisionList.join(',');
+                // if (step.optionExt && step.optionExt.decision && step.optionExt.decision != true && step.optionExt.decision != false && step.optionExt.decision != 'false') {
+                //     params.opinion.decision = step.optionExt.decision;
+                // } else if (step.optionExt && step.optionExt.name) {
+                //     params.opinion.decision = step.optionExt.name;
+                // } else if (step.lineName) {
+                //     params.opinion.decision = step.lineName;
+                // } else if (step.nodeName) {
+                //     params.opinion.decision = step.nodeName;
+                // } else {
+                //     params.opinion.decision = "";
+                // }
+            }
+
+            //下一步绑定的实体字段
+            var optionExt = step.optionExt ? step.optionExt : {} || {};
+            if (optionExt.property) {
+                var property = optionExt.property.split(',')
+                var value = optionExt.value.split(',')
+                for (var t = 0; t < property.length; t++) {
+                    updateProperties[updateProperties.length] = property[t];
+                    params.entity[property[t]] = value[t];
+                }
+                // params.entity[optionExt.property] = optionExt.value;
+            }
+            //  如果是子表提交 那就不作处理 如果entity中字段有不是string类型的，转换为字符串 有null不做处理
+            var childList = params.cascadePropers;
+            for (var field in params.entity) {
+                if (typeof params.entity[field] != 'string') {
+                    if (params.entity[field] === null) {
+                    } else {
+                        if (!childList.length) {
+                            params.entity[field] = JSON.stringify(params.entity[field]);
+                        } else {
+                            if ($.inArray(field, childList) === -1) {
+                                params.entity[field] = JSON.stringify(params.entity[field]);
+                            }
+                        }
+
+                    }
+                } else {
+                    if (params.entity[field] === null) {
+                    } else {
+                        if ($.inArray(field, childList) > -1) {
+                            if (typeof params.entity[field] == 'string') {
+                                params.entity[field] = JSON.parse(params.entity[field]);
+                            }
+                        }
+                    }
+                }
+            }
+            var biz = '';
+            if ($('.sui-newparticipants').length) {
+                biz = initConfig.newFinishWorkItem;//新版
+            } else {
+                biz = initConfig.finishWorkItemBiz;//旧版
+            }
+            // var biz = initConfig.newFinishWorkItem;//新版
+            // var biz = initConfig.finishWorkItemBiz;//旧版
+            var post = jsonString(params);
+            $.ajax({
+                type: 'POST',
+                url: biz,
+                data: post,
+                async: true,
+                contentType: "text/json",
+                success: function (data,status,xhr) {
+                    if (callback) callback(data,status,xhr);
+                },
+                error: function (msg) {
+                    if (callback) callback({exception: msg},status,xhr);
+                }
+            });
+        };
+
+        /*修改数据*/
+        this.modifyProcessData = function (entity, process) {
+            var cascadeData = buildcascadePropers(entity);
+            var params = {
+                entity: entity,
+                process: process
+            };
+            if (cascadeData.length > 0) {
+                params.cascadePropers = cascadeData
+            }else{
+                params.cascadePropers = [];
+            }
+            var childList = params.cascadePropers;
+            for (var field in params.entity) {
+                if (typeof params.entity[field] != 'string') {
+                    if (params.entity[field] === null) {
+                    } else {
+                        if (!childList.length) {
+                            params.entity[field] = JSON.stringify(params.entity[field]);
+                        } else {
+                            if ($.inArray(field, childList) === -1) {
+                                params.entity[field] = JSON.stringify(params.entity[field]);
+                            }
+                        }
+
+                    }
+                } else {
+                    if (params.entity[field] === null) {
+                    } else {
+                        if ($.inArray(field, childList) > -1) {
+                            if (typeof params.entity[field] == 'string') {
+                                params.entity[field] = JSON.parse(params.entity[field]);
+                            }
+                        }
+                    }
+                }
+            }
+            $.ajax({
+                url: 'com.sudytech.portalone.base.db.updateEntityByProcess.biz.ext',
+                type: 'post',
+                contentType: "text/json",
+                data: wf2.jsonString(params),
+                success: function (data) {
+                    if (data.result == 1) {
+                        alert('修改成功')
+                    } else {
+                        alert('修改失败')
+                    }
+                }
+            })
+        }
+
+        //构造意见字符串
+        function parseOpinon(opinion) {
+            var str = opinion.opinion;
+            return str;
+        }
+
+        /*
+           将编辑后的文件移动到upload下，并替换源文件
+         params {
+                     fileId 原文件ID
+                     tempFileId 编辑后的文件ID
+         }
+         */
+        this.moveFile = function (params, callback) {
+            var biz = initConfig.moveFile;
+            params.process = initConfig.process;
+            var post = jsonString(params);
+            $.ajax({
+                type: 'POST',
+                url: biz,
+                data: post,
+                async: true,
+                contentType: "text/json",
+                success: function (data) {
+                    if (callback) callback(data);
+                }
+            });
+        };
+        this.jsonString = jsonString;
+        this.merge = function (data) {
+            var temp = $.extend({}, this.entity);
+            return $.extend(temp, data);
+        };
+        // 移动端对按钮进行重新布局 提交 关闭 优先，没有提交关闭 就顺位 大于三个就更多展示
+        this.buildBtnForPhone = function(){
+            if(SUI.Util.browserType() == 'pc' || !_this.isNewInPhone){
+                return false;
+            }
+            var btnList = $('.isBtn');
+            var btnHtml = '<div class="btn-list-phone">' +
+                            '<div class="btn-phone btn-more-phone">' +
+                                '<span class="btn-icon-more"></span>更多'+
+                            '</div>'+
+                            '<div class="btn-phone btn-first-phone"></div>'+
+                            '<div class="btn-phone btn-second-phone"></div>'+
+                            '<div class="btn-phone btn-last-phone"></div>'+
+                            '<div class="btn-more-list btn-hide"><span class="btn-in"></span><span class="btn-out"></span></div>'+
+                          '</div>';
+            if($('.mspplus-form').find('.btn-show-list').length){
+                $('.mspplus-form').find('.btn-show-list').remove();
+            }
+            $('.mspplus-form').append('<div class="btn-show-list btn-hide"></div>');
+            if(btnList.length){
+                $.each(btnList,function(i,btn){
+                    if(!($(btn).css('display') === 'none') && $(btn).children().length){
+                        $('.btn-show-list').append($(btn));
+                    }
+                });
+                var showList = $('.btn-show-list');
+                var showListLength = $('.btn-show-list').children().length;
+                if(showListLength){
+                    if($('.mspplus-form').find('.btn-list-phone').length){
+                        $('.mspplus-form').find('.btn-list-phone').remove();
+                    }
+                    $('.mspplus-form').append(btnHtml);
+                    $('body').css('margin-bottom','50px');
+                    var hasSubmit = false;
+                    var hasSecond = false;
+                    if(showListLength>3){
+                        $('.btn-first-phone').hide();
+                        if(showList.find('.sui-submit').length){
+                            hasSubmit = true;
+                            $('.btn-last-phone').html(showList.find('.sui-submit'));
+                        }
+                        if(showList.find('.sui-terminate').length && !hasSecond){
+                            hasSecond = true;
+                            $('.btn-second-phone').html(showList.find('.sui-terminate'));
+                        }
+                        if(showList.find('.sui-rollback').length && !hasSecond){
+                            hasSecond = true;
+                            $('.btn-second-phone').html(showList.find('.sui-rollback'));
+                        }
+                        if(showList.find('.sui-untreat').length && !hasSecond){
+                            hasSecond = true;
+                            $('.btn-second-phone').html(showList.find('.sui-untreat'));
+                        }
+                        $.each(showList.children(),function(i,showBtn){
+                            if(hasSubmit && hasSecond){
+                                $(showBtn).addClass('btn-show-phone');
+                                $('.btn-more-list').append($(showBtn));
+                            }else{
+                                if(!hasSubmit && hasSecond){
+                                    hasSubmit = true;
+                                    $('.btn-last-phone').html($(showBtn));
+                                }else if(hasSubmit && !hasSecond){
+                                    hasSecond = true;
+                                    $('.btn-second-phone').html($(showBtn))
+                                }else if(!hasSubmit && !hasSecond){
+                                    hasSubmit = true;
+                                    $('.btn-second-phone').html($(showBtn))
+                                }
+                            }
+                        });
+                        $('.btn-more-phone').unbind('cilck').on('click',function(e){
+                            e.stopPropagation();
+                            if($('.btn-more-list').hasClass('btn-hide')){
+                                $('.btn-more-list').removeClass('btn-hide').show();
+                            }else{
+                                $('.btn-more-list').addClass('btn-hide').hide();
+                            }
+                            $(document).on('click',function(){
+                                $('.btn-more-list').addClass('btn-hide').hide();
+                            })
+                        })
+                    }else if(showListLength === 3){
+                        $('.btn-more-phone').hide();
+                        if(showList.find('.sui-submit').length){
+                            hasSubmit = true;
+                            $('.btn-last-phone').html(showList.find('.sui-submit'));
+                        }
+                        if(showList.find('.sui-terminate').length && !hasSecond){
+                            hasSecond = true;
+                            $('.btn-second-phone').html(showList.find('.sui-terminate'));
+                        }
+                        if(showList.find('.sui-rollback').length && !hasSecond){
+                            hasSecond = true;
+                            $('.btn-second-phone').html(showList.find('.sui-rollback'));
+                        }
+                        if(showList.find('.sui-untreat').length && !hasSecond){
+                            hasSecond = true;
+                            $('.btn-second-phone').html(showList.find('.sui-untreat'));
+                        }
+                        $.each(showList.children(),function(i,showBtn){
+                            if(hasSubmit && hasSecond){
+                                $(showBtn).addClass('btn-show-phone');
+                                $('.btn-first-phone').html($(showBtn));
+                            }else{
+                                if(!hasSubmit && hasSecond){
+                                    hasSubmit = true;
+                                    $('.btn-last-phone').html($(showBtn));
+                                }else if(hasSubmit && !hasSecond){
+                                    hasSecond = true;
+                                    $('.btn-second-phone').html($(showBtn))
+                                }
+                            }
+
+                        })
+                    }else if(showListLength === 2){
+                        $('.btn-more-phone').hide();
+                        $('.btn-first-phone').hide();
+                        if(showList.find('.sui-submit').length){
+                            hasSubmit = true;
+                            $('.btn-last-phone').html(showList.find('.sui-submit'));
+                        }
+                        if(showList.find('.sui-terminate').length && !hasSecond){
+                            hasSecond = true;
+                            $('.btn-second-phone').html(showList.find('.sui-terminate'));
+                        }
+                        if(showList.find('.sui-rollback').length && !hasSecond){
+                            hasSecond = true;
+                            $('.btn-second-phone').html(showList.find('.sui-rollback'));
+                        }
+                        if(showList.find('.sui-untreat').length && !hasSecond){
+                            hasSecond = true;
+                            $('.btn-second-phone').html(showList.find('.sui-untreat'));
+                        }
+                        $.each(showList.children(),function(i,showBtn){
+                            if(!hasSubmit && !hasSecond){
+                                hasSubmit = true;
+                                $('.btn-last-phone').html($(showBtn));
+                            }else if(!hasSubmit && hasSecond){
+                                hasSubmit = true;
+                                $('.btn-last-phone').html($(showBtn));
+                            }else if(hasSubmit && !hasSecond){
+                                hasSecond = true;
+                                $('.btn-second-phone').html($(showBtn))
+                            }
+                        })
+                    }else if(showListLength === 1){
+                        $('.btn-more-phone').hide();
+                        $('.btn-first-phone').hide();
+                        $('.btn-second-phone').hide();
+                        $.each(showList.children(),function(i,showBtn){
+                            $('.btn-last-phone').html($(showBtn));
+                        })
+                    }
+                }
+            }
+        };
+        // 移动端 添加头部tab栏 最多分为五部分，分别为 表单信息(formInfo-1)-审批意见(opinion-2)-流转历史(opinionHistory-3)-流程进度(process-4)-传阅历史(cHistory-5)
+        // 申请页面没有
+        this.addHeaderTab = function(){
+            if(SUI.Util.browserType() === 'pc' || !_this.isNewInPhone){
+                return false;
+            }
+            var tabInfo = {
+                formInfo:true,
+                opinion:false,
+                opinionHistory:false,
+                process:false,
+                cHistory:false,
+                tabLength:1
+            };
+            // 判断页面是否有显示的意见控件
+            if($('.opinion-phone').length){
+                $.each($('.opinion-phone'),function(i,opinion){
+                    if($(opinion).is(':visible') && !tabInfo.opinion){
+                        tabInfo.opinion = true;
+                        tabInfo.tabLength +=1;
+                        $(opinion).addClass('opinion-tab');
+                    }
+                })
+            }
+            // 判断页面是否有显示的流程历史控件
+            if($('.sui-opinionhistory').length){
+                $.each($('.sui-opinionhistory'),function(i,opinionHistory){
+                    if($(opinionHistory).is(':visible') && !tabInfo.opinionHistory && $(opinionHistory).children().length){
+                        tabInfo.opinionHistory = true;
+                        tabInfo.tabLength +=1;
+                        $('.sui-opinionhistory').addClass('opinion-history-tab');
+                    }
+                });
+            }
+
+            // 判断页面是否有显示的流程进度
+            if($('.sui-flowhistorygraph').length){
+                $.each($('.sui-flowhistorygraph'),function(i,process){
+                    if($(process).is(':visible') && !tabInfo.process){
+                        tabInfo.process = true;
+                        tabInfo.tabLength +=1;
+                        $('.sui-flowhistorygraph').addClass('process-tab');
+                    }
+                });
+            }
+            // 判断页面是否有显示的传阅历史
+            if($('.sui-circulation').length &&  $('#lccydiv').is(':visible') && $('#lccydiv').children().length){
+                tabInfo.cHistory = true;
+                tabInfo.tabLength +=1;
+                $('#lccydiv').addClass('cHistory-tab');
+            }
+            if(tabInfo.tabLength > 1){
+                this.createTab(tabInfo);
+            }else{
+                $('.mspplus-form').css("margin-top",'0');
+            }
+        };
+        // 创建tab栏
+        this.createTab = function(tabInfo){
+            var tabHtml = '<div class="tab_phone">'+
+                            '<div class="header-tab header-formInfo-tab" tabtype="1">' +
+                                '<div class="header-tab-name active">表单信息</div>'+
+                            '</div>';
+            if(tabInfo.opinion){
+                tabHtml +='<div class="header-tab header-opinion-tab" tabtype="2">' +
+                            '<div class="header-tab-name">审批意见</div>'+
+                          '</div>';
+            }
+            if(tabInfo.opinionHistory){
+                tabHtml +='<div class="header-tab header-opinion-history-tab" tabtype="3">' +
+                            '<div class="header-tab-name">流转历史</div>'+
+                          '</div>';
+            }
+            if(tabInfo.process){
+                tabHtml +='<div class="header-tab header-process-tab" tabtype="4">' +
+                            '<div class="header-tab-name">流程进度</div>'+
+                          '</div>';
+            }
+            if(tabInfo.cHistory){
+                tabHtml +='<div class="header-tab header-chistory-tab" tabtype="5">' +
+                            '<div class="header-tab-name">传阅历史</div>'+
+                          '</div>'
+            }
+            tabHtml +='</div>';
+            if($('.sui-form').find('.tab_phone').length){
+                $('.sui-form').find('.tab_phone').remove();
+            }
+            $('.sui-form').prepend(tabHtml);
+            $('.mspplus-form').css('margin',0);
+            var bHeight = $('body').height();
+            var formHeight = $('.sui-form').height();
+            var isHeader = false;
+            var appload = SUI.Util.getQueryString('appload') || SUI.Util.getQueryString('appLoad');
+            if(appload != 0){
+                isHeader = true;
+            }
+            var top = '';
+            if((bHeight-formHeight)>50){
+                top = bHeight-formHeight-50;
+            }else{
+                top = bHeight-formHeight;
+            }
+            if(isHeader){
+                var headerHeight = $('.zkd-header').height();
+                top = headerHeight+12;
+            }
+            $('.tab_phone').css('top',top);
+            $('.mspplus-form').css("margin-top",'45px');
+            $('.mspplus-form').css("border-top",'10px solid #eaeaea');
+            var headerHeight = $('body').height() - $('.sui-form').height() - $('.btn-list-phone').height()-50;
+            $(window).scroll(function(){
+                var scrollTop = $(window).scrollTop();
+                if(scrollTop>headerHeight){
+                    $('.tab_phone').css('top',0);
+                }else{
+                    $('.tab_phone').css('top',top-scrollTop);
+                }
+            });
+            $('.header-tab').on('click',function(){
+                var type = $(this).attr('tabtype');
+                $(this).find('.header-tab-name').addClass('active');
+                $(this).siblings().find('.header-tab-name').removeClass('active');
+                var tabHeight = $('.tab_phone').height();
+                switch (type) {
+                    case "1":
+                        var formTop = $('.sui-form').offset().top-tabHeight;
+                        window.scrollTo(0,formTop);
+                    break;
+                    case "2":
+                        var opinionTop = $('.opinion-tab').offset().top-tabHeight;
+                        window.scrollTo(0,opinionTop);
+                    break;
+                    case "3":
+                        var opinionHistoryTop = $('.opinion-history-tab').offset().top-tabHeight;
+                        window.scrollTo(0,opinionHistoryTop);
+                    break;
+                    case "4":
+                        var processTop = $('.process-tab').offset().top - tabHeight;
+                        window.scrollTo(0,processTop);
+                    break;
+                    case  "5":
+                        var cHistoryTop = $('.cHistory-tab').offset().top - tabHeight;
+                        window.scrollTo(0,cHistoryTop);
+                    break;
+                }
+            })
+
+        };
+        function jsonString(data) {
+            return JSON.stringify(data);
+        }
+
+        //比较是否相等
+        function compare(v1, v2) {
+            v1 = v1 || "";
+            v2 = v2 || "";
+            return v1 == v2;
+        }
+
+        function parseAttr(attr) {
+            if (!attr) {
+                return {};
+            }
+            var xml = $.parseXML(attr);
+            var doc = $(xml);
+            var data = {};
+            try {
+                doc.find("extendNode").each(function () {
+                    var item = $(this);
+                    var key = item.find("key").text();
+                    var value = item.find("value").text();
+                    data[key] = value;
+                });
+            } catch (e) {
+                console.log(e);
+            }
+
+            return data;
+        }
+    };
+
+    window[prefer || "wf2"] = new ctx();
+})();

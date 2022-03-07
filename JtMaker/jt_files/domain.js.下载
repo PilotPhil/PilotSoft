@@ -1,0 +1,192 @@
+/**
+ * 
+ */
+if(window.location.href.indexOf("ehall.just.edu.cn") >=0) {
+	document.domain="just.edu.cn";
+}
+function initBtn(from,appload,wfConfig){
+	if(wfConfig.processInstId){//查看页面 显示查看流程的页面
+		$("#viewProcess").show();
+	} else {
+		$("#viewProcess").hide();
+	}
+	if(appload=="0" && from == "null" && wfConfig.process) {
+		$("#cancel").hide();
+	}
+	if(from == "c" || from == "app"){
+		$("#viewProcess").hide();
+		$("#cancel").hide();
+	}
+	$("#cancel").on('click', function(event) {
+		closeBtn(from,appload,wfConfig);
+	});
+}
+
+function sendBtn(from,appload,wfConfig){
+	if(appload=="0" && from == "null") {//刷新本页面
+		if(wfConfig.workItemId || wfConfig.processInstId){
+			history.go(-1);
+		} else {
+			reloadWindow(0); 
+		}
+	} else if (appload == "null" && from == "null"){//直接关闭
+		if(SUI.Util.browserType()=='phone'){
+			history.go(-1);
+		}else{
+			closeWindow(true);
+		}
+	} else if(appload == "0" && from == "m"){//刷新首页
+		reloadWindow();
+	}else if(appload == "0" && from == "g"){//关闭弹窗
+		if(SUI.Util.browserType()=='phone'){
+			history.go(-1);
+		}else{
+			closeWindow(true);
+		}
+	}else if(appload == "0" && from == "app"){//关闭弹窗
+		if(document.referrer == null || document.referrer == ""){
+			iPortal.closeWindow();
+		}else{
+			var rander = + new Date();
+			window.location.href = changeURLArg(document.referrer,"v",rander) ;
+		}
+	} else if (appload == "0" && from == "wechatt"){
+		WeixinJSBridge.call('closeWindow');
+		//WeixinJSBridge.invoke('closeWindow', {}, function (res) { });
+
+	}else {
+		if(SUI.Util.browserType()=='phone'){
+			history.go(-1);
+		}else{
+			closeWindow(true);
+		}
+	}
+}
+function closeBtn(from,appload,wfConfig){
+	if(appload=="0" && from == "null") {
+		if(wfConfig.workItemId || wfConfig.processInstId){
+			history.go(-1);
+		} 
+	} else if(appload == "null" && from == "null"){//直接关闭
+		if(SUI.Util.browserType()=='phone'){
+			history.go(-1);
+		}else{
+			closeWindow(true);
+		}
+	} else if(appload == "0" && from == "m"){//首页关闭layer
+		if(SUI.Util.browserType()=='phone'){
+			history.go(-1);
+		}else{
+			closeWindow(true);
+		}
+	} else if(appload == "0" && from == "g"){//关闭弹窗
+		if(SUI.Util.browserType()=='phone'){
+			history.go(-1);
+		}else{
+			closeWindow(true);
+		}
+	}else if(appload == "0" && from == "app"){//关闭弹窗
+		if(document.referrer == null || document.referrer == ""){
+			iPortal.closeWindow();
+		}else{
+			var rander = + new Date();
+			window.location.href = changeURLArg(document.referrer,"v",rander) ;
+		}
+	}else if (appload == "0" && from == "wechatt"){
+		WeixinJSBridge.call('closeWindow');
+		//WeixinJSBridge.invoke('closeWindow', {}, function (res) { });
+
+	}else {
+		if(SUI.Util.browserType()=='phone'){
+			history.go(-1);
+		}else{
+			closeWindow(true);
+		}
+	}
+}
+
+//修改URL参数值
+function changeURLArg(url, arg, arg_val) {
+    var pattern = arg + '=([^&]*)';
+    var replaceText = arg + '=' + arg_val;
+    if (url.match(pattern)) {
+        var tmp = '/(' + arg + '=)([^&]*)/gi';
+        tmp = url.replace(eval(tmp), replaceText);
+        return tmp;
+    } else {
+        if (url.match('[\?]')) {
+            return url + '&' + replaceText;
+        } else {
+            return url + '?' + replaceText;
+        }
+    }
+    return url + '\n' + arg + '\n' + arg_val;
+}
+/**
+ * [当需要将金额转换为大写金额展示的时候，调用此方法。]
+ * @param  {[数字]} n [要转换为大写的金额]
+ * @return {[字符串]}   [转换之后的大写金额]
+ */
+function chineseNumber(n){
+	 if (!/^(0|[1-9]\d*)(\.\d+)?$/.test(n))
+         return "数据非法";
+     var unit = "仟佰拾亿仟佰拾万仟佰拾元角分", str = "";
+         n += "00";
+     var p = n.indexOf('.');
+     if (p >= 0)
+         n = n.substring(0, p) + n.substr(p+1, 2);
+         unit = unit.substr(unit.length - n.length);
+     for (var i=0; i < n.length; i++)
+         str += '零壹贰叁肆伍陆柒捌玖'.charAt(n.charAt(i)) + unit.charAt(i); 
+     return str.replace(/零(仟|佰|拾|角)/g, "零").replace(/(零)+/g, "零").replace(/零(万|亿|元)/g, "$1").replace(/(亿)万/g, "$1$2").replace(/^元零?|零分/g, "").replace(/元$/g, "元整").replace(/角$/g, "角整").replace(/佰拾/g, "佰壹拾");
+}
+
+/**
+ * [toDecimal2 description]
+ * @param  {[type]} x [description]
+ * @return {[type]}   [description]
+ */
+function toDecimal2(x) {   
+  var f = Math.round(x*100)/100;   
+  var s = f.toString();   
+  var rs = s.indexOf('.');   
+  if (rs < 0) {   
+    rs = s.length;   
+    s += '.';   
+  }   
+  while (s.length <= rs + 2) {   
+    s += '0';   
+  }   
+  return s;   
+}  
+
+
+var defPath = "/default/portalone/";
+var link1 = document.createElement('link');
+link1.setAttribute("rel", "stylesheet");
+link1.setAttribute("type", "text/css");
+link1.setAttribute("href",defPath+"_public/js/check.css");
+document.head.appendChild(link1);
+
+var link2 = document.createElement('link');
+link2.setAttribute("rel", "stylesheet");
+link2.setAttribute("type", "text/css");
+link2.setAttribute("href",defPath+"_public/css/sui-compact.css");
+document.head.appendChild(link2);
+
+function openWindowUrlForMax(newName, url, width, height) {
+    index = layer.open({
+        type: 2,
+        title: false,
+        shadeClose: false,
+       /* maxmin: true,*/
+        shade: 0.6,
+        area: [ window.innerWidth+ "px", window.innerHeight+ "px"],
+        scrollbar: true,
+        closeBtn:0,
+        content: (url), //iframe的url
+        success: function (index,layero){
+            $(".layui-layer-max").trigger("click");
+        }
+    });
+}

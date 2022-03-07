@@ -1,0 +1,583 @@
+/**
+* @author yangshangfei
+* @date 2019/7/4 3:10 PM
+*/
+@charset "UTF-8";
+/*模板公共样式表*/
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px
+}
+
+::-webkit-scrollbar-button:vertical {
+    display: none
+}
+
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-track {
+    background-color: #e2e2e2
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, .3)
+}
+
+::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: rgba(0, 0, 0, .35)
+}
+
+::-webkit-scrollbar-thumb:vertical:active {
+    background-color: rgba(0, 0, 0, .38)
+}
+
+/*background-color 背景色*/
+/*border-color边框颜色*/
+
+/*按钮样式 == 包括 传阅 提交 收回 取消申请 打印 保存草稿 导出 日期控件弹窗确定按钮*/
+.sui-form .btn-primary,.mspplus-form .btn-primary,.ui-modal .ui-footer .btn-primary,
+.select2-container--default .select2-selection--multiple .select2-selection__choice,
+.select2-results__option .btn-primary,
+.layui-layer .layui-layer-btn .layui-layer-btn0,
+.ranges .btn-primary,
+.uploadify:hover .btn-primary,
+.pagination > .active > a,
+.pagination > .active > a:focus,
+.pagination > .active > a:hover,
+.pagination > .active > span,
+.pagination > .active > span:focus,
+.pagination > .active > span:hover {
+    background-color: #265d5a;
+    border-color: #1b524f;
+}
+.daterangepicker .input-mini.active /*日期边框*/
+{
+    border-color: #00a65a;
+}
+select option[selected] {
+    background-color: #d9eceb;
+}
+/* 日期选中范围淡绿色 */
+.daterangepicker td.in-range {
+    background-color: #d9eceb;
+}
+.model-phone-bg div.footer-button, /*手机端模态框确定按钮*/
+.daterangepicker td.active, .daterangepicker td.active:hover,/* 选中日期 */
+.ui-radio input:checked:after,
+.ph-title-bg,/* 手机端 == 点击查看流程 == 页面*/
+.ui-header-positive  {
+    background-color: #265d5a;
+}
+
+.ph-process-time .fa, /*  小圆点颜色*/
+.ui-checkbox input:checked:before, .ui-checkbox-s input:checked:before /*机构、人员选择器等插件移动端选中样式*/
+{
+    color: #265d5a;
+}
+
+/* 导航栏 ==== 选中状态时 上边框颜色 */
+.nav-tabs-custom > .nav-tabs > li.active {
+    border-top-color: #265d5a;
+}
+/* 手机端头部选中下边框颜色 */
+div.header-tab-name.active {
+    border-color: #265d5a;
+}
+/*按钮鼠标悬浮颜色*/
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus,
+.btn-primary.active.focus,
+.btn-primary:active:hover,
+.btn-primary.hover {
+    background-color: #3f7976;
+}
+
+/*select控件下拉样式背景色*/
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #34716e;
+    color: #ffffff;
+}
+.select2-container--default .select2-results__option[aria-selected=true]:hover{
+    color: #ffffff;
+}
+.multi-select-tick {
+    opacity: 0;
+    margin-right: 5px;
+}
+.select2-container--default .select2-results__option[aria-selected=true] .multi-select-tick {
+    opacity: 1;
+    /* color: #3f7976; */
+}
+/* .select2-container--default .select2-results__option[aria-selected=true]:hover{
+    color: #ffffff;
+} */
+/* 关闭 和 查看流程 == 按钮 == 颜色 */
+.sui-closewindow .btn-default, .sui-flowhistorygraph .btn-default,.ranges .btn-default {
+    background-color: #f4f4f4;
+    color: #444;
+    border-color: #ddd;
+}
+
+/* 关闭、查看流程 == 按钮 == 鼠标悬停颜色 */
+.sui-closewindow .btn-default:hover, .sui-flowhistorygraph .btn-default:hover {
+    background-color: #e7e7e7;
+    border-color: #adadad;
+}
+
+/* 传阅历史 == 删除未阅按钮 == 颜色*/
+#lccydiv .delallBtn {
+    background-color: #dd4b39;
+    border-color: #d73925
+}
+
+/* 传阅历史 == 删除未阅按钮 == 鼠标悬浮颜色*/
+#lccydiv .delallBtn:hover {
+    background-color: #d73925;
+    border-color: #ac2925;
+}
+
+/* 流转历史 == 小圆点 == 颜色 */
+.layout-2-flowhistory .flow-header .fa {
+    color: #d73939;
+}
+
+.sui-opinionhistory a.btn-success ,/* 流转历史 == 点击查看按钮 == 颜色 */
+#lccydiv .btn-success/* 传阅历史 == 点击显示隐藏按钮 == 颜色  */
+{
+    background-color: #00a65a;
+    border-color: #008d4c;
+}
+
+.sui-opinionhistory a.btn-success:hover /* 流转历史 == 点击查看按钮 == 鼠标悬浮颜色 */
+#lccydiv btn-success:hover /* 传阅历史 == 点击显示隐藏按钮 == 鼠标悬浮颜色  */
+.sui-selectmechanismtool a.btn-success:hover /* 机构选择器 == 确定按钮 == 鼠标悬浮颜色 */
+{
+    background-color: #008d4c;
+    border-color: #398439;
+}
+
+/* 机构选择器 == 确定按钮 == 颜色 */
+.sui-selectmechanismtool a.btn-success {
+    border-color: #008d4c;
+}
+
+.sui-selectmechanismtool a.btn-success,
+.p-footer button:last-child,
+.ui-footer button:last-child,
+.l-footer #sure{
+    background-color: #003c94;
+}
+
+.p-footer button:first-child,/* 手机端 == 人员选择器按钮颜色 */
+.ui-footer button:first-child /* 手机端 == 点击传阅按钮后 == 按钮颜色 */
+{
+    background-color: #537ebd;
+}
+
+.p-footer button:first-child,
+.p-footer button:last-child
+{
+    color: #fff;
+}
+
+.uploadify:hover .btn-primary {
+    color: #fff;
+    background-image: none;
+}
+
+/* 兼容IE9 鼠标放在数据列表上数据列表一直变高 */
+.table_iebug:hover {
+    height: 100%;
+}
+
+/* 使得全选按钮所在option鼠标移入时 li 的 背景色不 和 按钮同色 */
+/*.allSelect_bg {*/
+    /*background-color: white !important;*/
+/*}*/
+
+/*表单内容样式 宽度 居中*/
+.app-wrapper, .app-footer-inner, .wrapper-inner {
+    width: 80%;
+    margin: 0 auto;
+    max-width: 1400px;
+    min-width: 1000px;
+    overflow: hidden;
+}
+
+/*表单背景色*/
+.mspplus-form {
+    background: #fff;
+    margin: 0 auto;
+    /*padding: 10px 10px;*/
+}
+
+/*表格中td样式*/
+.sui-form .coreplus-form > table > tbody > tr > td {
+    height: auto;
+    padding: 10px 0;
+    border-color: #d3d3d3;
+    font-size: 14px; /*字体大小*/
+    font-family: "Microsoft YaHei" !important; /*字体*/
+    color: #000000; /*字体颜色*/
+}
+
+/*表格中 表单边框样式*/
+.mspplus-form > table > tbody > tr > td {
+    border: 1px solid #d3d3d3;
+}
+
+.sui-form .form-table .form-control,
+.sui-form .form-table .select2-container--default .select2-selection--single,
+.sui-form .form-table .select2-selection .select2-selection--single {
+    /*padding: 6px 10px;*/
+}
+
+/*控件只读样式*/
+.sui-form .form-readOnly .value-text {
+    /*line-height: 24px;*/
+}
+
+/*表单中 人员、机构选择器 日期控件等右侧按钮的背景色 */
+.sui-form .form-control,
+.sui-form .input-group .input-group-addon {
+    background-color: #fff;
+    border-color: #eeeeee;
+}
+
+/* 文本控件系列样式统一管理 -- start */
+/* 表单标题 */
+.sui-form .sui-formtitle {
+    font-size: 24px;
+    font-weight: normal;
+    color: #333;
+    display: inline-block;
+}
+
+.sui-form .sui-formtitle span,
+.sui-form .sui-childtitle span,
+.sui-form .sui-primary span,
+.sui-form .sui-success span,
+.sui-form .sui-warning span,
+.sui-form .sui-error span {
+    white-space: normal;
+}
+
+/* 副标题 */
+.sui-form .sui-childtitle {
+    font-size: 20px;
+    font-weight: normal;
+    color: #333;
+    display: inline-block;
+}
+
+/* 字段标题 */
+.sui-form .sui-fieldtitle {
+    font-size: 14px;
+    font-weight: normal;
+    color: #333;
+    display: inline;
+}
+
+/* 首选项 */
+.sui-form .sui-primary {
+    font-size: 14px;
+    font-weight: normal;
+    color: #0087ff;
+    display: inline-block;
+}
+
+/* 成功 */
+.sui-form .sui-success {
+    font-size: 14px;
+    font-weight: normal;
+    color: #00d015;
+    display: inline-block;
+}
+
+/* 警告 */
+.sui-form .sui-warning {
+    font-size: 14px;
+    font-weight: normal;
+    color: #7a7a7a;
+    display: inline-block;
+}
+
+/* error */
+.sui-form .sui-error {
+    font-size: 14px;
+    font-weight: normal;
+    color: #ff0000;
+    display: inline-block;
+}
+
+/* 提示 */
+.sui-form .sui-tiptext {
+    font-size: 14px;
+    font-weight: normal;
+    color: #444;
+    display: inline-block;
+}
+
+/*单选多选按钮*/
+/* green */
+.icheckbox_square-green,
+.iradio_square-green {
+    display: inline-block;
+    *display: inline;
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+    width: 22px;
+    height: 22px;
+    background: url(../plugins/iCheck/square/green.png) no-repeat;
+    border: none;
+    cursor: pointer;
+}
+
+.icheckbox_square-green {
+    background-position: 0 0;
+}
+
+.icheckbox_square-green.hover {
+    background-position: -24px 0;
+}
+
+.icheckbox_square-green.checked {
+    background-position: -48px 0;
+}
+
+.icheckbox_square-green.disabled {
+    background-position: -72px 0;
+    cursor: default;
+}
+
+.icheckbox_square-green.checked.disabled {
+    background-position: -96px 0;
+}
+
+.iradio_square-green {
+    background-position: -120px 0;
+}
+
+.iradio_square-green.hover {
+    background-position: -144px 0;
+}
+
+.iradio_square-green.checked {
+    background-position: -168px 0;
+}
+
+.iradio_square-green.disabled {
+    background-position: -192px 0;
+    cursor: default;
+}
+
+.iradio_square-green.checked.disabled {
+    background-position: -216px 0;
+}
+
+/*单选、多选控件radio checkbox 每个选项直接的间距*/
+.mspplus-form .radio-group label:not(:last-of-type),.mspplus-form .checkbox-group label:not(:last-of-type){
+    margin-right: 12px;
+}
+.participants-attach-radios .radio-group div:not(:last-of-type) label{
+    margin-right: 12px;
+}
+/*单选、多选控件radio checkbox 按钮和选项内容之间的间距*/
+.mspplus-form .radio-group label div,.mspplus-form .checkbox-group label div{
+    margin-right: 6px;
+}
+/*表格td内部边距*/
+.mspplus-form > table > tbody > tr >td{
+    padding: 10px 12px;
+}
+/*表单最底层背景样式*/
+body, .skin-green .wrapper, .skin-green .main-sidebar, .skin-green .left-side{
+    /*background:#fff url(../../_public/images/bg_white.png)!important;*/
+}
+/*表单中控件高度 字体颜色*/
+.sui-form .form-control{
+    /*height:36px;*/
+    color:#333;
+}
+.sui-rating .stars-bar{
+    margin-left: 8px;
+}
+.sui-select.form-item-success .select2-container--default .select2-selection--single{
+    border-color: #c5c5c5;
+}
+.sui-fieldtitle,.sui-fieldtitle .value-text{
+    padding: 0!important;
+}
+.sui-select label,.sui-multiselect label{
+    margin-bottom: 0;
+}
+/*placeholder字体颜色 大小 谷歌*/
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder{
+    color:#a1a1a1!important;
+    font-size:14px;
+}
+/*placeholder字体颜色 大小 火狐*/
+input:-moz-placeholder, textarea:-moz-placeholder{
+    color:#a1a1a1!important;
+    font-size:14px;
+}
+/*placeholder字体颜色 大小 IE*/
+input:-ms-input-placeholder, textarea:-ms-input-placeholder{
+    color:#a1a1a1!important;
+    font-size:14px;
+}
+/*解决长数字或者长英文不换行问题*/
+span,p,div,a{
+    word-break: break-all;
+}
+.sui-newparticipants .popover .arrow:after{
+    border-bottom-color: #b2b2b2;
+    border-top-color: #b2b2b2;
+}
+.sui-newparticipants .popover{
+    background: #b2b2b2;
+    color: #ffffff;
+    border-color: #b2b2b2;
+}
+.sui-newparticipants .form-tr
+.show-custom{
+    padding-bottom: 2px;
+}
+.sui-newparticipants .partici-readonly{
+    line-height: 34px;
+    vertical-align: middle;
+}
+
+.person-opinion-table>tbody>tr>td{
+    border:1px solid #f4f4f4;
+}
+
+@media(min-width:768px){
+    .opinion-history-name-width {
+        display: inline-block !important;
+        position: inherit !important;
+    }
+
+    .opinion-history-value {
+        display: inline-block !important;
+        width: calc(100% - 120px) !important;
+        background-color: transparent !important;
+    }
+
+    .opinion-history-item {
+        padding-left: inherit !important;
+    }
+    .sui-newparticipants .sui-selectparticipates{
+        /*padding: 6px 3px!important;*/
+    }
+    .sui-fieldtitle,.sui-fieldtitle .value-text{
+        display: inline!important;
+    }
+
+    /*多选控件checkbox 单选控件radio样式校验*/
+    .sui-multiselect[selectstyle="checkbox"],.sui-select[selectstyle="radio"]{
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .sui-newfileupload,.sui-fileupload{
+        display: inline-block;
+    }
+    .default-modal{
+        background: #f4f4f4;
+    }
+    .sui-newparticipants .participants-content .form-tr{
+        padding: 0 15px;
+    }
+    .sui-newparticipants .participants-title{
+        padding: 0 15px;
+    }
+    .sui-newparticipants .clearfix .item-value{
+        padding: 7px  10px;
+    }
+    .select2-container--default .select2-selection--single, .select2-selection .select2-selection--single{
+        height: 34px;
+    }
+    .form-table .select2-container--default .select2-selection--multiple .select2-selection__choice{
+        line-height: 24px;
+    }
+    .sui-newparticipants .show-multi-participants{
+        width: calc(100% - 54px);
+    }
+}
+
+/*打印样式的控制*/
+@media print{
+    .app-header,.app-footer{
+        display: none;
+    }
+    .sui-opinionhistory .opinion-history-name-width,.mspplus-form > table > tbody > tr:first-child >th:nth-of-type(odd) {
+        width: 120px !important;
+    }
+    .strategyOpinion{
+        display: none;
+    }
+    .sui-newparticipants .participants-attach-content .col-sm-5{
+        width: 40%!important;
+    }
+    .sui-newparticipants .participants-attach-content .col-sm-7{
+        width: 50%!important;
+    }
+    .sui-newparticipants .clearfix .col-sm-6{
+        width: 50% !important;
+        display: inline-block!important;
+    }
+    .sui-newparticipants .clearfix .item-value .select2{
+        width: 100% !important;
+    }
+    .sui-newparticipants .clearfix .form-td{
+        display: inline-block!important;
+        float: none!important;
+    }
+    .sui-newparticipants .clearfix .item-value{
+        padding-left: 0!important;
+    }
+    .mspplus-form{
+        border-top: none;
+    }
+    #msp-expand-tr{
+        display: none!important;
+    }
+    .mspplus-form{
+        padding: 30px 40px!important;
+    }
+    .mspplus-form > table > tbody > tr > td {
+        height: 40px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+    }
+    /*解决当表格中字段过多时打印显示不全的问题*/
+    .sui-datatable table>thead>tr div{
+        white-space: normal;
+    }
+    .sui-datatable table>thead>tr>th{
+        vertical-align: middle;
+    }
+    .sui-datatable table.table-bordered{
+        border: none!important;
+    }
+    .sui-datatable table.table-bordered>thead>tr th:first-child{
+        border-left: none!important;
+    }
+    .sui-datatable table.table-bordered>thead>tr th:last-child{
+        border-right: none!important;
+    }
+    .sui-datatable table.table-bordered>thead>tr th{
+        border-top: none!important;
+    }
+    .sui-datatable table.table-bordered>tbody>tr td:first-child{
+        border-left: none!important;
+    }
+    .sui-datatable table.table-bordered>tbody>tr td:last-child{
+        border-right: none!important;
+    }
+    .sui-datatable table.table-bordered>tbody>tr:last-child td{
+        border-bottom: none!important;
+    }
+}

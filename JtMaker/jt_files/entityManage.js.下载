@@ -1,0 +1,449 @@
+
+;(function (window, EM, undefined) {
+    EM.urls = {
+        saveEntityUrl: 'com.sudytech.portalone.base.mspplus.dataManager.saveBizData.saveBizDate.biz.ext',
+        updateEntityUrl: 'com.sudytech.portalone.base.mspplus.dataManager.saveBizData.updateBizData.biz.ext',
+        loadEntityDetailUrl: 'com.sudytech.portalone.base.db.getByIdDifferentDataSource.biz.ext',
+        delEntityUrl: 'com.sudytech.portalone.base.db.batchDeleteCascade.biz.ext',
+        loadDictUrl: 'com.sudytech.portalone.base.ui.queryDict.biz.ext',
+        customMethodUrl: 'com.sudytech.portalone.base.script.EntityScriptBiz.runEntityFunScriptBiz.biz.ext',
+        downLoadTemplateUrl: 'com.sudytech.portalone.base.mspplus.mspplus.downloadExcel.biz.ext',
+        importEntityUrl: 'com.sudytech.portalone.base.mspplus.mspplus.insertEntityByExcel.biz.ext'
+    }
+    var initConfig = {
+        id: '',
+        idProp: '',//
+        extraData: '',//保留，扩展额外数据
+        entityType: '',
+        formSelector: '.sui-form',
+        mode: ''
+    }
+    var queryConfig = {
+        entityType: '',
+        formUrl: '',
+        printUrl: '',
+        extraData: ''//保留，扩展额外数据
+    }
+    var isLoadDetail = false;
+    var _config = {}
+    /*初始化调用*/
+    EM.init = function (config, callback) {
+        initConfig = config ? $.extend(initConfig, config) : initConfig
+        _config = initConfig
+        // 获取context信息
+        EM.getCoreplusUserContext();
+        if (initConfig.id && initConfig.id != '') {
+            isLoadDetail = true;
+            EM.loadEntityDetail(callback)
+        } else {
+            EM.initUI(callback)
+        }
+    }
+    EM.initQuery = function (config, callback) {
+        queryConfig = config ? $.extend(queryConfig, config) : queryConfig
+        _config = queryConfig
+        EM.initQueryUI(callback)
+        bindQueryEvents()
+
+    }
+    EM.initQueryUI = function (callback) {
+        SUI.Util.context.user = _config.extraData.userObject || {}
+        //加载字典表
+        loadDictData()
+        SUI.init(function () {
+            if (callback && typeof callback === "function")
+                callback()
+        })
+        // if ($('.sui-queryentity').length > 0) {
+        //     var config = $(".sui-queryentity").sui().getConfig();
+        //     config.entityConfig = queryConfig;
+        //     $(".sui-queryentity").sui().setConfig(config);
+        // }
+    }
+    EM.initUI = function (callback) {
+        SUI.Util.context.user = initConfig.extraData.userObject || {}
+        //加载字典表
+        loadDictData()
+        var form = $(_config.formSelector)
+        if ("print" == initConfig.mode) {
+            $('[msp-print="false"]').hide();
+            //加载打印样式
+            var link = document.createElement('link');
+            //  link.href =  __basePath + '/_public/css/form_print.css';
+            link.href = __basePath + '/_libs/coreplus/form_print.css';
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            $('head')[0].appendChild(link);
+        }
+        /*打印或者查看详情 所有控件设为只读模式*/
+        if (_config.mode === 'print' || _config.mode === 'preview') {
+            form.find('[class^="sui"]').attr('mode', 'readOnly');
+        }
+        SUI.init(function () {
+            //1.找到设定了初始值的控件，拿到name
+            var initvalueDiv = form.find('[initvalue]')
+            //2.构造数据  data={} data.name=Coreplus.getInitValue('')
+            var businessData = new Coreplus.businessData();
+            var data = {};
+            for (var i = 0; i < initvalueDiv.length; i ++) {
+                var name = $(initvalueDiv[i]).attr('name');
+                var initvalue = $(initvalueDiv[i]).attr('initvalue');
+                var initvaluetype = $(initvalueDiv[i]).attr('initvaluetype');
+                if(initvaluetype == 'userInfo'){
+                    data[name] = Coreplus.getInitValue(initvalue)
+                }
+            }
+            if ($('.sui-submitentity').length > 0) {
+                var config = $(".sui-submitentity").sui().getConfig();
+                config.entityConfig = _config;
+                $(".sui-submitentity").sui().setConfig(config);
+            }
+            if ($('.sui-closewindow').length > 0) {
+                var config = $(".sui-closewindow").sui().getConfig();
+                config.entityConfig = _config;
+                $(".sui-closewindow").sui().setConfig(config);
+            }
+            // 3.form.sui().setValue(data)
+            form.sui().setValue(data)
+
+            if (callback && typeof callback === "function")
+                callback()
+            if(!isLoadDetail){
+                businessData.processServiceTableData(data);
+            }
+        })
+    }
+    EM.reloadList = function () {
+        $('.sui-tablelist').sui().tableApi().ajax.reload(function () {
+        }, false);
+    }
+
+    EM.getCoreplusUserContext = function() {
+        $.ajax({
+//            url: '/default/base/role/sf.jsp',
+            url:'com.sudytech.portalone.base.role.role.queryUserObjectInfo.biz.ext',
+            type: 'post',
+            contentType: "text/json",
+            async: false,
+            success: function (data) {
+//                var data = JSON.parse($.trim(data));
+            	/* var identity = {};
+                enumQQ(data.js, identity);
+                identity.value = data.js.userObject.attributes.QQ;
+                data.js.userObject.identity = identity;
+                Coreplus.setInitValue(data.js.userObject); */
+                // 处理返回数据
+                var contextData = {};
+                var res = data.js.userObject;
+                for(var key in res){
+                    if(key === 'attributes'){
+                        var relateContext  = res[key];
+                        for(var index in relateContext){
+                            contextData[index] = relateContext[index];
+                        }
+                    }else{
+                        contextData[key] = res[key];
+                    }
+                }
+                var identity = {};
+                enumQQ(contextData, identity);
+                contextData.identity = identity;
+                Coreplus.setInitValue(contextData);
+                $(document).trigger('contextDone');
+            },
+            error: function () {
+                alert('请求异常！');
+            }
+        })
+    }
+    // 枚举QQ字段
+    function enumQQ(data, obj) {
+        // var key = data.userObject.attributes.QQ
+        var key = data.QQ;
+        switch ( key ) {
+            case '1' : {
+                key = '教职工'
+                break;
+            }
+            case '2' : {
+                key = '本科生'
+                break;
+            }
+            case '3' : {
+                key = '同是本科生与教职工'
+                break;
+            }
+            case '4' : {
+                key = '研究生'
+                break;
+            }
+            case '5' : {
+                key = '同是教职工与研究生'
+                break;
+            }
+            case '6' : {
+                key = '同是本科生与研究生'
+                break;
+            }
+        }
+        return obj.name = key;
+    }
+    /*绑定事件*/
+    function bindQueryEvents() {
+        $('.sui-tablelist').delegate("[data-buttontype='print']", "click", function () {
+            var id = $(this).attr('data-print'), idProp = $('.sui-tablelist').attr('idProp') || 'id';
+            window.open(_config.printUrl + '?appload=0&mode=print&idProp=' + idProp + '&id=' + id);
+        });
+        $('.sui-tablelist').delegate("[data-buttontype='update']", "click", function () {
+            var id = $(this).attr('data-update'), idProp = $('.sui-tablelist').attr('idProp') || 'id';
+            layer.open({
+                area: ['90%', '90%'],
+                type: 2,
+                content: _config.formUrl + '?appload=0&mode=update&id=' + id + '&idProp=' + idProp
+            })
+        });
+    }
+
+    /*构建级联表entity
+    cascadePropers
+    * */
+    function getCascadeData(entity) {
+        var cascadePropers = []
+        $('.sui-datatable').each(function (i, v) {
+            var name = $(this).attr('name');
+            var entityType = entity.__type;
+            var isUpdate = $(this).attr('isupdate');
+            if(isUpdate == 'true'){
+                if (entityType && entity[name]) {
+                    cascadePropers.push(name);
+                    entity[name] = JSON.parse(entity[name]);
+                    $.each(entity[name], function (i, v) {
+                        v.__type = entityType;
+                    });
+                }
+            }
+        })
+        return cascadePropers
+    }
+
+    EM.getSelectedData=function (){
+         var delData = []
+        $('.sui-tablelist tbody tr td:first-child input[type="checkbox"]:checked').each(function () {
+            var obj = {}
+            obj.id = $(this).val()
+            obj.__type = _config.entityType
+            delData.push(obj)
+        })
+        return delData;
+    }
+    /*删除*/
+    EM.delEntity = function () {
+        var delData = []
+        $('.sui-tablelist tbody tr td:first-child input[type="checkbox"]:checked').each(function () {
+            var obj = {}
+            obj.id = $(this).val()
+            obj.__type = _config.entityType
+            delData.push(obj)
+        })
+        EM.ajax(EM.urls.delEntityUrl, {entity: delData}, null, function () {
+            alert('删除成功')
+            $('.sui-tablelist').sui().tableApi().ajax.reload(function () {
+            }, false);
+        }, function () {
+            alert('删除失败')
+        })
+    }
+    /*自定义控件*/
+    EM.customRun = function (methodName) {
+        var entitys = [], ids = []
+        var rows = $('.sui-tablelist').sui().tableApi().data()
+        $('.sui-tablelist tbody tr td:first-child input[type="checkbox"]:checked').each(function () {
+            ids.push($(this).val())
+            var index = $('.sui-tablelist').sui().tableApi().row($(this).closest('tr')).index()
+            var obj=rows[index]
+            obj.__type=_config.entityType
+            entitys.push(obj)
+        })
+        var params = {
+            ids: ids,
+            entitys: entitys,
+            methodName: methodName,
+            type:_config.entityType
+        }
+        // 普通查询表单传参process
+        if($('.sui-tablelist input[name="process"]').length) params.process = $('.sui-tablelist input[name="process"]').val()
+        EM.ajax(EM.urls.customMethodUrl, jsonString(params))
+    }
+
+    /*新增*/
+    EM.addEntity = function (params) {
+        layer.open({
+            area: ['100%', '100%'],
+            type: 2,
+            content: _config.formUrl + '?mode=add&appload=0'
+        })
+    }
+    /*查询*/
+    EM.queryEntity = function (params) {
+        var conditions = []
+        $('[msp-condition]').each(function () {
+            var obj = {}
+            /*处理多字段查询条件*/
+            var attrName=$(this).attr('name')||'',
+                nameArr=attrName.split(',')
+            obj.propertyName = JSON.stringify(nameArr)
+            obj.propertyValue = $(this).sui().getValue()
+            obj.operate = $(this).attr('msp-condition')
+            if($(this).hasClass('sui-selectmechanismtool')){
+                obj.type = 'org';
+            }
+            // 如果是单选框 并且 配置了允许多个值
+            if($(this).hasClass('sui-select') && $(this).attr('ismultvalue')=='true'){
+                obj.type = 'select';
+                // 如果配置了请选择
+                if(obj.propertyValue == '$noValue$'){
+                    obj.propertyValue = '';
+                }
+            }
+            conditions.push(obj)
+        });
+        $('.sui-tablelist').sui().extraParam(function (params) {
+                params = {
+                    data: conditions,
+                    // type: queryConfig.entityType,
+                    // order: []
+                };
+                return params;
+            }
+        );
+        $('.sui-tablelist').sui().tableApi().ajax.reload(function () {
+        }, false);
+    }
+    /*保存或更新实体*/
+    EM.saveEntity = function (entity,success) {
+        //获取cascade数据
+        var cascadeData = getCascadeData(entity)
+        var params = {
+            entity: entity
+        }
+        if (cascadeData.length > 0) {
+            params.cascadePropers = cascadeData
+        }
+        var saveOrUpdateUrl = _config.id === '' ? EM.urls.saveEntityUrl : EM.urls.updateEntityUrl
+        EM.ajax(saveOrUpdateUrl, jsonString(params), null,success)
+    }
+
+    EM.loadEntityDetail = function (callback) {
+        var params = {}
+        var success = function (data) {
+            EM.initUI(callback)
+            new Coreplus.businessData().processServiceTableData(data.value);
+            $(_config.formSelector).sui().setValue(data.value)
+        }
+        params[_config.idProp] = _config.id
+        params.__type = _config.entityType
+        EM.ajax(EM.urls.loadEntityDetailUrl, jsonString({entity: params}), null, success)
+    }
+    EM.entityTemplate = function (completeCB, callback) {
+        EM.ajax(EM.urls.downLoadTemplateUrl, jsonString({entityName: getEntityName(_config.entityType)}), completeCB, callback)
+    }
+    EM.importEntity = function (excelPath, completeCB, successCB) {
+        EM.ajax(EM.urls.importEntityUrl, jsonString({
+            entityName: getEntityName(_config.entityType),
+            excelPath: excelPath
+        }), completeCB, successCB)
+    }
+
+    EM.ajax = function (url, params, pcomplete, psuccess, perror, pajaxConfig) {
+        var complete = pcomplete || function () {
+        }
+        var success = psuccess;
+        var error = perror || function () {
+            alert('请求异常')
+        }
+        var config = {
+            type: 'post',
+            contentType: "text/json"
+        }
+        if(typeof params == 'string'){
+            params = JSON.parse(params);
+            var childList = params.cascadePropers?params.cascadePropers:[];
+            for(var field in params.entity){
+                if(typeof params.entity[field] != 'string'){
+                    if(params.entity[field] === null){
+                    }else{
+                        if(!childList.length){
+                            params.entity[field] = JSON.stringify(params.entity[field]);
+                        }else{
+                            if($.inArray(field,childList)===-1){
+                                params.entity[field] = JSON.stringify(params.entity[field]);
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        params = JSON.stringify(params);
+        if (pajaxConfig)
+            config = $.extend(config, pajaxConfig);
+        $.ajax({
+            url: url,
+            type: config.type,
+            data: params,
+            contentType: config.contentType,
+            success: success,
+            error: error,
+            complete: complete
+        })
+    }
+
+    /*加载字典表*/
+    function loadDictData() {
+        //初始化字典
+        var dictTypes = [];
+        var dicts = $(".wf-dict").each(function (i) {
+            dictTypes[i] = $(this).attr("wf-type");
+        });
+        if (dictTypes.length) {
+            $.ajax({
+                type: 'POST',
+                url: EM.urls.loadDictUrl,
+                data: jsonString({dictTypes: dictTypes}),
+                contentType: "text/json",
+                success: function (data) {
+                    var options = data.options;
+                    dicts.each(function () {
+                        var e = $(this);
+                        var dataSource = [];
+                        var type = e.attr("wf-type");
+                        // 普通查询表单字典表数据格式
+                        for (var i = 0; i < options.length; i++) {
+                            if (options[i].type == type) {
+                                dataSource[dataSource.length] = {value: [{"newValue":options[i].value}], name: options[i].name,showValue:options[i].value};
+                                continue;
+                            }
+                            if (options[i].TYPE == type) {//oracle字段为大写
+                                dataSource[dataSource.length] = {value:[{"newValue":options[i].VALUE}], name: options[i].NAME,showValue:options[i].VALUE};
+                            }
+                        }
+                        if (this.zoo) {
+                            var config = this.zoo.getConfig();
+                            config.properties.dataSource = dataSource;
+                            this.zoo.setConfig(config);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    function getEntityName(type) {
+        return type.split(':')[1]
+    }
+
+    /*工具函数*/
+    function jsonString(data) {
+        return JSON.stringify(data);
+    }
+})(window, window.EM || (window.EM = {}))

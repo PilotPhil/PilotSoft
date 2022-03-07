@@ -1,0 +1,502 @@
+;(function () {
+    var hasLoadMathJs = false
+
+    /*联动绑定*/
+    function bindCascade() {
+        var linkSource = $(this).attr('linkSource'),
+            name = $(this).attr('name'),
+            key = $(this).attr('linkKey') || name,
+            dataKey = $(this).attr('dataKey') || name
+        if (!name)
+            return
+        $('[name="' + linkSource + '"]').on('change', function (e, data) {
+            e.preventDefault()
+            var params = {},
+                $link = $('[name="' + name + '"]'),
+                domSui = getSui('[name="' + linkSource + '"]')
+            if (!$link.attr('linkSource')) {
+                return
+            }
+            if ($link.attr('isCascadeData') === 'true') {
+                if (!data) {
+                    data = domSui.getConfig().properties.dataSource
+                }
+                var dataSource = getStaticData(data, dataKey, domSui.getValue())
+                $link.loadStaticCascadeData(false, dataSource)
+            } else {
+                if ($link.attr('datamethod') === 'entity') {
+                    var _reqParam = {}, _conditionObj = {}
+                    _reqParam.data = []
+                    _conditionObj.propertyName = '["' + key + '"]'
+                    _conditionObj.propertyValue = domSui.getValue()
+                    _conditionObj.operate = 'EQ'
+                    _reqParam.data.push(_conditionObj)
+                    $link.loadSelectRemoteData(false, _reqParam)
+
+                } else {
+                    params.parentId = domSui.getValue()
+                    params[key] = domSui.getValue()
+                    $link.loadSelectRemoteData(false, params)
+                }
+
+            }
+        })
+    }
+
+    /**
+     * rowcount 行计算
+     * colcount 列计算
+     */
+    var formCalculate = {
+        calculate: function (bindexp) {
+            var _this = this;
+            var bindexplist = bindexp.split(',');
+            var rowCount = $(_this).attr('rowcount') == 'true';
+            if (bindexplist.length) {
+                $.each(bindexplist, function (i, v) {
+
+                    // 行计算
+                    if (rowCount) {
+                        // 初始化
+                        var result = formCalculate.calculateForForm.call(_this);
+                        $(_this).sui().setValue(result);
+                        var tableName = formCalculate.getdataTableName.call(_this);
+                        var field = v + 'trid';
+                        $(document).on('change', 'div[name="' + tableName + '"] div[name^="' + field + '"]', function () {
+                            var result = formCalculate.calculateForForm.call(_this);
+                            $(_this).sui().setValue(result);
+                        })
+                    } else {
+                        // 列计算
+                        // 初始化
+                        var result = formCalculate.calculateForForm.call(_this);
+                        $(_this).sui().setValue(result);
+                        if (v.indexOf('.') > -1) {
+                            var tableName = v.split('.')[0];
+                            var field = v.split('.')[1] + 'trid';
+                            $(document).on('change', 'div[name="' + tableName + '"] div[name^="' + field + '"]', function () {
+                                var result = formCalculate.calculateForForm.call(_this);
+                                $(_this).sui().setValue(result);
+                            })
+                        } else {
+                            // 普通字段
+                            $(document).on('change', 'div[name="' + v + '"]', function () {
+                                var result = formCalculate.calculateForForm.call(_this);
+                                $(_this).sui().setValue(result);
+                            });
+                        }
+                    }
+                })
+            }
+        },
+        calculateForForm: function () {
+            var _this = this;
+            var result = 0;
+            result = formCalculate.calculateForCustom.call(_this);
+            return result;
+        },
+        // 求和 1是普通字段 2是子表字段
+        calculateForSum: function (bindexp) {
+            var _this = this;
+            var rowCount = $(_this).attr('rowcount') == 'true';
+            bindexp = bindexp.split(',');
+            var sumValue = 0;
+            if (bindexp.length) {
+                $.each(bindexp, function (j, v) {
+                    if (v.indexOf('.') > -1) {
+                        var tableName = v.split('.')[0];
+                        var field = v.split('.')[1] + 'trid';
+                        var fieldDom = $('div[name="' + tableName + '"] div[name^="' + field + '"]');
+                        if (fieldDom.length) {
+                            $.each(fieldDom, function (i, d) {
+                                sumValue += Number($(d).sui().getValue());
+                            })
+                        }
+                    } else {
+                        sumValue += formCalculate.getComponentValue.call(_this, v);
+                    }
+                })
+            }
+            return sumValue;
+        },
+        // 求平均
+        calculateForAvg: function (bindexp) {
+            var _this = this;
+            bindexp = bindexp.split(',');
+            var sumValue = 0;
+            var avgValue = 0;
+            var avgLength = 1;
+            if (bindexp.length) {
+                $.each(bindexp, function (j, v) {
+                    if (v.indexOf('.') > -1) {
+                        var tableName = v.split('.')[0];
+                        var field = v.split('.')[1] + 'trid';
+                        var fieldDom = $('div[name="' + tableName + '"] div[name^="' + field + '"]');
+                        if (fieldDom.length) {
+                            avgLength = fieldDom.length
+                            $.each(fieldDom, function (i, d) {
+                                sumValue += Number($(d).sui().getValue());
+                            })
+                        }
+                    } else {
+                        sumValue += formCalculate.getComponentValue.call(_this, v);
+                    }
+                });
+                avgValue = sumValue / avgLength;
+            }
+            return avgValue;
+        },
+        // 计数
+        calculateForCount: function (bindexp) {
+            var _this = this;
+            bindexp = bindexp.split(',');
+            var countValue = 0;
+            if (bindexp.length) {
+                $.each(bindexp, function (j, v) {
+                    if (v.indexOf('.') > -1) {
+                        var tableName = v.split('.')[0];
+                        var field = v.split('.')[1] + 'trid';
+                        var fieldDom = $('div[name="' + tableName + '"] div[name^="' + field + '"]');
+                        if (fieldDom.length) {
+                            countValue = fieldDom.length;
+                        }
+                    } else {
+                        countValue += 1;
+                    }
+                });
+            }
+            return countValue;
+        },
+        toTimestamp: function (D) {
+            var timeStamp = '';
+            timeStamp = Number(new Date(D).getTime());
+            return timeStamp;
+        },
+        // 对两个时间进行求差 timeType 返回的差的精度 天，小时，分，秒 默认是天；
+        compareTime: function (T1, T2, timeType) {
+            T1 = Number(T1);
+            T2 = Number(T2);
+            timeType = timeType || 'day';
+            var timeResult = 0;
+            switch (timeType) {
+                case 'day':
+                    timeResult = Math.abs(T1 - T2) / 1000 / 60 / 60 / 24;
+                    break;
+                case 'hour':
+                    timeResult = Math.abs(T1 - T2) / 1000 / 60 / 60;
+                    break;
+                case 'minute':
+                    timeResult = Math.abs(T1 - T2) / 1000 / 60;
+                    break;
+                case 'second':
+                    timeResult = Math.abs(T1 - T2) / 1000;
+                    break;
+            }
+            return timeResult;
+        },
+        // 自定义
+        calculateForCustom: function () {
+            var _this = this;
+            var expression = $(_this).attr('expression');
+            var bindexp = $(_this).attr('bindexp');
+            var sumList = expression.match(/sum\([^)]+\)/g);
+            var avgList = expression.match(/avg\([^)]+\)/g);
+            var countList = expression.match(/count\([^)]+\)/g);
+            var timestampList = expression.match(/toTimestamp\([^)]+\)/g);
+            if (sumList && sumList.length) {
+                $.each(sumList, function (i, sum) {
+                    var sumField = sum.replace(/^sum\(/, '').replace(/\)$/, '');
+                    if (sumField) {
+                        var sumValue = formCalculate.calculateForSum.call(_this, sumField);
+                        expression = expression.replace(sum, sumValue);
+                    }
+                })
+            }
+            if (avgList && avgList.length) {
+                $.each(avgList, function (i, avg) {
+                    var avgField = avg.replace(/^avg\(/, '').replace(/\)$/, '');
+                    if (avgField) {
+                        var avgValue = formCalculate.calculateForAvg.call(_this, avgField);
+                        expression = expression.replace(avg, avgValue);
+                    }
+                })
+            }
+            if (countList && countList.length) {
+                $.each(countList, function (i, count) {
+                    var countField = count.replace(/^count\(/, '').replace(/\)$/, '');
+                    if (countField) {
+                        var countValue = formCalculate.calculateForCount.call(_this, countField);
+                        expression = expression.replace(count, countValue);
+                    }
+                })
+            }
+            if (timestampList && timestampList.length) {
+                $.each(timestampList, function (i, timestamp) {
+                    var timeField = timestamp.replace(/^toTimestamp\(/, '').replace(/\)$/, '');
+                    if (timeField) {
+                        var value = formCalculate.getComponentValue(timeField);
+                        var timeValue = formCalculate.toTimestamp(value);
+                        expression = expression.replace(timestamp, timeValue);
+                    }
+                })
+            }
+            var compareTimeList = expression.match(/compareTime\([^)]+\)/g);
+            if (compareTimeList && compareTimeList.length) {
+                $.each(compareTimeList, function (i, compare) {
+                    var compareField = compare.replace(/^compareTime\(/, '').replace(/\)$/, '').split(',');
+                    if (compareField && compareField.length) {
+                        var compareValue = formCalculate.compareTime(compareField[0] || 0, compareField[1] || 0, compareField[3] || 'day');
+                        expression = expression.replace(compare, compareValue);
+                    }
+                })
+            }
+
+            bindexp = bindexp.split(',');
+            $.each(bindexp, function (i, t) {
+                if (t.indexOf('.') == -1) {
+                    var value = formCalculate.getComponentValue.call(_this, t);
+                    expression = expression.replace(t, value);
+                }
+            });
+            var result = 0;
+            try {
+                result = eval(expression);
+            } catch (err) {
+                console.log(err);
+            }
+            return result;
+        },
+
+        // 获取控件的值
+        getComponentValue: function (field) {
+            var _this = this;
+            var value = 0;
+            var com = null;
+            // 是否包含列计算
+            var rowCount = $(_this).attr('rowCount');
+            if (rowCount) {
+                var tableName = formCalculate.getdataTableName.call(_this);
+                var table = $('div[name="' + tableName + '"]');
+                if (table.sui()) {
+                    var index = table.sui().getTrIndex(_this);
+                    com = table.sui().getRowComponent(index, field);
+                }
+            } else {
+                com = $('div[name="' + field + '"]').length ? $('div[name="' + field + '"]') : $('div[name2="' + field + '"]');
+            }
+            // 判断是不是日期控件 日期控件值不作处理
+            var isDate = false;
+            if (com.length) {
+                if (com.length === 1) {
+                    if (com.sui()) {
+                        value = com.sui().getValue();
+                        // 起止日期控件 字符串转对象
+                        if(com.sui().type == "daterange") {
+                            value = SUI.Util.parseJSON(value);
+                        }
+                        if (value && value[field]) {
+                            value = value[field]
+                        }
+                        if ((com.sui().type).indexOf('date') > -1) {
+                            isDate = true;
+                        }
+                    }
+                } else {
+                    if (com.eq(0).sui()) {
+                        value = com.eq(0).sui().getValue();
+                        if (value && value[field]) {
+                            value = value[field]
+                        }
+                        if ((com.eq(0).sui().type).indexOf('date') > -1) {
+                            isDate = true;
+                        }
+                    }
+                }
+            }
+            // 如果是非日期控件对控件值进行处理
+            if (!isDate) {
+                if (isNaN(Number(value))) {
+                    value = 0;
+                } else {
+                    value = Number(value);
+                }
+            }
+            return value;
+        },
+        // 对最终计算值进行回填处理
+        setValue: function (value) {
+            if ($(this).length) {
+                if ($(this).length === 1) {
+                    $(this).sui().setValue(value);
+                } else {
+                    $(this).eq(0).sui().setValue(value);
+                }
+            }
+        },
+        getdataTableName: function () {
+            var datatable = $(this).closest('.sui-datatable');
+            var name = datatable.attr('name') || '';
+            if (datatable.length) {
+                if (datatable.sui()) {
+                    name = datatable.sui().name;
+                }
+            }
+            return name;
+        }
+    };
+
+    /*绑定公式计算*/
+    function bindCompute() {
+        var bindExp = ($(this).attr('bindExp') || '');
+        formCalculate.calculate.call(this, bindExp);
+    }
+
+    $.fn.initCascade = function () {
+        $('[linkSource]', this).each(function () {
+            bindCascade.call(this)
+        });
+        if ($('[bindExp]', this).length > 0) {
+            var _this = this;
+            $('[bindExp]', this).each(function () {
+                if ($(this).attr('iscomputed') == 'true') {
+                    bindCompute.call(this)
+                }
+            })
+        }
+    };
+    $.fn.removeLink = function () {
+        $(this).removeAttr('linkSource')
+    };
+    $.fn.loadStaticCascadeData = function (config, data) {
+        var $dom = $(this)
+        var domSui = getSui(this)
+        if (!config) {
+            config = domSui.getConfig()
+        } else {
+            data = config.cascade.cascadeData
+        }
+        var dataSource = data || []
+        config.properties.dataSource = dataSource
+        if (!config.value) {
+            config.value = dataSource.length === 0 ? '' : dataSource[0].value
+        }
+        domSui.setConfig(config)
+        setTimeout(function () {
+            $dom.trigger('change', [data])
+        }, 100)
+    };
+    $.fn.loadSelectRemoteData = function (config, extraParams) {
+        console.log('select remote')
+        var $dom = $(this)
+        var domSui = getSui(this)
+        if (!config) {
+            config = domSui.getConfig()
+        }
+        var ajaxConfig = {
+            type: config.properties.method || 'get',
+            contentType: "text/json"
+        }
+        config.properties.reqParams = $.extend(config.properties.reqParams, extraParams)
+        var url = config.properties.dataUrl,
+            dataSrc = config.properties.dataSrc,
+            textField = config.properties.textField,
+            idField = config.properties.idField,
+            reqParams = config.properties.reqParams
+        if (config.properties.entityType) {
+            reqParams.type = 'sdo:' + config.properties.entityType
+            var queryCondition = reqParams.data || []
+            $.each(queryCondition, function (i, v) {
+                v.propertyValue = Coreplus.getInitValueByMatchReg(v.propertyValue)
+            })
+            reqParams = JSON.stringify(reqParams)
+        }
+
+        $.ajax({
+            type: ajaxConfig.type,
+            url: url,
+            contentType: ajaxConfig.contentType,
+            data: reqParams,
+            success: function (data) {
+                var results = getResultData(dataSrc, data, idField, textField)
+                $dom.trigger('loadDone', [results])
+                config.properties.dataSource = results;
+                config.value = domSui.getConfig() ? domSui.getConfig().value : ''
+                if (!config.value) {
+                    config.value = results.length === 0 ? '' : results[0][idField]
+                }
+                domSui.setConfig(config)
+                $dom.trigger('change')
+            },
+            error: function () {
+
+            }
+        })
+    };
+    var getStaticData = function (data, field, parentValue) {
+        var _data = []
+        if (field) {
+            $.each(data, function (i, v) {
+                if (v.value === parentValue) {
+                    _data = v[field]
+                    return false
+                }
+            })
+        } else {
+            _data = data
+        }
+        return _data
+    };
+    //按格式封装接口数据
+    var getResultData = function (dataSrc, data, idField, textField) {
+        var result = []
+        if (!data) {
+            return result
+        }
+        var dataSrc = dataSrc.split('.')
+        $.each(dataSrc, function (i, v) {
+            data = data[v] || []
+        })
+        $.each(data, function (i, v) {
+            var obj = {}
+            obj.value = v[idField]
+            obj.name = v[textField]
+            result.push(obj)
+        })
+        return result
+    };
+
+    function loadScript(src, callback) {
+        var script = document.createElement('script'),
+            head = document.getElementsByTagName('head')[0];
+        script.type = 'text/javascript';
+        script.charset = 'UTF-8';
+        script.src = src;
+        if (script.addEventListener) {
+            script.addEventListener('load', function () {
+                callback();
+            }, false);
+        } else if (script.attachEvent) {
+            script.attachEvent('onreadystatechange', function () {
+                var target = window.event.srcElement;
+                if (target.readyState == 'loaded') {
+                    callback();
+                }
+            });
+        }
+        head.appendChild(script);
+    }
+
+    function getSui(selector) {
+        var _sui = $(selector).sui() || null
+        return _sui != null && _sui.length > 0 ? _sui[0] : _sui
+    }
+
+    //转换数据
+    var parseJSON = function (str, jsStyle) {
+        if (!jsStyle) {
+            return $.parseJSON(str);
+        } else {
+            return eval('(function(){return ' + str + '})()');
+        }
+    }
+})()

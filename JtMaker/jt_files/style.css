@@ -1,0 +1,146 @@
+@charset "UTF-8";
+/**
+ *
+ * @authors Nat Liu (natcube@gmail.com)
+ * @date    2016-10-14 19:04:09
+ * @version 2016-10-14 19:04:09
+ */
+/**Base and fix for jianqiao**/
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-button:vertical{display:none}
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-track{background-color:#e2e2e2}
+::-webkit-scrollbar-thumb{border-radius:0;background-color:rgba(0,0,0,.3)}
+::-webkit-scrollbar-thumb:vertical:hover{background-color:rgba(0,0,0,.35)}
+::-webkit-scrollbar-thumb:vertical:active{background-color:rgba(0,0,0,.38)}
+
+.btn-primary,
+.select2-container--default .select2-selection--multiple .select2-selection__choice,
+.layui-layer .layui-layer-btn .layui-layer-btn0,
+.pagination>.active>a,
+.pagination>.active>a:focus,
+.pagination>.active>a:hover,
+.pagination>.active>span,
+.pagination>.active>span:focus,
+.pagination>.active>span:hover {
+	background-color: #265d5a;
+    border-color: #1b524f;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+	background-color: #34716e;
+}
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus,
+.btn-primary.active.focus,
+.btn-primary:active:hover,
+.btn-primary.hover {
+  background-color: #3f7976;
+}
+/* 关闭 和 查看流程 == 按钮 == 颜色 */
+.sui-closewindow .btn-default , .sui-flowhistorygraph .btn-default{
+    background-color: #f4f4f4;
+    color: #444;
+    border-color: #ddd;
+}
+/* 关闭、查看流程 == 按钮 == 鼠标颜色 */
+.sui-closewindow .btn-default:hover , .sui-flowhistorygraph .btn-default:hover{
+    background-color: #e7e7e7;
+    border-color: #adadad;
+}
+/* 流转历史 == 点击查看按钮 == 颜色 */
+.sui-opinionhistory a.btn-success{
+    background-color: #00a65a;
+    border-color: #008d4c;
+}
+/* 流转历史 == 小圆点 == 颜色 */
+.layout-2-flowhistory .flow-header .fa{
+    color: #d73939;
+}
+/* 流转历史 == 点击查看按钮 == 鼠标悬浮颜色 */
+.sui-opinionhistory a.btn-success:hover{
+    background-color: #008d4c;
+    border-color: #398439;
+}
+/* 传阅历史 == 点击显示隐藏按钮 == 颜色  */
+#lccydiv .btn-success{
+    background-color: #00a65a;
+    border-color: #008d4c;
+}
+/* 传阅历史 == 点击显示隐藏按钮 == 鼠标悬浮颜色  */
+#lccydiv btn-success:hover{
+    background-color: #008d4c;
+    border-color: #398439;
+}
+/* 机构选择器 == 确定按钮 == 颜色 */
+.sui-selectmechanismtool a.btn-success{
+    background-color: #00a65a;
+    border-color: #008d4c;
+}
+/* 机构选择器 == 确定按钮 == 鼠标悬浮颜色 */
+.sui-selectmechanismtool a.btn-success:hover{
+    background-color: #008d4c;
+    border-color: #398439;
+}
+/* 导航栏 ==== 选中状态时 上边框颜色 */
+.nav-tabs-custom > .nav-tabs > li.active{
+	border-top-color:#265d5a;
+}
+
+/* 单选多选单选框和复选框颜色调整 */
+.icheckbox_square-green, .iradio_square-green{
+    /* 请图片路径换为实际图片路径 */
+    /* background-image: url(img/blue.png)!important; */
+}
+/* 传阅历史 == 删除未阅按钮 == 颜色*/
+#lccydiv .delallBtn{
+    background-color: #dd4b39;
+    border-color: #d73925
+}
+/* 传阅历史 == 删除未阅按钮 == 鼠标悬浮颜色*/
+#lccydiv .delallBtn:hover{
+    background-color: #d73925;
+    border-color: #ac2925;
+}
+
+
+/* 手机端 == 人员选择器按钮颜色 */
+.p-footer button:first-child{
+	background-color: #b80000;
+	color: #fff;
+}
+.p-footer button:last-child{
+    background-color: #265d5a;
+	color: #fff;
+}
+/* 手机端 == 点击传阅按钮后 == 按钮颜色 */
+.ui-footer button:first-child{
+    background-color: #b80000;
+}
+.ui-footer button:last-child{
+    background-color: #265d5a;
+}
+/* 手机端 == 点击查看流程 == 页面*/
+.ph-title-bg{
+    /* background-color: #009BDB; */
+    background-color: #265d5a;
+}
+.ui-header-positive{
+    background-color: #265d5a;
+}
+    /*  小圆点颜色*/
+.ph-process-time .fa{
+    color: #265d5a;
+}
+
+.uploadify:hover .btn-primary{
+    color: #fff;
+    background-color: #265d5a;
+    border-color: #1b524f;
+    background-image: none;
+}
+/* 兼容IE9 鼠标放在数据列表上数据列表一直变高 */
+.table_iebug:hover{height:100%;}
+/* 使得全选按钮所在option鼠标移入时 li 的 背景色不 和 按钮同色 */
+/*.allSelect_bg{background-color: white!important;}*/
+

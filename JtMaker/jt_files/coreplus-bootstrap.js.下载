@@ -1,0 +1,47 @@
+/**
+ * @author yangshangfei
+ * @date 2020/4/8 2:00 PM
+ */
+// 控件在Table中校验定位方法自定义
+$.fn.tooltip.Constructor.prototype.getPositionInTable = function ($element) {
+    $element   = $element || this.$element
+
+    var el     = $element[0]
+    var elParentTd = this.$element.closest('td').length?this.$element.closest('td'):this.$element.parent();
+    var isBody = el.tagName == 'BODY'
+    var $tip = this.tip();
+    var elRect    = el.getBoundingClientRect();
+    if (elRect.width == null) {
+        // width and height are missing in IE8, so compute them manually; see https://github.com/twbs/bootstrap/issues/14093
+        elRect = $.extend({}, elRect, { width: elRect.right - elRect.left, height: elRect.bottom - elRect.top })
+    }
+    var TD_elRect = elParentTd[0].getBoundingClientRect();
+    if (TD_elRect.width == null) {
+        // width and height are missing in IE8, so compute them manually; see https://github.com/twbs/bootstrap/issues/14093
+        TD_elRect = $.extend({}, TD_elRect, { width: TD_elRect.right - TD_elRect.left, height: TD_elRect.bottom - TD_elRect.top })
+    }
+    //当控件在不可视区域时  提示的宽度和高度变形了，先将他定位到宽阔区域正常显示 再取他的宽高
+    $tip.css('left','0');
+    // 提示的宽高
+    var actualWidth  = $tip[0].offsetWidth;
+    var actualHeight = $tip[0].offsetHeight;
+    // td内部左右边距
+    var pad_left = (elParentTd[0].offsetWidth - elParentTd.width())/2;
+    //td内部上下边距
+    var  pad_top = (TD_elRect.height - elRect.height)/2;
+    //提示相对于td的left
+    // var left = (elRect.width - actualWidth)/2+pad_left;
+    var left = (elRect.width - actualWidth)/2;
+    //提示相对于td的top 提示的高度减去这个上边距
+    // var top = actualHeight - pad_top;
+    var top = actualHeight;
+    $tip.css('top',-top+'px');
+    $tip.find('.tooltip-arrow').css('left','50%');
+    // 如果提示大于容器宽度需要另做处理让提示不换行显示
+    if(actualWidth>el.offsetWidth){
+        $tip.css('left',left-1+'px');
+        $tip.css('right',left-1+'px');
+    }else{
+        $tip.css('left',left+'px');
+    }
+};

@@ -1,0 +1,113 @@
+@charset "UTF-8";
+/**
+ * 
+ * @authors Nat Liu (natcube@gmail.com)
+ * @date    2017-01-13 09:29:41
+ * @version 2017-01-13 09:29:41
+ */
+.form-control {height: 28px; border-radius: 0;}
+.form-table .form-item .text-red { vertical-align: top;}
+.form-control, .select2-container--default .select2-selection--single, .select2-selection .select2-selection--single,
+.form-table .form-control,.form-table .select2-container--default .select2-selection--single, .form-table .select2-selection .select2-selection--single {
+	padding: 5px 6px;
+}
+.form-table .select2-container .select2-selection--multiple,.select2-container .select2-selection--multiple {
+		min-height: 26px;
+		line-height: 26px;
+		border-radius: 0;
+}
+.form-table .form-tr {
+	border-color: #e6e6e6;
+}
+select.form-control,.form-table select.form-control {padding: 0;}
+.form-table .form-tr,.select2-container,.form-table .select2-container,
+.sui-datatable .table .table-row .table-col {line-height: 28px;}
+.select2-container--default .select2-selection--single, .select2-selection .select2-selection--single {
+	height: 28px;
+	border-radius: 0;
+}
+.form-table p {
+	margin: 0;
+}
+.form-table .select2-container--default .select2-selection--multiple .select2-selection__choice,
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+	line-height: 20px;
+	padding: 0 5px;
+	margin: 1px 2px;
+	border-radius: 2px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+	line-height: 22px;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+	height: 22px;
+}
+.select2-search--dropdown .select2-search__field {
+	padding: 2px;
+}
+.select2-container .select2-results__option {
+	padding: 3px 6px;
+}
+.select2-container .select2-dropdown {
+	line-height: 20px;
+}
+.form-table .select2-container .select2-search--inline .select2-search__field,
+.select2-container .select2-search--inline .select2-search__field {
+  height: 24px;
+}
+
+.select2-container--disabled .select2-selection,
+.form-table .select2-container--disabled .select2-selection
+{
+	border: 0;
+	padding: 0;
+}
+
+.select2-container--disabled .select2-selection--single .select2-selection__rendered,
+.form-table .select2-container--disabled .select2-selection--single .select2-selection__rendered{
+	line-height: 28px;
+	margin: 0;
+}
+.form-table .form-item .item-name, .form-table .form-item .item-value {padding: 3px 10px;}
+.form-table .form-item .item-name {text-align: left;}
+.form-table .form-item .item-value {min-height: 34px;}
+.form-table .form-item .input-group .input-group-addon {padding: 6px;}
+.form-table .form-item .input-group .input-group-addon i,.sui-number .input-group-addon { vertical-align: top; width: 14px; height: 14px; font-size: 13px;}
+.form-table .form-item .sui-component:before {content: ""}
+.form-table .form-item .sui-number { max-width: 100px;}
+
+.form-table .form-item .radio-group label, .form-table .form-item .checkbox-group label{
+	height: 22px;
+	line-height: 22px;
+}
+.form-table .form-item .radio-group label div, .form-table .form-item .checkbox-group label div {vertical-align: top;}
+.btn-group-sm>.btn, .btn-sm {
+	padding: 4px 6px;
+
+}
+
+.sui-datatable .table-tr-btn { line-height: 22px;}
+.sui-datatable .table-tr-btn .fa {line-height: 22px; font-size: 18px;}
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+	line-height: 28px;
+	padding: 3px 8px;
+}
+
+.table-input tr .item-value {line-height: 28px; min-height: 28px;}
+.table-input .select2-container--default .select2-selection--single, .table-input .select2-selection .select2-selection--single
+{
+	height: 28px;
+	line-height: 28px;
+}
+
+.table-input input.form-control {line-height: 28px; height: 28px;}
+
+.table-input .select2-container {vertical-align: middle;}
+
+@media (max-width: 479px) {
+	.form-table .form-item .sui-input,
+	.form-table .form-item .sui-component .date-picker,
+	.form-table .form-item .sui-daterangepicker .date-picker { width: auto; max-width: 100%;}
+	.form-table .form-item .radio-group label, .form-table .form-item .checkbox-group label {margin: 5px 0;}
+}

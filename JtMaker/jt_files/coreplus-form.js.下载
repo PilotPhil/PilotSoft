@@ -1,0 +1,1662 @@
+/*页面初始化表单信息*/
+// var coreplusForm = {
+//     "expandSetting": [],
+//     "newServiceTable": [{
+//         businessData:[{  //业务表数据
+//             entityId: '',
+//             type: '',
+//             queryConditions: [{   //查询条件
+//                 propertyName: '',
+//                 propertyValue: '',
+//                 operate: 'EQ',
+//                 valueType: 0
+//             }]
+//         }],
+//         sqlData:[{
+//             "displayName":"", // 显示名称
+//             "uniqueName":"", // 唯一标志名 由模块名和英文名唯一标志
+//             "name":"", // 英文名称
+//             "queryConditions":[{ // 查询条件
+//                     "propertyName":"",
+//                     "propertyValue":"",
+//                     "valueType":1
+//             }],
+//             "onesqlId":"", // 每条sql的id
+//             "sqlColumns":[ // sql条数
+//                     {
+//                             "columns":[{"column":"name_1"}],
+//                             "onesqlId":"select_id_1"
+//                     },
+//                     {
+//                             "columns":[{"column":"name"}],
+//                             "onesqlId":"select_id"
+//                     }
+//             ],
+//             "sqlParam":[{"column":"name"}, {"column":"field"}], // 所有入参
+//             "onesqlIdArr":["select_id_1","select_id"] // 所有查询语句的id集合
+//         }],
+//         dataType:0,  //数据类型 0静态数据 1业务表 2sql数据
+//         serviceDisplayName: "", //名称
+//         staticData:{    //静态数据
+//             customData:'',
+//             filterData:''
+//         }
+//     }]
+// }
+var getQueryString = function (urlSearch, name) {
+    var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
+    var r = urlSearch.substr(1).match(reg)
+    if (r != null) return unescape(r[2])
+    return null
+};
+var appLoad = getQueryString(window.location.search, 'appLoad'),
+    appload = getQueryString(window.location.search, 'appload'),
+    from = getQueryString(window.location.search, 'f'),
+    mode = getQueryString(window.location.search, 'mode');
+var workItemId = getQueryString(window.location.search, 'workItemID');
+var readItem = getQueryString(window.location.search, 'readItem'),
+    readItemId = getQueryString(window.location.search, 'readItemId');
+
+
+;(function (window, Coreplus,CP, undefined) {
+
+    if (!SUI) {
+        console.log('Coreplus.js 需要先引用SUI.js')
+        return
+    }
+    var adjustMobile = function () {
+        if (SUI.Util.browserPlantform() != 'pc') {
+            var reconstruct_target = $(document).find('.sui-form');
+            var reconstruct_mode = $('style').attr('mobile_mode');
+            if(reconstruct_target.length && reconstruct_mode){
+                return;
+            }else{
+                var dataTableWidth = ($('.mspplus-form').width() - 20) + 'px';
+                $('.mspplus-form td div.sui-datatable').css('width', dataTableWidth)
+            }
+        }
+    };
+    $(function () {
+        adjustMobile();
+    });
+
+    var config = {
+        form: '',
+        mode: mode
+    };
+    Coreplus.init = function (pconfig) {
+        if (pconfig)
+            config = $.extend(config, pconfig)
+    };
+
+    Coreplus.FormType = {
+        workflow: 1,
+        queryFlow: 2,
+        submit: 3,
+        querySubmit: 4,
+        print: 5,
+        all: 0
+    };
+    Coreplus.getBasePath = function () {
+        return typeof __basePath !== 'undefined' ? __basePath : '/default/base/'
+    };
+    var Url = {
+        queryEntityUrl: Coreplus.getBasePath() + 'com.sudytech.portalone.base.mspplus.dataManager.saveBizData.queryBizDatanew.biz.ext',
+        // queryEntityUrl: Coreplus.getBasePath() + 'com.sudytech.portalone.base.mspplus.dataManager.saveBizData.queryBizData.biz.ext'
+        querySqlUrl: Coreplus.getBasePath() + "com.sudytech.portalone.base.databaseUtil.coreplusNewSql.newSql.biz.ext"
+    };
+    /*注册事件业务数据加载完成监听*/
+    $(document).on('businessDone', function () {
+        Coreplus.businessData.prototype.processCustomCode('.sui-form');
+        // if(doneExpandSettingCount<1){
+        //     bindExpandSetting(coreplusForm);
+        // }
+    });
+    var DetailConfig = {
+        'recycle': {
+            exclude: ['sui-submit', 'sui-participates', 'sui-rollback', 'sui-terminate', 'sui-checksendmsg', 'sui-draft',
+                'sui-moreparticipates', 'sui-print', 'sui-dispatch', 'sui-workstorage', 'sui-flowhistorygraph', 'sui-circulation']
+        }
+    };
+    /*在SUI.init()之前执行*/
+    Coreplus.beforeInit = function () {
+        /*回收站详情模式*/
+        if (config.mode === 'recycle') {
+            for (var i in DetailConfig.recycle.exclude) {
+                var widgetClass = '.' + DetailConfig.recycle.exclude[i]
+                $(widgetClass).remove()
+            }
+        }
+        if (config.mode === 'print') {
+            $('.wrapper-inner').css('width', '100%')
+        }
+        if (config.form === Coreplus.FormType.queryFlow) {
+            $('.sui-tablelist').delegate("[data-buttontype='update']", "click", function () {
+                var id = $(this).attr('data-update');
+                layer.open({
+                    area: ['90%', '90%'],
+                    type: 2,
+                    content: Coreplus.getBasePath() + 'workflow/preview.jsp?processInstId=' + id + '&mode=modify&appload=0'
+                })
+            });
+            // // 导出
+            // 导出word
+            $('.sui-tablelist').delegate("[data-buttontype='exportword']", "click", function() {
+                var id = $(this).attr('data-exportword');
+                var params = {
+                    processinstid:id,
+                    type:'word'
+                };
+                exportwordpdf(params);
+            });
+
+            // 导出pdf
+            $('.sui-tablelist').delegate("[data-buttontype='exportpdf']", "click", function() {
+                var id = $(this).attr('data-exportpdf');
+                var params = {
+                    processinstid:id,
+                    type:'pdf'
+                };
+                exportwordpdf(params);
+            });
+            function exportwordpdf(params){
+                var url = 'com.sudytech.portalone.base.word.word.exportWord.biz.ext';
+                $.ajax({
+                    url: url,
+                    data: params,
+                    success: function(data) {
+                        if(data.result.resultCode == '0'){
+                            window.location.href = __contextPath + data.result.path;
+                        }else{
+                            layer.alert(data.result.resultMsg);
+                        }
+                    },
+                    error: function() {
+                        layer.alert('请求出错，请联系管理员！');
+                    }
+                })
+            }
+        }
+        if (typeof(coreplusForm) !== "undefined") {
+            // if(doneExpandSettingCount<1){
+                bindExpandSetting(coreplusForm);
+            // }
+        }
+        renderDataTable()
+    };
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if(r!=null)return  unescape(r[2]); return null;
+    }
+    /*在SUI.init()之后执行*/
+    Coreplus.afterInit = function () {
+        if (GetQueryString('mode') === 'print') {
+            $('.sui-print').css('display', 'inline-block');
+        }
+        // 普通查询表单查看详情显示打印按钮
+        if (GetQueryString('mode') === 'preview' && config.form === Coreplus.FormType.submit && $('.sui-print').length ) {
+            $('.sui-print').css('display', 'inline-block');
+        }
+        if (config.form === Coreplus.FormType.workflow) {
+            adjustFitCoreplus(SUI.Util.browserPlantform());
+        }
+        if (typeof _closeCoreplusLoad === 'function') {
+            _closeCoreplusLoad();
+        }
+        if (typeof(coreplusForm) !== "undefined") {
+            // if(doneExpandSettingCount<1){
+                bindExpandSetting(coreplusForm)
+            // } //sui之后执行才能获取到sui的方法
+        }
+        if (config.form === Coreplus.FormType.queryFlow) { //当页面为 管理页面 的时候
+            /*  初始化字典  */
+            var dictTypes = [];
+            var dicts = $(".wf-dict").each(function (i) {
+                dictTypes[i] = $(this).attr("wf-type");
+            });
+            if (dictTypes.length) {
+                //请求接口 获取 字典表数据
+                $.ajax({
+                    type: 'POST',
+                    url: "com.sudytech.portalone.base.ui.queryDict.biz.ext",
+                    data: JSON.stringify({dictTypes: dictTypes}),
+                    contentType: "text/json",
+                    success: function (data) {
+                        var options = data.options;
+                        dicts.each(function () {
+                            var e = $(this);
+                            var dataSource = [];
+                            var type = e.attr("wf-type");
+                            for (var i = 0; i < options.length; i++) {
+                                if (options[i].type == type) {
+                                    options[i].value = [{"newValue":options[i].value}]
+                                    dataSource[dataSource.length] = {value: options[i].value, name: options[i].name,showValue:options[i].value};
+                                    continue;
+                                }
+                                if (options[i].TYPE == type) {//oracle字段为大写
+                                    options[i].VALUE = [{"newValue":options[i].VALUE}]
+                                    dataSource[dataSource.length] = {value: options[i].VALUE, name: options[i].NAME,showValue:options[i].VALUE};
+                                }
+                            }
+                            if (this.zoo) {
+                                /* 回填 字典表数据 */
+                                var config = this.zoo.getConfig();
+                                config.properties.dataSource = dataSource;
+                                this.zoo.setConfig(config);
+                            }
+
+                        });
+                    }
+                });
+            }
+        }
+    };
+    var renderDataTable = function () {
+        /*注册DataTable*/
+        $('.sui-datatable').each(
+            function () {
+                var dataTableName = $(this).attr(
+                    'dataTable')
+                    || 'coreplusTable';
+                var table = $(this).attr('table') ? $
+                    .parseJSON($(this).attr('table')
+                        .replace(/'/g, '"').replace(/&#34;/g, "\"").replace(/&#8629;/g,'\n').replace(/&semicolon;/g,'\;')) : [];
+                SUI.dataTable(dataTableName, table);
+            })
+    };
+    var handleBtnGroup = function(){
+        /*处理按钮分组控件 */
+        var btn_groups = $(document).find('.sui-btngroup')
+        var btnGroupWrapper = $('<div class="btnGroupWrapper"></div>');
+        var $btnGroupWrapper = $(btnGroupWrapper);
+        var btn_align = $(document).find('.sui-btngroup').css('text-align');
+        switch (btn_align) {
+            case 'left':
+                $btnGroupWrapper.css('text-align','left');
+                break;
+            case 'center':
+                $btnGroupWrapper.css('text-align','center');
+                break;
+            case 'right':
+                $btnGroupWrapper.css('text-align','right');
+                break;
+            default:
+                $btnGroupWrapper.css('text-align','left');
+                break;
+        }
+        $(btn_groups[btn_groups.length-1]).after($btnGroupWrapper);
+        $btnGroupWrapper.html($(document).find('.sui-btngroup'));
+    }
+    /*参与者适配第一列宽度*/
+    var adjustFitCoreplus = function (device) {
+        if (device == 'pc') {
+            var firstColWidth
+            var participates
+            var mspTable = $('.mspplus-form').children('table')
+            firstColWidth = mspTable.length > 0 ? mspTable[mspTable.length - 1].rows[0].cells[0].style.width : false
+            var tableIndex = 0;
+            var trLengthList = [];
+            if(mspTable.length){
+                $.each(mspTable,function(i,table){
+                    var trLength = $(table).find('tbody>tr').length;
+                    trLengthList.push(trLength)
+                });
+                tableIndex = trLengthList.indexOf(math.max.apply(null, trLengthList));
+            }
+            var newparticipantsWidth =  mspTable.eq(tableIndex).find('tbody>tr>th:first').width();
+            newparticipantsWidth = newparticipantsWidth?newparticipantsWidth+'px':'';
+            if (!firstColWidth)
+                return
+            //根据col-sm-6 or col-sm-12判断
+            var participatesWidth = $('.sui-participates .form-td').hasClass('col-sm-6') ? (parseFloat(firstColWidth) * 2 + '%') : firstColWidth
+            var newparticipatesWidth = $('.sui-newparticipants .form-td').hasClass('col-sm-6') ? (parseFloat(firstColWidth) * 2 + '%') : firstColWidth
+            var moreParticipatesWidth = $('.sui-moreparticipates .form-td').hasClass('col-sm-6') ? (parseFloat(firstColWidth) * 2 + '%') : firstColWidth
+            var participates = '.sui-participates .item-name{width:' + participatesWidth + '}' +
+                '.sui-participates .form-item{padding-left:' + participatesWidth + '}' + '.sui-moreparticipates .item-name{width:' + moreParticipatesWidth + '}' +
+                '.sui-moreparticipates .form-item{padding-left:' + moreParticipatesWidth + '}'+
+                '.sui-newparticipants .item-name{width:'+newparticipantsWidth+'}'+
+                '.sui-newparticipants .form-item{padding-left:'+newparticipantsWidth+'}'
+        }
+        var style = '.sui-participates>div.col-xs-12,.sui-moreparticipates>div.col-xs-12{padding:0;}'
+        if (participates) {
+            style += participates
+        }
+        var participatesStyle = document.createElement('style');
+        participatesStyle.type = 'text/css';
+        participatesStyle.innerHTML = style;
+        $('head')[0].appendChild(participatesStyle)
+    };
+    /*表单折叠区域设置*/
+    var doneExpandSettingCount = 0 ;
+    var bindExpandSetting = function (formSetting) {
+        ++doneExpandSettingCount;
+        if (formSetting && formSetting.expandSetting) {
+            for (var i in formSetting.expandSetting) {
+                var expandObj = formSetting.expandSetting[i];
+                processExpandSetting(expandObj)
+            }
+        }
+        bindExpandEvent()
+    };
+    var bindExpandEvent = function () {
+        $('.mspplus-form').undelegate('.msp-expand-btn', 'click');
+        $('.mspplus-form').delegate('.msp-expand-btn', 'click', function () {
+            var bindExpand = $(this).attr('data-expand')
+            if (!$(this).hasClass('expand-show')) {
+                $(this).addClass('expand-show')
+                $('.mspplus-form [msp-expand="' + bindExpand + '"]').hide()
+            } else {
+                $(this).removeClass('expand-show')
+                $('.mspplus-form [msp-expand="' + bindExpand + '"]').show()
+            }
+        })
+    };
+    var processExpandSetting = function (expand) {
+        // 如果是打印页面并且折叠类型是按钮 就不处理
+        // if(mode == 'print' &&  expand.expandType === 'btn'){return ;}
+        var $expandRow = $('[msp-expand="' + expand.expandId + '"]');
+        if ($expandRow.length === 0) {
+            return
+        }
+        if (expand.expandType === 'btn') {
+            // 如果执行多次先删除之前增加的按钮
+            var $expandTr = $('.msp-expand-btn').parent('td').parent('tr');
+            $expandTr.remove();
+            var lastRow = $expandRow[$expandRow.length - 1]
+            var expandTr = '<tr id="msp-expand-tr"><td style="height: 30px;position: relative" colspan="' + getTrColNum(lastRow) + '"><a title="折叠/展开" data-expand="' + expand.expandId + '" class="msp-expand-btn "><i class="icon"></i></a></td></tr>';
+            var reconstruct_mode = $('style').attr('mobile_mode');
+            if(SUI.Util.browserType() == 'phone' && wf2.isNewInPhone){
+                expandTr = '<div class="cm-show-expand"><a title="折叠/展开" data-expand="' + expand.expandId + '" class="msp-expand-btn "><i class="icon"></i></a></div>'
+            }
+            $(lastRow).after(expandTr)
+        } else if (expand.expandType === 'change') {
+            //初始根据控件值折叠
+            var bindSelector = $('.mspplus-form [name="' + expand.bindName + '"]').sui()
+            var initSuiWidget = $.isArray(bindSelector) ? bindSelector[0] : bindSelector
+            if(initSuiWidget && $.isArray(initSuiWidget.getValue())){
+                if (initSuiWidget && initSuiWidget.getValue().indexOf(expand.bindShowValue)>-1) {
+                    $('.mspplus-form [msp-expand="' + expand.expandId + '"]').show()
+                } else {
+                    $('.mspplus-form [msp-expand="' + expand.expandId + '"]').hide()
+                }
+            }else{
+                if (initSuiWidget && initSuiWidget.getValue() === expand.bindShowValue) {
+                    $('.mspplus-form [msp-expand="' + expand.expandId + '"]').show()
+
+                } else {
+                    $('.mspplus-form [msp-expand="' + expand.expandId + '"]').hide()
+                }
+            }
+
+            $('.mspplus-form [name="' + expand.bindName + '"]').on('change', function () {
+                if($(this).sui() && $.isArray($(this).sui().getValue())){
+                    if ($(this).sui() && $(this).sui().getValue().indexOf(expand.bindShowValue)>-1) {
+                        $('.mspplus-form [msp-expand="' + expand.expandId + '"]').show()
+                    } else {
+                        $('.mspplus-form [msp-expand="' + expand.expandId + '"]').hide();
+                    }
+                }else{
+                    if ($(this).sui() && $(this).sui().getValue() === expand.bindShowValue) {
+                        $('.mspplus-form [msp-expand="' + expand.expandId + '"]').show()
+                    } else {
+                        $('.mspplus-form [msp-expand="' + expand.expandId + '"]').hide()
+                    }
+                }
+            })
+        }
+    };
+    var getTrColNum = function (tr) {
+        var table = $(tr).closest('table')[0];
+        if(table){
+            return table.rows[0].cells.length;
+        }else{
+            return 0;
+        }
+    };
+    /*处理查询条件初始值*/
+    // businessTable:{
+    //     businessName:[{filed:''}]
+    // }
+    var coreplusFormInfo = {
+        initValue: {},
+        businessData: {},
+        allBusinessData:[], // 所有业务数据
+        businessValue: {}, //页面初始化所有绑定的字段的值
+        extraData: {},
+        isDone:false,
+        refreshData:false,
+        businessName:'',
+        newServiceTable:[], //所有配置的业务数据
+        caCheKeyList:[],//所有业务数据请求接口的key列表 每次请求对应一个key 避免重复 请求
+        cacheDataList:{} //所有缓存的接口数据
+    };
+    Coreplus.businessDone = function(){
+        return coreplusFormInfo.isDone || false;
+    };
+    Coreplus.setBusinessValue = function (key, value) {
+        if (key)
+            coreplusFormInfo.businessValue[key] = value
+    };
+    Coreplus.getBusinessValue = function (key) {
+        return key ? coreplusFormInfo.businessValue[key] || '' : coreplusFormInfo.businessValue
+    };
+    /*根据userContext&businessContext来查*/
+    Coreplus.getContext = function (contextName) {
+        var contextValue = null;
+        if(contextName){
+            contextValue = this.getInitValue(contextName);
+            if (contextValue === '') {
+                contextValue = this.getBusinessValue(contextName);
+            }
+            if (contextValue === '') {
+                contextValue = this.getExtraContext(contextName);
+            }
+        }else{
+            contextValue = this.getInitValue(contextName);
+            var contextValue_business = this.getBusinessValue(contextName);
+            var contextValue_extra = this.getExtraContext(contextName);
+            contextValue["businssValue"] = contextValue_business;
+            contextValue["extra"] = contextValue_extra;
+        }
+        return contextValue
+    };
+    Coreplus.getExtraContext = function (key) {
+        return key ? coreplusFormInfo.extraData[key] || '' : coreplusFormInfo.extraData
+    };
+    Coreplus.setExtraContext = function (key, value) {
+        if (key) {
+            coreplusFormInfo.extraData[key] = value
+        }
+    };
+    Coreplus.getUserContext = function (contextName) {
+        return this.getInitValue(contextName)
+    };
+    // isRefresh-true重新请求刷新数据 否则直接获取之前请求的数据
+    Coreplus.getBusinessData = function (businessName,isRefresh,callback,getAllData) {
+        if(isRefresh){
+            businessName?coreplusFormInfo.businessName=businessName:coreplusFormInfo.businessName='';
+            coreplusFormInfo.refreshData = isRefresh;
+            return this.processServiceTableData({},null,null,null,null,null,callback,getAllData);
+        }else{
+            return businessName ? coreplusFormInfo.businessData[businessName] || [] : coreplusFormInfo.businessData
+        }
+    };
+    Coreplus.setBusinessData = function (businessName, data) {
+        if (businessName) {
+            coreplusFormInfo.businessData[businessName] = data;
+            // 所有业务数据存储
+            coreplusFormInfo.allBusinessData[businessName] = data;
+        }
+    };
+    Coreplus.setInitValue = function (data) {
+        coreplusFormInfo.initValue = data;
+        if(data.attributes){
+            coreplusFormInfo.initValue.empNo = data.attributes ? data.attributes.EXTEND_USER_ID || '' : ''
+        }else{
+            coreplusFormInfo.initValue.empNo = data ? data.EXTEND_USER_ID || '' : ''
+        }
+
+    };
+    Coreplus.getInitValue = function (key) {
+        if(key == 'userName' || key=='empNo' || key=='userId' || key=='userMail' || key=='orgId' || key=='orgName'){
+            switch (key) {
+                case 'orgName': {
+                    key = "userOrgName"
+                    break;
+                }
+                case 'orgId': {
+                    key = "userOrgId";
+                    break;
+                }
+                default : {
+                }
+            }
+            return key ? coreplusFormInfo.initValue[key] || '' : coreplusFormInfo.initValue
+        }else{
+            switch (key) {
+                case 'mainOrgId':{
+                    key = 'EXTEND_ORG2_ID';
+                    break;
+                }
+                case 'mainOrgName':{
+                    key = 'EXTEND_ORG2_NAME';
+                    break;
+                }
+                default : {
+                }
+            }
+            var attrObj = coreplusFormInfo.initValue.attributes ? coreplusFormInfo.initValue.attributes: coreplusFormInfo.initValue;
+            return key ? (attrObj[key] || '') : coreplusFormInfo.initValue
+        }
+
+    };
+    Coreplus.getInitValueByMatchReg = function (param) {
+        var reg = /\{\{(.+)\}\}/,
+            match = param.match(reg)
+        if (match) {
+            var key = match[1]
+            //增加支持业务表字段
+            return Coreplus.getContext(key)
+            // return Coreplus.getInitValue(key)
+        } else {
+            return param
+        }
+    };
+    /*管理页面查看详情*/
+    Coreplus.openDetail = function (id) {
+        if (parent && $.isFunction(parent._openWindow)) {
+            parent._openWindow(id)
+        } else {
+            var prefix = Coreplus.getBasePath()
+            if (config.form === Coreplus.FormType.queryFlow) {
+                url = prefix + 'workflow/preview.jsp?processInstId=' + id + '&mode=preview&appload=0&from=g';
+                layer.open({
+                    type: 2,
+                    title: '查看详情',
+                    shadeClose: false,
+                    maxmin: true,
+                    shade:[0.1,'#000'],
+                    area: ['100%', '100%'],
+                    scrollbar: true,
+                    closeBtn: 1,
+                    content: url,
+                    icon:2 //icon2不显示旋转图标
+                });
+            }
+        }
+    };
+
+    Coreplus.openDetail2 = function (url) {
+        // 普通查询表单
+        if (config.form === Coreplus.FormType.querySubmit) {
+            layer.open({
+                type: 2,
+                title: '查看详情',
+                shadeClose: false,
+                maxmin: true,
+                shade:[0.1,'#000'],
+                area: ['100%', '100%'],
+                scrollbar: true,
+                closeBtn: 1,
+                content: url,
+                icon:2
+            });
+        }
+    };
+
+    // 加载 应用菜单管理 选中标签的页面
+    Coreplus.renderActiveMenu = function () {
+        var _timeout = setTimeout(function () {
+            var $activeLi = $('.sidebar .sidebar-menu li.active');
+            while ($activeLi.eq(0) && $activeLi.eq(0).hasClass("treeview")) {
+                $activeLi = $activeLi.eq(0).find('li.active')
+            }
+            if ($activeLi.eq(0).find('a')[0]) {
+                $activeLi.eq(0).find('a')[0].click();
+                clearTimeout(_timeout)
+            } else {
+                renderActiveMenu()
+            }
+        }, 50)
+    };
+    // 业务数据
+    Coreplus.businessData =function(){
+        this.name = '';
+        this.type = '';
+        this.cached = true;
+    };
+
+    Coreplus.businessData.prototype = {
+        // 存储字段绑定的业务数据的值
+        setBusinessValue:function (key, value) {
+            if (key){
+                coreplusFormInfo.businessValue[key] = value
+            }
+        },
+        // 根据字段名获取对应的业务数据的值
+        getBusinessValue:function (key) {
+            return key ? coreplusFormInfo.businessValue[key] || '' : coreplusFormInfo.businessValue
+        },
+        //从所有配置的业务数据中筛选出 页面初始化需要使用的业务数据
+        filterInitializationData:function(serviceTable){
+            var initServiceTable = [];
+            // input控件，文本控件等
+            var inputList = $('div[initvaluetype="serviceTable"]');
+            //单选，多选控件
+            var selectList = $('div[isHasDataSource="true"]');
+            if(inputList.length){
+                $.each(inputList,function(i,el){
+                    var name = $(el).attr('initdisplayname');
+                    if(serviceTable.length){
+                        $.each(serviceTable,function(j,item){
+                            if(item.serviceDisplayName == name){
+                                if(JSON.stringify(initServiceTable).indexOf(JSON.stringify(item))==-1){
+                                    initServiceTable.push(item);
+                                }
+                            }
+                        })
+                    }
+                })
+            }
+            if(selectList.length){
+                $.each(selectList,function(i,el){
+                    var name = $(el).attr('initdisplayname');
+                    if(serviceTable.length){
+                        $.each(serviceTable,function(j,item){
+                            if(item.serviceDisplayName == name){
+                                if(JSON.stringify(initServiceTable).indexOf(JSON.stringify(item))==-1){
+                                    initServiceTable.push(item);
+                                }
+                            }
+                        })
+                    }
+                })
+            }
+            return initServiceTable;
+        },
+        /**
+         * 根据业务数据名称获取业务数据 如果缓存中有则取缓存数据 没有发起请求
+         * @param businessName-业务数据名称
+         * @param callback -回调函数
+         * @returns {*}
+         */
+        getDataByBusinessName:function(businessName,callback,isCache){
+            var _this = this;
+            if(!_this.isRightBusinessName(businessName)){
+                layer.alert('请传入正确的业务数据名称！');
+                return false;
+            }
+            isCache = (isCache===false?false:true);
+            var key = _this.cacheData.getUniqueKey(businessName);
+            if(coreplusFormInfo.caCheKeyList.indexOf(key)>-1){
+                if(isCache){
+                    var businessData = _this.cacheData.getCacheDataBykey(key);
+                    if(callback){
+                        return callback(businessData);
+                    }else{
+                        return businessData;
+                    }
+                }else{
+                    var deployInfo = _this.getDeployInfo(businessName);
+                    var params = _this.getParamsByDeployInfo(deployInfo);
+                    _this.upDateBusinessData(params,deployInfo,callback)
+                }
+            }else{
+                var deployInfo = _this.getDeployInfo(businessName);
+                var params = _this.getParamsByDeployInfo(deployInfo);
+                _this.upDateBusinessData(params,deployInfo,callback)
+            }
+        },
+        // 更新业务数据
+        setBusinessData:function (businessName, data) {
+            if (businessName) {
+                coreplusFormInfo.businessData[businessName] = data;
+                // 所有业务数据存储
+                coreplusFormInfo.allBusinessData[businessName] = data;
+            }
+        },
+        // 获取所有已经请求业务表的最新数据
+        getAllBusinessData:function(){
+            return coreplusFormInfo.allBusinessData;
+        },
+        // 根据配置的业务数据名称获取配置的信息
+        getDeployInfo:function(businessName){
+            var deployInfo = null;
+            if(coreplusFormInfo.newServiceTable.length){
+                $.each(coreplusFormInfo.newServiceTable,function(i,data){
+                    if(data.serviceDisplayName == businessName){
+                        deployInfo = data;
+                        return deployInfo;
+                    }
+                })
+            }
+            return deployInfo;
+        },
+        isRightBusinessName:function(businessName){
+            if(businessName){
+                var newServiceTable = coreplusFormInfo.newServiceTable;
+                var isRight = false;
+                if(newServiceTable.length){
+                    $.each(newServiceTable,function(i,n){
+                        if(n.serviceDisplayName == businessName){
+                            isRight = true;
+                        }
+                    })
+                }
+                return isRight;
+            }else{
+                return false;
+            }
+        },
+        /**
+         *获取请求参数
+         * @param deployInfo
+         */
+        getParamsByDeployInfo:function(deployInfo){
+            var _this = this;
+            var params = {};
+            if(deployInfo.dataType === 1) {
+                var conditions = [], item = deployInfo.businessData[0];
+                params.type = 'sdo:' + item.type;
+                for (var j in item.queryConditions) {
+                    var query = item.queryConditions[j],
+                        condition = {};
+
+                    condition.propertyName = JSON.stringify(query.propertyName.split(','));
+                    if (query.valueType == 2) {
+                        condition.propertyValue = $('div[name="' + query.propertyValue + '"]').sui().getValue();
+
+                    } else if (query.valueType == 3) {
+                        var widget = _this.codeToStr(query.widgetCustom);
+                        var widgetFun = new Function(widget);
+                        condition.propertyValue = widgetFun();
+                    } else {
+                        if (query.valueType == 1) {
+                            query.propertyValue = "{{" + query.propertyValue + "}}";
+                        }
+                        condition.propertyValue = Coreplus.getInitValueByMatchReg(query.propertyValue)
+                    }
+                    condition.operate = query.operate;
+                    conditions.push(condition)
+                }
+                params.data = conditions;
+                params.process = wf2.workflow.processDef && wf2.workflow.processDef.processDefName;
+            }else if(deployInfo.dataType === 2){
+                var item = deployInfo.sqlData[0];
+                var condition = {};
+                var uniqueName = item.uniqueName;
+                var sqlId = item.onesqlId;
+                var dataSource = item.dataSource;
+                for (var k in item.queryConditions) {
+                    var obj = {};
+                    var queryParam = item.queryConditions[k];
+                    if (queryParam.valueType == 2) {
+                        obj.propertyValue = $('div[name="' + queryParam.propertyValue + '"]').sui().getValue();
+                    } else if (queryParam.valueType == 3) {
+                        var widget = _this.codeToStr(queryParam.widgetCustom);
+                        var widgetFun = new Function(widget);
+                        obj.propertyValue = widgetFun();
+                    } else {
+                        if(queryParam.valueType == 1){
+                            queryParam.propertyValue = "{{" + queryParam.propertyValue + "}}";
+                        }
+                        obj.propertyValue = Coreplus.getInitValueByMatchReg(queryParam.propertyValue)
+                    }
+                    condition[queryParam.propertyName] = obj.propertyValue;
+                }
+                if (condition.hasOwnProperty('')) {
+                    params = {
+                        'uniqueName': uniqueName,
+                        'sqlId': sqlId,
+                        'dataSource': dataSource
+                    }
+                } else {
+                    params = {
+                        'params':  condition,
+                        'uniqueName': uniqueName,
+                        'sqlId': sqlId,
+                        'dataSource': dataSource
+                    }
+                }
+            }
+            return params;
+        },
+        /**
+         * 更新业务数据
+         * @param params-请求参数
+         * @param deployInfo-配置信息
+         */
+        upDateBusinessData:function (params,deployInfo,callback) {
+            var _this = this;
+            _this.loadServiceData(params,deployInfo,callback);
+        },
+        // ajax请求获取数据
+        loadServiceData:function(params,deployInfo,callback){
+            var _this = this;
+            var businessName = deployInfo.serviceDisplayName;
+            // 业务表
+            if(deployInfo.dataType == 1){
+                $.ajax({
+                    type: 'post',
+                    url: Url.queryEntityUrl,
+                    contentType: 'text/json',
+                    data: JSON.stringify(params),
+                    success: function (data) {
+                        if (data.errorCode == '0') {
+                            Coreplus.setBusinessData(businessName, data);//数据记录到业务表
+                            _this.cacheData.updateCacheDataList(businessName,data.list);
+                            callback(data.list)
+                        }
+                    },
+                    error: function (err) {
+                        console.log(error);
+                    }
+                })
+                // sql数据
+            }else if(deployInfo.dataType == 2){
+                $.ajax({
+                    url: Url.querySqlUrl,
+                    type: "POST",
+                    contentType: 'text/json',
+                    data: JSON.stringify(params),
+                    success: function(data) {
+                        Coreplus.setBusinessData(businessName, data.obj);//数据记录到业务表
+                        _this.cacheData.updateCacheDataList(businessName,data.obj);
+                        callback(data.obj);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                })
+                // 静态数据
+            }else if(deployInfo.dataType == 0){
+                var staticData = _this.getStaticData(deployInfo);
+                Coreplus.setBusinessData(businessName,staticData);//数据记录到业务表
+                _this.cacheData.updateCacheDataList(businessName,staticData);
+                callback(staticData);
+            }
+        },
+        // 获取静态数据
+        getStaticData:function(deployInfo){
+            var _this = this;
+            var staticData = '';
+            if(deployInfo.staticData.filterData == ""){
+                if(deployInfo.staticData.customData != ""){
+                    staticData = JSON.parse(deployInfo.staticData.customData);
+                }
+            }else{
+                if(deployInfo.staticData.customData != "") {
+                    var data = JSON.parse(deployInfo.staticData.customData);
+                    var test = _this.codeToStr(deployInfo.staticData.filterData);
+                    var filterFun = new Function('data', test);
+                    staticData = filterFun(data);
+                }
+            }
+            return staticData;
+        },
+        /*处理业务表数据
+        *
+        * entityData
+        * isChange true 触发控件联动
+        * changeInitDisplayname 配置业务表的表名称
+        * changeInitvalue 配置的业务表的表名+字段(如：test.aa) 修改值域的时候 传的是控件的name
+        * isChangeValue 控件联动 是否修改值
+        * isChaneDataSource 控件联动 是否是修改值域 如果是修改值域则不执行修改值
+        * */
+        processServiceTableData:function (entityData,isChange,changeInitDisplayname,changeInitvalue,isChangeValue,isChaneDataSource,callback,getAllData) {
+            var _this =this;
+            var entityData_all = JSON.parse(JSON.stringify(entityData));
+            var serviceTable = typeof(coreplusForm) !== "undefined" && coreplusForm.serviceTable ? coreplusForm.serviceTable : [];
+            var newServiceTable = typeof(coreplusForm) !== "undefined" && coreplusForm.newServiceTable ? coreplusForm.newServiceTable : [];
+            coreplusFormInfo.newServiceTable = newServiceTable;
+            isChange = isChange || false; //查询条件变化更新业务表数据时 不触发businessDone事件
+            isChaneDataSource = isChaneDataSource || false;
+            isChangeValue = isChangeValue || false;
+            // 旧版业务表
+            if(serviceTable.length>0){
+                queueLoadServiceData(0)
+
+                /*队列请求*/
+                function queueLoadServiceData(i) {
+                    if (i > serviceTable.length - 1) {
+                        if(!isChange){
+                            $(document).trigger('businessDone');
+                        }
+                        return
+                    }
+                    var item = serviceTable[i]
+                    var params = {}, conditions = []
+                    params.type = 'sdo:' + item.type
+                    for (var j in item.queryConditions) {
+                        var query = item.queryConditions[j],
+                            condition = {};
+
+                        condition.propertyName = JSON.stringify(query.propertyName.split(','))
+                        condition.propertyValue = Coreplus.getInitValueByMatchReg(query.propertyValue)
+                        condition.operate = query.operate
+                        conditions.push(condition)
+                    }
+                    params.data = conditions;
+                    params.process = wf2.workflow.processDef && wf2.workflow.processDef.processDefName;
+                    loadServiceData(JSON.stringify(params), item, function (item, data) {
+                        //数据记录到业务表
+                        var businessTableName = item.serviceDisplayName || '';
+                        Coreplus.setBusinessData(businessTableName, data);
+                        for (var fieldIndex in item.fields) {
+                            var fieldObj = item.fields[fieldIndex];
+                            var suiWidgets = $('[initvalue="' + fieldObj.identification + '"]').sui();
+                            var suiWidgets_dom = $('[initvalue="' + fieldObj.identification + '"]');
+                            var val = Coreplus.businessData.getFieldValue(fieldObj.field, data[0] || []);
+                            /*流程业务数据*/
+                            Coreplus.setBusinessValue(businessTableName + '.' + fieldObj.field, val)
+                            Coreplus.businessData.setBusinessValue(businessTableName + '.' + fieldObj.field, val)
+                            if ($.isArray(suiWidgets)) {
+                                $.each(suiWidgets, function (i, v) {
+                                    if (v) {
+                                        var name = v.getConfig().properties.name || '';
+                                        if (name && entityData_all[name]) {
+                                            return true
+                                        }
+                                        var fieldVal = {
+                                            val: val
+                                        };
+                                        $(suiWidgets_dom[i]).trigger("ServiceValue", [fieldVal]);
+                                        if (val || fieldVal.val) {
+                                            v.setValue(fieldVal.val)
+                                        }
+
+                                    }
+                                })
+                            } else if (suiWidgets) {
+                                var name = suiWidgets.getConfig().properties.name || '';
+                                if(entityData_all[name] && entityData_all[name] === null){
+                                    entityData_all[name] = " ";
+                                }
+                                if (name && entityData_all[name]) {
+                                    $(document).trigger('businessDone');
+                                    return true
+                                }
+                                var fieldVal = {
+                                    val: val
+                                };
+                                suiWidgets_dom.trigger("ServiceValue", [fieldVal]);
+                                if (val || fieldVal.val) {
+                                    suiWidgets.setValue(fieldVal.val)
+                                }
+                            }
+                        }
+                        //继续加载
+                        queueLoadServiceData(++i)
+
+                    }, i)
+                }
+            }
+            if(!isChange){
+                newServiceTable = _this.filterInitializationData(newServiceTable);
+            }
+            //新版业务表
+            if(serviceTable.length>0 && newServiceTable.length ==0){
+                $(document).trigger('businessDone');
+            }else{
+                queueLoadNewServiceData(0,getAllData);
+            }
+            /*队列请求*/
+            function queueLoadNewServiceData(i,getAllData) {
+                if (i > newServiceTable.length - 1) {
+                    if(!isChange){
+                        coreplusFormInfo.isDone = true;
+                        $(document).trigger('businessDone');
+                    }
+                    if(coreplusFormInfo.refreshData){
+                        coreplusFormInfo.refreshData = false;
+                        if(getAllData){
+                            callback(coreplusFormInfo.businessName ? coreplusFormInfo.allBusinessData[coreplusFormInfo.businessName] || [] : coreplusFormInfo.allBusinessData);
+                            return;
+                        }
+                        callback(coreplusFormInfo.businessName ? coreplusFormInfo.businessData[coreplusFormInfo.businessName] || [] : coreplusFormInfo.businessData);
+                    }
+                    return
+                }
+                var item = newServiceTable[i];
+                if(isChange){
+                    $.each(newServiceTable,function(j,v){
+                        if(v.serviceDisplayName == changeInitDisplayname){
+                            item = v;
+                        }
+                    });
+                    i = newServiceTable.length;
+                }
+                var businessTableName = item.serviceDisplayName || '';
+                if(item.dataType == 0){  //静态数据
+                    var key = _this.cacheData.getUniqueKey(businessTableName);
+                    var jtData = '';
+                    if(coreplusFormInfo.caCheKeyList.indexOf(key)>-1){
+                        jtData = _this.cacheData.getCacheDataBykey(key);
+                    }else{
+                        jtData = _this.getStaticData(item);
+                    }
+                    _this.cacheData.updateCacheDataList(businessTableName,jtData);
+                    Coreplus.setBusinessData(businessTableName, jtData);//数据记录到业务表
+                    _this.setBusinessData(businessTableName, jtData);//数据记录到业务表
+                    if(jtData.length){
+                        if (isChange) {
+                            if (!isChaneDataSource) {
+                                if (jtData.length) {
+                                    setWudgetsData(businessTableName, jtData);
+                                } else {
+                                    $('[initvalue="' + changeInitvalue + '"]').sui().setValue("");
+                                }
+                            }
+                            if (!isChangeValue) {
+                                if (jtData.length) {
+                                    setWudgetsDataSource(businessTableName, jtData);
+                                } else {
+                                    var s_config = $('div[name="' + changeInitvalue + '"]').sui().getConfig();
+                                    s_config.properties.dataSource = [];
+                                    $('div[name="' + changeInitvalue + '"]').sui().setConfig(s_config);
+                                }
+                            }
+                        } else {
+                            setWudgetsData(businessTableName, jtData);
+                        }
+                    }else{
+                        var bindBusinessComponents = $('div[initdisplayname="'+businessTableName+'"]');
+                        if(bindBusinessComponents.length){
+                            $.each(bindBusinessComponents,function(index,com){
+                                var name = $(com).attr('name');
+                                if($(com).attr('class').indexOf('sui-select')>-1 || $(com).attr('class').indexOf('sui-multiselect')>-1){
+                                    var config = $(com).sui().getConfig();
+                                    config.properties.dataSource = [];
+                                    $(com).sui().setConfig(config);
+                                    if(name && entityData_all[name]){
+                                        return;
+                                    }
+                                    $(com).sui().setValue('');
+                                }else{
+                                    if(name && entityData_all[name]){
+                                        return;
+                                    }
+                                    $(com).sui().setValue('');
+                                }
+                            })
+                        }
+                        //继续加载
+                        queueLoadNewServiceData(++i,getAllData)
+                    }
+                }else if (item.dataType == 1) {
+                    var params = _this.getParamsByDeployInfo(item);
+                    loadServiceData(JSON.stringify(params), item, function (item, data) {
+                        if(data && data.length){
+                            Coreplus.setBusinessData(businessTableName, data);//数据记录到业务表
+                            _this.setBusinessData(businessTableName, data);//数据记录到业务表
+                            if(isChange){
+                                if(!isChaneDataSource){
+                                    if(data.length){
+                                        setWudgetsData(businessTableName, data);
+                                    }else{
+                                        var widget = $('[initvalue="'+changeInitvalue+'"]').sui();
+                                        if($.isArray(widget)){
+                                            $.each(widget,function(w,v){
+                                                if(v){
+                                                    var value = v.getValue();
+                                                    v.setValue(value)
+                                                }
+                                            })
+                                        }else if(widget){
+                                            var value = widget.getValue();
+                                            widget.setValue(value);
+                                        }
+                                    }
+                                }
+                                if(!isChangeValue){
+                                    if(data.length){
+                                        setWudgetsDataSource(businessTableName, data);
+                                    }else{
+                                        var s_config = $('div[name="'+changeInitvalue+'"]').sui().getConfig();
+                                        s_config.properties.dataSource = [];
+                                        $('div[name="'+changeInitvalue+'"]').sui().setConfig(s_config);
+                                    }
+                                }
+                            }else{
+                                setWudgetsData(businessTableName, data);
+                            }
+                        }else{
+                            var bindBusinessComponents = $('div[initdisplayname="'+businessTableName+'"]');
+                            if(bindBusinessComponents.length){
+                                $.each(bindBusinessComponents,function(index,com){
+                                    var name = $(com).attr('name');
+                                    if($(com).attr('class').indexOf('sui-select')>-1 || $(com).attr('class').indexOf('sui-multiselect')>-1){
+                                        var config = $(com).sui().getConfig();
+                                        config.properties.dataSource = [];
+                                        $(com).sui().setConfig(config);
+                                        if(name && entityData_all[name]){
+                                            return;
+                                        }
+                                        $(com).sui().setValue('');
+                                    }else{
+                                        if(name && entityData_all[name]){
+                                            return;
+                                        }
+                                        $(com).sui().setValue('');
+                                    }
+                                })
+                            }
+                            //继续加载
+                            queueLoadNewServiceData(++i,getAllData)
+                        }
+                    }, i)
+                } else if(item.dataType == 2){ // sql数据
+                    var sqlParams = _this.getParamsByDeployInfo(item);
+                    loadSqlData(sqlParams,item,function(item,data){
+                        var objData = data;
+                        if(objData.length){
+                            Coreplus.setBusinessData(businessTableName, objData);//数据记录到业务表
+                            _this.setBusinessData(businessTableName, objData);//数据记录到业务表
+                            if(isChange){
+                                if(!isChaneDataSource){
+                                    if(objData.length){
+                                        setWudgetsData(businessTableName, objData);
+                                    }else{
+                                        var widget = $('[initvalue="'+changeInitvalue+'"]').sui();
+                                        if($.isArray(widget)){
+                                            $.each(widget,function(w,v){
+                                                if(v){
+                                                    var value = v.getValue();
+                                                    v.setValue(value)
+                                                }
+                                            })
+                                        }else if(widget){
+                                            var value = widget.getValue();
+                                            widget.setValue(value);
+                                        }
+                                    }
+                                }
+                                if(!isChangeValue){
+                                    if(objData.length){
+                                        setWudgetsDataSource(businessTableName, objData);
+                                    }else{
+                                        var s_config = $('div[name="'+changeInitvalue+'"]').sui().getConfig();
+                                        s_config.properties.dataSource = [];
+                                        $('div[name="'+changeInitvalue+'"]').sui().setConfig(s_config);
+                                    }
+                                }
+                            }else{
+                                setWudgetsData(businessTableName, objData);
+                            }
+                        }else{
+                            var bindBusinessComponents = $('div[initdisplayname="'+businessTableName+'"]');
+                            if(bindBusinessComponents.length){
+                                $.each(bindBusinessComponents,function(index,com){
+                                    var name = $(com).attr('name');
+                                    if($(com).attr('class').indexOf('sui-select')>-1 || $(com).attr('class').indexOf('sui-multiselect')>-1){
+                                        var config = $(com).sui().getConfig();
+                                        config.properties.dataSource = [];
+                                        $(com).sui().setConfig(config);
+                                        if(name && entityData_all[name]){
+                                            return;
+                                        }
+                                        $(com).sui().setValue('');
+                                    }else{
+                                        if(name && entityData_all[name]){
+                                            return;
+                                        }
+                                        $(com).sui().setValue('');
+                                    }
+                                })
+                            }
+                            //继续加载
+                            queueLoadNewServiceData(++i,getAllData)
+                        }
+                    },i);
+                }
+                function setWudgetsDataSource(businessTableName,data){
+                    Coreplus.setBusinessData(businessTableName, data);//数据记录到业务表
+                    _this.setBusinessData(businessTableName, data);//数据记录到业务表
+                    //如果是数据源，则取所有数据
+                    setDataSource(data,businessTableName);
+                }
+                //业务数据
+                function setWudgetsData(businessTableName,data){
+                    Coreplus.setBusinessData(businessTableName, data);//数据记录到业务表
+                    _this.setBusinessData(businessTableName, data);//数据记录到业务表
+                    setData(data[0],businessTableName);
+                    //判断是否有下拉控件绑定业务表
+                    var dataSourceList = $('[isHasDataSource="true"]');
+                    if(dataSourceList.length){
+                        setWudgetsDataSource(businessTableName, data);
+                    }
+                    //继续加载
+                    queueLoadNewServiceData(++i,getAllData)
+                }
+                //流程中的业务数据处理
+                function setData(fileldData,uniqueKey){
+                    var unqueKeyPrefix = uniqueKey || businessTableName;
+                    var initValueList = [];
+                    for(var key in fileldData){
+                        var item = key;
+                        if(typeof fileldData[key] == 'object' &&  fileldData[key] != null){
+                            var prefix = unqueKeyPrefix + '.'+item;
+                            setData(fileldData[key][0],prefix);
+                        }else{
+                            var initValue = unqueKeyPrefix+'.'+item;
+                            if(changeInitvalue){
+                                initValue = changeInitvalue;
+                            }
+                            if($.inArray(initValue,initValueList) > -1){
+                                return false;
+                            }
+                            var suiWidgets = $('[initvalue="' + initValue + '"]').sui();
+                            var suiWidgets_dom = $('[initvalue="' + initValue + '"]');
+                            // var val  = fileldData[key];
+
+                            if ($.isArray(suiWidgets)) {
+                                $.each(suiWidgets, function (i, v) {
+                                    if (v) {
+                                        var name = v.getConfig()?v.getConfig().properties.name || '':suiWidgets_dom.eq(i).attr('name')||'';
+                                        var b_field = suiWidgets_dom.eq(i).attr('initfield') || '';
+                                        var val = fileldData[b_field];
+                                        Coreplus.setBusinessValue(initValue, val);
+                                        _this.setBusinessValue(initValue, val);
+                                        if (name && entityData_all[name]) {
+                                            return true
+                                        }
+                                        var fieldVal = {
+                                            val: val
+                                        };
+                                        $(suiWidgets_dom[i]).trigger("ServiceValue", [fieldVal]);
+                                        if (val || fieldVal.val) {
+                                            v.setValue(fieldVal.val)
+                                        }else{
+                                            v.setValue("")
+                                        }
+
+                                    }
+                                })
+                            } else if (suiWidgets) {
+                                var name = suiWidgets.getConfig()?suiWidgets.getConfig().properties.name || '':suiWidgets_dom.attr('name')||'';
+                                var b_field = suiWidgets_dom.attr('initfield') || '';
+                                var val = fileldData[b_field];
+                                Coreplus.setBusinessValue(initValue, val);
+                                _this.setBusinessValue(initValue, val);
+                                if (entityData_all[name] && entityData_all[name] === null) {
+                                    entityData_all[name] = " ";
+                                }
+                                if (name && entityData_all[name]) {
+                                    $(document).trigger('businessDone');
+                                    return true
+                                }
+                                var fieldVal = {
+                                    val: val
+                                };
+                                suiWidgets_dom.trigger("ServiceValue", [fieldVal]);
+                                if (val || fieldVal.val) {
+                                    suiWidgets.setValue(fieldVal.val)
+                                }else{
+                                    suiWidgets.setValue("")
+                                }
+                            }
+                            initValueList.push(initValue);
+                        }
+                    }
+                }
+                //取数据源并赋给控件
+                function setDataSource(fileldData,uniqueKey){
+                    var unqueKeyPrefix = uniqueKey || businessTableName;
+                    var dataSourceList = $('[isHasDataSource="true"]');
+                    if(changeInitvalue){
+                        dataSourceList = $('div[name="'+changeInitvalue+'"]');
+                    }
+                    $.each(dataSourceList,function(j,v){
+                        if($(v).attr('initdisplayname') == unqueKeyPrefix) {
+                            var s_valuefield = $(v).attr('idfield');
+                            var s_namefield = $(v).attr('textfield');
+                            var dataSource = [];
+                            var isHasField = true;
+                            var name = $(v).attr('name') || '';
+                            var defaultValue = $(v).sui().getValue();
+                            var isDefaultData = false;
+                            $.each(fileldData, function (f, data) {
+                                if (data[s_valuefield] && data[s_namefield]) {
+                                    if(defaultValue === data[s_valuefield]){
+                                        isDefaultData = true;
+                                    }
+                                    var s_value = {
+                                        name: data[s_namefield],
+                                        value: data[s_valuefield]
+                                    };
+                                    dataSource.push(s_value);
+                                    isHasField = false;
+                                }
+                            });
+                            if (isHasField) {
+                                return false;
+                            } else {
+                                var config = $(v).sui().getConfig();
+                                config.properties.dataSource = dataSource;
+                                $(v).sui().setConfig(config);
+                                if(entityData_all[name]){
+                                    $(v).sui().setValue(entityData_all[name]);
+                                }else if(defaultValue && isDefaultData){
+                                    $(v).sui().setValue(defaultValue);
+                                }
+                            }
+                        }
+                    })
+                }
+            }
+            // 业务表请求
+            function loadServiceData (params, item, callback, i) {
+                var key = _this.cacheData.getUniqueKey(item.serviceDisplayName);
+                if(coreplusFormInfo.caCheKeyList.indexOf(key)>-1){
+                    var data  = _this.cacheData.getCacheDataBykey(key);
+                    callback(item, data);
+                }else{
+                    $.ajax({
+                        type: 'post',
+                        url: Url.queryEntityUrl,
+                        contentType: 'text/json',
+                        data: params,
+                        success: function (data) {
+                            if (data.errorCode == '0') {
+                                _this.cacheData.updateCacheDataList(item.serviceDisplayName,data.list);
+                                callback(item, data.list);
+                            }else{
+                                queueLoadNewServiceData(++i,getAllData);
+                            }
+                        },
+                        error: function (err) {
+                            console.log(err);
+                        }
+                    })
+                }
+            }
+            // sql数据请求
+            function loadSqlData(sqlParams,item,callback,i){
+                var key = _this.cacheData.getUniqueKey(item.serviceDisplayName);
+                if(coreplusFormInfo.caCheKeyList.indexOf(key)>-1){
+                    var data  = _this.cacheData.getCacheDataBykey(key);
+                    callback(item, data);
+                }else{
+                    $.ajax({
+                        url: Url.querySqlUrl,
+                        type: "POST",
+                        contentType: 'text/json',
+                        data: JSON.stringify(sqlParams),
+                        success:function(data){
+                            _this.cacheData.updateCacheDataList(item.serviceDisplayName,data.obj);
+                            callback(item,data.obj);
+                        },
+                        error:function(err){
+                            console.log(err);
+                        }
+                    })
+                }
+            }
+        },
+        // 缓存处理
+        cacheData:{
+            // 更新缓存的数据
+            updateCacheDataList:function(businessName,data){
+                var businessData = new Coreplus.businessData();
+                var key = businessData.cacheData.getUniqueKey(businessName);
+                businessData.cacheData.updateCacheKeyList(key);
+                if(!coreplusFormInfo.cacheDataList[key]){
+                    coreplusFormInfo.cacheDataList[key] = data;
+                }
+            },
+            // 根据请求key获取缓存的数据
+            getCacheDataBykey:function(key){
+                if(coreplusFormInfo.cacheDataList[key]){
+                    return coreplusFormInfo.cacheDataList[key];
+                }else{
+                    return [];
+                }
+            },
+            // 获取所有缓存的数据
+            getAllCacheData:function(){
+                return coreplusFormInfo.cacheDataList;
+            },
+            // 生成请求的key
+            getUniqueKey:function(businessName){
+                var businessData = new Coreplus.businessData();
+                var deployInfo = businessData.getDeployInfo(businessName);
+                var uniqueKey = '';
+                if(deployInfo.dataType === 0){ //静态数据 key
+                    uniqueKey = businessName+'_static';
+                }else{
+                    uniqueKey = businessName+'_'+JSON.stringify(businessData.getParamsByDeployInfo(deployInfo));
+                }
+                return uniqueKey;
+            },
+            // 更新请求生成的缓存key列表
+            updateCacheKeyList:function(key){
+                if(coreplusFormInfo.caCheKeyList.indexOf(key) == -1){
+                    coreplusFormInfo.caCheKeyList.push(key);
+                }
+            },
+        },
+        codeToStr:function(str){
+            var c = '';
+            if(str.length == 0){
+                return "";
+            }else{
+                c = str.replace(/&#34/g,'"');
+                c = c.replace(/&#39/g,'\'');
+                return c;
+            }
+        },
+        getFieldValue:function(field,data){
+            var fieldArr = field.split('.')
+            $.each(fieldArr, function (i, v) {
+                data = $.isArray(data[v]) ? data[v][0] : data[v]
+            })
+            return data
+        },
+        // 初始化数据对自定义和 自定义代码处理
+        processCustomCode:function(dom){
+            var _this = this;
+            $('[initvaluetype="customCode"]', dom).each(function () {
+                var name = $(this).attr('name') || '';
+                if(name.indexOf('trid-')>-1){
+                    return false;
+                }
+                var suiZoo = $(this).sui();
+                if (suiZoo) {
+                    var code = $(this).attr('customCode') || '';
+                    code = code.replace(/&#39;/g, "\'").replace(/&#34;/g, "\"").replace(/&#8629;/g,'\n').replace(/&semicolon;/g,'\;');
+                    var runVal = _this.evalRun(code);
+                    suiZoo.setValue(runVal)
+
+                }
+            });
+            $('[initvaluetype="custom"]', dom).each(function () {
+                var name = $(this).attr('name') || '';
+                if(name.indexOf('trid-')>-1){
+                    return false;
+                }
+                var suiZoo = $(this).sui();
+                if (suiZoo) {
+                    var value = suiZoo.getValue() || '';
+                    if(value !== ""){
+                        suiZoo.setValue(value);
+                    }
+                }
+            });
+        },
+        /*处理自定义代码控件*/
+        evalRun:function(code){
+            return eval('(function(){' + code + '})()');
+        }
+    };
+    var Util = {
+        getUserInfo:function(){
+            var userObject = wf2 && wf2.workflow && wf2.workflow.userObject;
+            var userInfo = {
+                id:userObject && userObject.userId,
+                name:userObject && userObject.userName,
+                code:userObject && userObject.EMPCODE,
+                gender:userObject && userObject.XB,
+                age:'',
+                number:userObject && userObject.MOBILENO,
+                mainOrg:{
+                    id:userObject && userObject.EXTEND_ORG2_ID,
+                    code:'',
+                    name:userObject && userObject.EXTEND_ORG2_NAME
+                },
+                orgs:userObject && userObject.EXTEND_ORG_ARRAY
+            };
+            return userInfo;
+        },
+        getEntityInfo:function(name){
+            var entityInfo = wf2 && wf2.workflow && wf2.workflow.entity;
+            if(name){
+                return entityInfo && entityInfo[name] || '';
+            }else{
+                return  entityInfo || {};
+            }
+        },
+        // 获取流程实例信息
+        getProcessInst:function(){
+        },
+        // 获取流程定义信息
+        getProcessDefine:function(){
+            var processDef = wf2 && wf2.workflow && wf2.workflow.processDef;
+            var processDefExt = wf2 && wf2.workflow && wf2.workflow.processDefExt;
+            var processDefine = {
+                id:processDef && processDef.processDefID,
+                name:processDef && processDef.processChName,
+                processDefName:processDef && processDef.processDefName,
+                createTime:Util.handleTime(processDef && processDef.createTime),
+                extendProperties:processDefExt
+            };
+            return processDefine;
+        },
+        // 获取任务信息
+        getTask:function(){
+            var workItem = wf2 && wf2.workflow && wf2.workflow.workItem;
+            var activityInfo = wf2 && wf2.workflow;
+            var workItemInfo = {
+                id:workItem && workItem.workItemID,
+                name:workItem && workItem.workItemName,
+                createTime:Util.handleTime(workItem && workItem.createTime),
+                endTime:Util.handleTime(workItem && workItem.endTime),
+                state:'',
+                creatorCode:'',
+                creatorName:'',
+                ActivityInst:{
+                    previousActivityInst:activityInfo && activityInfo.activity,
+                    activityDef:activityInfo &&  activityInfo.activityTree
+                },
+            };
+            return workItemInfo;
+        },
+        // 获取表单字段信息
+        getProperties:function(name){
+           if(name){
+                var suiDom = $('div[name="'+name+'"]');
+                var title = Util.getFieldTitle(name);
+                var value = suiDom.sui().getValue();
+                var fieldInfo = {
+                    name:name,
+                    title:title,
+                    value:value
+                };
+                return fieldInfo;
+           }else{
+                var property = [];
+                var suiList = $('[sui="true"]');
+                if(suiList.length){
+                    $.each(suiList,function(i,dom){
+                        if($(dom).sui()){
+                            var name = $(dom).attr('name');
+                            if(name){
+                                var title = Util.getFieldTitle(name);
+                                var value = $(dom).sui().getValue();
+                                var fieldInfo = {
+                                    name:name,
+                                    title:title,
+                                    value:value
+                                };
+                                property.push(fieldInfo);
+                            }
+                        }
+                    })
+                }
+                return property;
+           }
+        },
+        // 获取字段标题
+        getFieldTitle:function(name){
+            var title = '';
+            var titleDom = $('div[fieldname="'+name+'"]');
+            if(titleDom.length){
+                if(titleDom.sui()){
+                    title = titleDom.sui().getValue();
+                }
+            }else{
+                var titleTd = $('div[name="'+name+'"]').closest('td').prev();
+                if(titleTd.length){
+                    title = $.trim(titleTd.find('span:not(".only-mark"):last').text());
+                    if(title.substring(0,1) == '*'){
+                        title = title.substring(1,title.length)
+                    }
+                }
+            }
+            return title;
+        },
+        // 处理时间 time-"20200410144332" 返回2020-04-10 14:43:32
+        handleTime:function(time){
+            if(time){
+                var year = time.substring(0,4);
+                var month = time.substring(4,6);
+                var day = time.substring(6,8);
+                var hour = time.substring(8,10);
+                var minute = time.substring(10,12);
+                var seconds = time.substring(12,14);
+                return year+'-'+month+'-'+day+' '+hour+':'+minute+':'+seconds;
+            }else{
+                return "";
+            }
+        }
+
+    };
+    // 获取表单上下文信息
+    var getContext = function(){
+        var entity = function(){
+            this.id = '';
+            this.name = '';
+            this.properties =[];
+        };
+        entity.prototype = {
+            getProperties:function(name){
+                return Util.getProperties(name);
+            }
+        };
+        //实体信息
+        this.entity = new entity();
+        // 当前登录人相关信息
+        this.user = {};
+        //流程实例信息
+        this.processInst = {};
+        //流程定义信息
+        this.processDefine = {};
+        //业务数据
+        this.bizData = new Coreplus.businessData();
+        //控件联动
+        this.linkage = SUI.correlation;
+        // 状态
+        this.state = '';
+        // 任务；
+        this.Task = {};
+    };
+    getContext.prototype = {
+        // 初始化表单相关信息
+        init:function(){
+            var _this = this;
+            _this.entity.id = Util.getEntityInfo('id');
+            _this.user = Util.getUserInfo();
+            _this.Task = Util.getTask();
+            _this.processDefine = Util.getProcessDefine();
+            _this.entity.properties = Util.getProperties();
+        },
+        // 获取context信息
+        getContext:function(contextName){
+            return Coreplus.getContext(contextName);
+        },
+        // 是否是移动端
+        isMobile:function(){
+            return SUI.Util.browserType()==='phone';
+        },
+        // 获取客户端信息
+        getClient:function(){},
+        // 获取来源页面信息 是PC门户还是微门户还是轻应用
+        getReferrer:function(){}
+    };
+    CP.getContext = function(){
+        var context = new getContext();
+        context.init();
+        return context;
+    };
+})(window, window.Coreplus || (window.Coreplus = {}),window.CP || (window.CP = {}));
+
