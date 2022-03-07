@@ -1,0 +1,101 @@
+﻿<?xml version='1.0' encoding='UTF-8'?>
+<Project Type="Project" LVVersion="19008000">
+	<Item Name="我的电脑" Type="My Computer">
+		<Property Name="server.app.propertiesEnabled" Type="Bool">true</Property>
+		<Property Name="server.control.propertiesEnabled" Type="Bool">true</Property>
+		<Property Name="server.tcp.enabled" Type="Bool">false</Property>
+		<Property Name="server.tcp.port" Type="Int">0</Property>
+		<Property Name="server.tcp.serviceName" Type="Str">我的电脑/VI服务器</Property>
+		<Property Name="server.tcp.serviceName.default" Type="Str">我的电脑/VI服务器</Property>
+		<Property Name="server.vi.callsEnabled" Type="Bool">true</Property>
+		<Property Name="server.vi.propertiesEnabled" Type="Bool">true</Property>
+		<Property Name="specify.custom.address" Type="Bool">false</Property>
+		<Item Name="CH.ico" Type="Document" URL="../CH.ico"/>
+		<Item Name="快捷创建.C.H文件.vi" Type="VI" URL="../快捷创建.C.H文件.vi"/>
+		<Item Name="依赖关系" Type="Dependencies"/>
+		<Item Name="程序生成规范" Type="Build">
+			<Item Name="CH_CREATOR" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{F902FBCF-F924-4D97-AC1B-714F1B9FD10C}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{A085A0B1-7453-41ED-9E64-0F8045E23EC9}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{6DF63A82-4F51-42A9-B352-CE5EC9784F41}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">CH_CREATOR</Property>
+				<Property Name="Bld_defaultLanguage" Type="Str">ChineseS</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/NI_AB_PROJECTNAME/CH_CREATOR</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{14B03C74-5438-4791-A24D-08655D8FEDB3}</Property>
+				<Property Name="Bld_version.build" Type="Int">3</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">CHC.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/NI_AB_PROJECTNAME/CH_CREATOR/CHC.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">支持目录</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/NI_AB_PROJECTNAME/CH_CREATOR/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[0]" Type="Str">{2B3CC7DF-8142-4159-9100-B886115A08AE}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[1]" Type="Str">{6356C73F-483D-4C37-A4E5-490D8F128DFF}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[10]" Type="Str">{8A6AC898-A29D-4288-B6F0-257FC63AA7E4}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[11]" Type="Str">{600A4B40-0182-4ADD-BDEF-12689A80216D}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[12]" Type="Str">{516DDF6C-6CBE-4C3D-9326-ED68822E174E}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[13]" Type="Str">{DC00CCAC-B70B-440A-9646-B885AE4DF0A9}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[14]" Type="Str">{2A9F16F8-3357-4577-8300-113FDDA97771}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[15]" Type="Str">{7FC5CDCC-0EF7-4C93-B6D7-7BF97ADC9518}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[16]" Type="Str">{124BE3F5-C39C-4F3B-BBFB-D0ECFEA1EDB8}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[2]" Type="Str">{326D3A64-BC71-472C-814B-1C9D17F816F9}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[3]" Type="Str">{B8E25916-1709-4FBF-AB4F-863E192F536A}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[4]" Type="Str">{85126858-43C3-4355-9E96-2E038ABAF3EF}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[5]" Type="Str">{33AD1AD9-DA7B-40CE-AE78-C88CB9F4EF1B}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[6]" Type="Str">{E89BB557-9D52-4109-A7A8-F318DB358D47}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[7]" Type="Str">{26389CAD-B56A-40AD-9698-7E2924409E25}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[8]" Type="Str">{FA37E2D6-CF3C-411C-AAC3-D69ABDCC8F76}</Property>
+				<Property Name="Exe_actXinfo_enumCLSID[9]" Type="Str">{240F4163-6C98-47B8-94ED-9AB28D77E56F}</Property>
+				<Property Name="Exe_actXinfo_enumCLSIDsCount" Type="Int">17</Property>
+				<Property Name="Exe_actXinfo_majorVersion" Type="Int">5</Property>
+				<Property Name="Exe_actXinfo_minorVersion" Type="Int">5</Property>
+				<Property Name="Exe_actXinfo_objCLSID[0]" Type="Str">{9484E62B-A758-44EC-A123-8DFDFBCA6AC7}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[1]" Type="Str">{7853236C-9998-4327-91E0-04B585687DD6}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[10]" Type="Str">{BB9B959B-BAFB-4420-B073-65A12BBFB8B7}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[11]" Type="Str">{701D7198-34F6-4C0C-8DBD-930F947ECB7B}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[12]" Type="Str">{E0151952-A610-4C06-9B39-3ACD0BAC6A3E}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[13]" Type="Str">{725F7AF4-0B62-4393-A148-FF4D137B024A}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[2]" Type="Str">{C2EE7E53-CE1B-4562-ABA6-4060E03BFD94}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[3]" Type="Str">{2F40C456-3527-48F5-806D-4B8E1BF3FCF1}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[4]" Type="Str">{A1113C40-890D-4627-8AA8-44496EB7E00F}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[5]" Type="Str">{539854E1-53F0-4DC0-8D04-C9B4865C03BB}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[6]" Type="Str">{03810734-2A24-4F29-8AE4-6F23AA390546}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[7]" Type="Str">{175CCCB0-3243-4E53-AE99-00D6BAC13FA3}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[8]" Type="Str">{FC1C0D3E-510B-4444-A4EF-63F4584C4C4A}</Property>
+				<Property Name="Exe_actXinfo_objCLSID[9]" Type="Str">{48AA79E8-E493-48FE-9DF8-11152167B3FC}</Property>
+				<Property Name="Exe_actXinfo_objCLSIDsCount" Type="Int">14</Property>
+				<Property Name="Exe_actXinfo_progIDPrefix" Type="Str">CHC</Property>
+				<Property Name="Exe_actXServerName" Type="Str">CHC</Property>
+				<Property Name="Exe_actXServerNameGUID" Type="Str">{7DFA9222-581C-44C6-B880-CED2F1D5466B}</Property>
+				<Property Name="Exe_iconItemID" Type="Ref">/我的电脑/CH.ico</Property>
+				<Property Name="Source[0].itemID" Type="Str">{26CDD8C3-6202-43B7-9CB3-C056721401CF}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/我的电脑/快捷创建.C.H文件.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="Source[2].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[2].itemID" Type="Ref">/我的电脑/CH.ico</Property>
+				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="SourceCount" Type="Int">3</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">CH_CREATOR</Property>
+				<Property Name="TgtF_internalName" Type="Str">CH_CREATOR</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">版权 2020 </Property>
+				<Property Name="TgtF_productName" Type="Str">CH_CREATOR</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{A35D1617-D43F-4D25-9421-D726F1DED9F7}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">CHC.exe</Property>
+				<Property Name="TgtF_versionIndependent" Type="Bool">true</Property>
+			</Item>
+		</Item>
+	</Item>
+</Project>

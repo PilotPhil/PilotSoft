@@ -1,0 +1,50 @@
+*** Creating Trace Output File '.\OPT\LSC.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '".\opt\main.o"'
+### List of Objects: adding '".\opt\stm32f10x_it.o"'
+### List of Objects: adding '".\opt\system_stm32f10x.o"'
+### List of Objects: adding '".\opt\delay.o"'
+### List of Objects: adding '".\opt\uart.o"'
+### List of Objects: adding '".\opt\core_cm3.o"'
+### List of Objects: adding '".\opt\startup_stm32f10x_hd.o"'
+### List of Objects: adding '".\opt\misc.o"'
+### List of Objects: adding '".\opt\stm32f10x_adc.o"'
+### List of Objects: adding '".\opt\stm32f10x_bkp.o"'
+### List of Objects: adding '".\opt\stm32f10x_can.o"'
+### List of Objects: adding '".\opt\stm32f10x_cec.o"'
+### List of Objects: adding '".\opt\stm32f10x_crc.o"'
+### List of Objects: adding '".\opt\stm32f10x_dac.o"'
+### List of Objects: adding '".\opt\stm32f10x_dbgmcu.o"'
+### List of Objects: adding '".\opt\stm32f10x_dma.o"'
+### List of Objects: adding '".\opt\stm32f10x_exti.o"'
+### List of Objects: adding '".\opt\stm32f10x_flash.o"'
+### List of Objects: adding '".\opt\stm32f10x_fsmc.o"'
+### List of Objects: adding '".\opt\stm32f10x_gpio.o"'
+### List of Objects: adding '".\opt\stm32f10x_i2c.o"'
+### List of Objects: adding '".\opt\stm32f10x_iwdg.o"'
+### List of Objects: adding '".\opt\stm32f10x_pwr.o"'
+### List of Objects: adding '".\opt\stm32f10x_rcc.o"'
+### List of Objects: adding '".\opt\stm32f10x_rtc.o"'
+### List of Objects: adding '".\opt\stm32f10x_sdio.o"'
+### List of Objects: adding '".\opt\stm32f10x_spi.o"'
+### List of Objects: adding '".\opt\stm32f10x_tim.o"'
+### List of Objects: adding '".\opt\stm32f10x_usart.o"'
+### List of Objects: adding '".\opt\stm32f10x_wwdg.o"'
+### List of Objects: adding '".\opt\lobotservocontroller.o"'
+### ADS-LD Command completed:
+--cpu Cortex-M3 ".\opt\main.o" ".\opt\stm32f10x_it.o" ".\opt\system_stm32f10x.o" ".\opt\delay.o" ".\opt\uart.o" ".\opt\core_cm3.o" ".\opt\startup_stm32f10x_hd.o" ".\opt\misc.o" ".\opt\stm32f10x_adc.o" ".\opt\stm32f10x_bkp.o" ".\opt\stm32f10x_can.o" ".\opt\stm32f10x_cec.o" ".\opt\stm32f10x_crc.o" ".\opt\stm32f10x_dac.o" ".\opt\stm32f10x_dbgmcu.o" ".\opt\stm32f10x_dma.o" ".\opt\stm32f10x_exti.o" ".\opt\stm32f10x_flash.o" ".\opt\stm32f10x_fsmc.o" ".\opt\stm32f10x_gpio.o" ".\opt\stm32f10x_i2c.o" ".\opt\stm32f10x_iwdg.o" ".\opt\stm32f10x_pwr.o" ".\opt\stm32f10x_rcc.o" ".\opt\stm32f10x_rtc.o" ".\opt\stm32f10x_sdio.o" ".\opt\stm32f10x_spi.o" ".\opt\stm32f10x_tim.o" ".\opt\stm32f10x_usart.o" ".\opt\stm32f10x_wwdg.o" ".\opt\lobotservocontroller.o" 
+--library_type=microlib --strict --scatter ".\OPT\LSC.sct" 
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\LST\LSC.map" -o .\OPT\LSC.axf### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: '.\OPT\LSC.axf'
+### ADS-LD Command File: '.\OPT\LSC.lnp'
+### Checking for dirty Components...
+### Creating CmdFile '.\OPT\LSC.lnp', Handle=0x000007E0
+### Writing '.lnp' file
+### ADS-LD Command file '.\OPT\LSC.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

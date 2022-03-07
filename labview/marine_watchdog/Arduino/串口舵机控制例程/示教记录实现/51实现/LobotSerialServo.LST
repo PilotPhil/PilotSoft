@@ -1,0 +1,173 @@
+C51 COMPILER V9.52.0.0   LOBOTSERIALSERVO                                                  03/06/2017 18:55:09 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE LOBOTSERIALSERVO
+OBJECT MODULE PLACED IN LobotSerialServo.OBJ
+COMPILER INVOKED BY: E:\Keil\C51\BIN\C51.EXE LobotSerialServo.c LARGE BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 文件名: LobotSerial.c
+   3          * 作者: 深圳市乐幻索尔科技
+   4          * 日期:20170217
+   5          * LX串口Demo
+   6          *******************************************************************************/
+   7          #include "uart.h"
+   8          #include "LobotSerialServo.h"
+   9          #include <stdarg.h>
+  10          #include <string.h>
+  11          
+  12          
+  13          #define LobotSerialWrite  uartWriteBuf /*修改uartWriteBuf为你自己的串口发送函数,名字可以自定义，但函数原型
+             -需与下相同*/
+  14                                                 /*uartWriteBuf(uint8_t *buf, uint8_t len); 函数原型*/
+  15          
+  16          #define GET_LOW_BYTE(A) ((uint8_t)(A))
+  17          //获取A的低八位
+  18          #define GET_HIGH_BYTE(A) ((uint8_t)((A) >> 8))
+  19          //获取A的高八位
+  20          #define BYTE_TO_HW(A, B) ((((uint16_t)(A)) << 8) | (uint8_t)(B))
+  21          //将高地八位合成为十六位
+  22          
+  23          uint8_t LobotRxBuf[24];
+  24          
+  25          //校验计算
+  26          uint8_t LobotCheckSum(uint8_t buf[])
+  27          {
+  28   1        uint8_t i;
+  29   1        uint16_t temp = 0;
+  30   1        for (i = 2; i < buf[3] + 2; i++) 
+  31   1        {
+  32   2          temp += buf[i];
+  33   2        }
+  34   1        temp = ~temp;
+  35   1        i = (uint8_t)temp;
+  36   1        return i;
+  37   1      }
+  38          
+  39          //写入舵机的ID
+  40          void LobotSerialServoSetID(uint8_t oldID, uint8_t newID)
+  41          {
+  42   1        uint8_t buf[7];
+  43   1        buf[0] = buf[1] = LOBOT_SERVO_FRAME_HEADER;
+  44   1        buf[2] = oldID;
+  45   1        buf[3] = 4;
+  46   1        buf[4] = LOBOT_SERVO_ID_WRITE;
+  47   1        buf[5] = newID;
+  48   1        buf[6] = LobotCheckSum(buf);
+  49   1        
+  50   1        LobotSerialWrite(buf, 7);
+  51   1      }
+  52          
+  53          //让舵机在指定时间转到指定位置
+  54          void LobotSerialServoMove(uint8_t id, int16_t position, uint16_t time)
+C51 COMPILER V9.52.0.0   LOBOTSERIALSERVO                                                  03/06/2017 18:55:09 PAGE 2   
+
+  55          {
+  56   1        uint8_t buf[10];
+  57   1        if(position < 0)
+  58   1        position = 0;
+  59   1        if(position > 1000)
+  60   1          position = 1000;
+  61   1        buf[0] = buf[1] = LOBOT_SERVO_FRAME_HEADER;
+  62   1        buf[2] = id;
+  63   1        buf[3] = 7;
+  64   1        buf[4] = LOBOT_SERVO_MOVE_TIME_WRITE;
+  65   1        buf[5] = GET_LOW_BYTE(position);
+  66   1        buf[6] = GET_HIGH_BYTE(position);
+  67   1        buf[7] = GET_LOW_BYTE(time);
+  68   1        buf[8] = GET_HIGH_BYTE(time);
+  69   1        buf[9] = LobotCheckSum(buf);
+  70   1        
+  71   1        LobotSerialWrite(buf, 10);
+  72   1      }
+  73          
+  74          //卸载力矩
+  75          void LobotSerialServoUnload(uint8_t id)
+  76          {
+  77   1        uint8_t buf[7];
+  78   1        buf[0] = buf[1] = LOBOT_SERVO_FRAME_HEADER;
+  79   1        buf[2] = id;
+  80   1        buf[3] = 4;
+  81   1        buf[4] = LOBOT_SERVO_LOAD_OR_UNLOAD_WRITE;
+  82   1        buf[5] = 0;
+  83   1        buf[6] = LobotCheckSum(buf);
+  84   1        
+  85   1        LobotSerialWrite(buf, 7);
+  86   1      }
+  87          //加载力矩
+  88          void LobotSerialServoLoad(uint8_t id)
+  89          {
+  90   1        uint8_t buf[7];
+  91   1        buf[0] = buf[1] = LOBOT_SERVO_FRAME_HEADER;
+  92   1        buf[2] = id;
+  93   1        buf[3] = 4;
+  94   1        buf[4] = LOBOT_SERVO_LOAD_OR_UNLOAD_WRITE;
+  95   1        buf[5] = 1;
+  96   1        buf[6] = LobotCheckSum(buf);
+  97   1        
+  98   1        LobotSerialWrite(buf, 7);
+  99   1      }
+ 100          //获得舵机当前位置
+ 101          int LobotSerialServoReadPosition(uint8_t id)
+ 102          {
+ 103   1        int ret;
+ 104   1        uint8_t buf[6];
+ 105   1      
+ 106   1        buf[0] = buf[1] = LOBOT_SERVO_FRAME_HEADER;
+ 107   1        buf[2] = id;
+ 108   1        buf[3] = 3;
+ 109   1        buf[4] = LOBOT_SERVO_POS_READ;
+ 110   1        buf[5] = LobotCheckSum(buf);
+ 111   1        
+ 112   1        LobotSerialWrite(buf, 6);  //发送获取位置的命令
+ 113   1        ret = LobotSerialMsgHandle(); //获取接收到的数据
+ 114   1        
+ 115   1        return ret; //返回舵机的位置
+ 116   1      }
+C51 COMPILER V9.52.0.0   LOBOTSERIALSERVO                                                  03/06/2017 18:55:09 PAGE 3   
+
+ 117          
+ 118          int LobotSerialMsgHandle(void)
+ 119          {
+ 120   1        uint8_t cmd;
+ 121   1        int count = 10000;
+ 122   1        int16_t ret;
+ 123   1        
+ 124   1        while(!isRxCompleted()) //检查是否接收到数据，没有的话一直等待，知道count小于0，返回 -1
+ 125   1        {
+ 126   2          count--;
+ 127   2          if(count < 0)
+ 128   2            return -1;
+ 129   2        }
+ 130   1        
+ 131   1        if(LobotCheckSum(LobotRxBuf) != LobotRxBuf[LobotRxBuf[3]+2])
+ 132   1        {
+ 133   2          return -2;  //进行校验，校验不过则返回-2
+ 134   2        }
+ 135   1        cmd = LobotRxBuf[4];
+ 136   1        switch(cmd)
+ 137   1        {
+ 138   2          case LOBOT_SERVO_POS_READ:
+ 139   2            ret = (int16_t)BYTE_TO_HW(LobotRxBuf[6], LobotRxBuf[5]); //合成16位数据
+ 140   2            return ret; //返回数据
+ 141   2          default:
+ 142   2            break;
+ 143   2        }
+ 144   1        return 0;
+ 145   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    510    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     24      45
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

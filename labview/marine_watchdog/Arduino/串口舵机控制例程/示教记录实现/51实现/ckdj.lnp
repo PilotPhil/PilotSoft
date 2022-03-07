@@ -1,0 +1,6 @@
+"STARTUP.obj",
+"main.obj",
+"uart.obj",
+"LobotSerialServo.obj" 
+TO "ckdj" 
+RAMSIZE(256) 

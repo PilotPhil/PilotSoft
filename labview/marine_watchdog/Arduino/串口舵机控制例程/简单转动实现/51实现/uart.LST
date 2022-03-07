@@ -1,0 +1,175 @@
+C51 COMPILER V9.52.0.0   UART                                                              03/06/2017 18:55:14 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN uart.OBJ
+COMPILER INVOKED BY: E:\Keil\C51\BIN\C51.EXE uart.c LARGE BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          /******************************************************
+   2           * FileName:      uart.c
+   3           * Company:       深圳乐幻索尔科技
+   4           * Date:           2017/02/18  18:02
+   5           * Description:   串口驱动
+   6           *****************************************************/
+   7          #include "uart.h"
+   8          #include "LobotSerialServo.h"
+   9          
+  10          #include <string.h>
+  11          void uartInit() //波特率115200
+  12          {
+  13   1        PCON &= 0x7F;   //波特率不倍速
+  14   1        SCON = 0x50;    //8位数据,可变波特率
+  15   1        AUXR |= 0x04;   //独立波特率发生器时钟为Fosc,即1T
+  16   1        BRT = 0xFD;     //设定独立波特率发生器重装值
+  17   1        AUXR |= 0x01;   //串口1选择独立波特率发生器为波特率发生器
+  18   1        AUXR |= 0x10;   //启动独立波特率发生器
+  19   1        ES = 1;         //使能串口中断
+  20   1        EA = 1;         //使能全局中断
+  21   1      }
+  22          
+  23          
+  24          uint8_t busy = 0;   //串口忙标识
+  25          
+  26          /*********************************************************************************
+  27           * Function:    uartWriteByte
+  28           * Description:向串口写入一个字节
+  29           * Parameters:   dat:被写入的数据
+  30           * Return:       无返回
+  31           * Others:
+  32           **********************************************************************************/
+  33          void uartWriteByte(uint8_t dat)
+  34          {
+  35   1        while (busy);
+  36   1        busy = 1;
+  37   1        SBUF = dat;
+  38   1      }
+  39          
+  40          /*********************************************************************************
+  41           * Function:    uartWriteBuf
+  42           * Description:向串口写入数据
+  43           * Parameters:   buf:被写入的数据的指针,len:被写入的数据的长度
+  44           * Return:       无返回
+  45           * Others:
+  46           **********************************************************************************/
+  47          void uartWriteBuf(uint8_t *buf, uint8_t len)
+  48          {
+  49   1        ES = 1;
+  50   1        while (len--) {
+  51   2          while (busy);
+  52   2          busy = 1;
+  53   2          SBUF = *buf++;
+  54   2        }
+  55   1      }
+C51 COMPILER V9.52.0.0   UART                                                              03/06/2017 18:55:14 PAGE 2   
+
+  56          
+  57          /*********************************************************************************
+  58           * Function:  receiveHandle
+  59           * Description: 串口中断函数
+  60           * Parameters:   无参数
+  61           * Return:       无返回
+  62           * Others:
+  63           **********************************************************************************/
+  64          
+  65          uint8_t UART_RX_BUF[24]; //串口接收缓存
+  66          bool isUartRxCompleted = false; //串口接收完数据帧标识
+  67          
+  68          void receiveHandle(void) interrupt 4
+  69          {
+  70   1        uint8_t rx;  //串口接收字节
+  71   1        static bool isGotFrameHeader = false; //获得帧头标识  
+  72   1        static uint8_t frameHeaderCount = 0;  //帧头计数
+  73   1        static uint8_t dataLength = 3;        //数据长度
+  74   1        static uint8_t dataCount = 0;         //接收计数，此用作接收缓存数组的下标，所以从0开始
+  75   1        
+  76   1        if (RI) {  //接收中断
+  77   2          RI = 0;  //清楚标识
+  78   2          rx = SBUF;   //读取接收寄存器
+  79   2          
+  80   2          if(!isGotFrameHeader)   //没有获得帧头
+  81   2          {
+  82   3            if(rx == 0x55)  //接收数据与帧头相同
+  83   3            {
+  84   4              frameHeaderCount++;  //帧头计数加一
+  85   4              if(frameHeaderCount == 2) //如果连续接收到两个0x55
+  86   4              {
+  87   5                frameHeaderCount = 0; //帧头计数清零
+  88   5                isGotFrameHeader = true; //获得了帧头
+  89   5                dataCount = 1;  //接收计数为1
+  90   5              }
+  91   4            }
+  92   3            else //接收数据与帧头不相投
+  93   3            {
+  94   4              isGotFrameHeader = false; //没有获得帧头
+  95   4              dataCount = 0;   //计数清零
+  96   4              frameHeaderCount = 0; //计数清零
+  97   4            }
+  98   3          }
+  99   2          if(isGotFrameHeader) //获得了帧头
+ 100   2          {
+ 101   3            UART_RX_BUF[dataCount] = rx; //将接收到的数据放入接收缓存
+ 102   3            if(dataCount == 3)  //计数等于3的时候，就是数据帧的第四位，此位为不包括帧头及ID号的所有数据长度
+ 103   3            {
+ 104   4              dataLength= UART_RX_BUF[dataCount];  //获取数据长度
+ 105   4              if(dataLength < 3 || dataLength > 8) //判断数据是否过长或者过短，过长及过短都是错误数据
+ 106   4              {
+ 107   5                dataLength = 3;
+ 108   5                isGotFrameHeader = false; //清楚已获得帧头标识，从新开始
+ 109   5              }
+ 110   4            }
+ 111   3            dataCount++;  //接收计数+1
+ 112   3            if(dataCount == dataLength + 3) //如果计数等于 数据长度 + 3 那么就是接受到了完整的数据帧
+ 113   3            {
+ 114   4              if(isUartRxCompleted == false)  
+ 115   4              {
+ 116   5                isUartRxCompleted = true;  //置位接收完成标识
+ 117   5                memcpy(LobotRxBuf, UART_RX_BUF, dataCount+2); //将数据帧复制到 LobotRxBuf，供接收处理函数处理
+C51 COMPILER V9.52.0.0   UART                                                              03/06/2017 18:55:14 PAGE 3   
+
+ 118   5              }
+ 119   4              isGotFrameHeader = false; //清楚标识，继续接收下一帧
+ 120   4            }
+ 121   3          }
+ 122   2        }
+ 123   1        if (TI) {    //发送完成中断
+ 124   2          TI = 0;  //清楚标识
+ 125   2          busy = 0;  //清楚串口忙标识
+ 126   2        }
+ 127   1      }
+ 128          
+ 129          /*********************************************************************************
+ 130           * Function:  receiveHandle
+ 131           * Description: 判断是否接收到数据
+ 132           * Parameters:   无参数
+ 133           * Return:       true为接收到数据，false为没有接收到数据
+ 134           * Others:  接收到数据返回true，同时isUartCompleted 标识会被清除
+ 135           **********************************************************************************/
+ 136           
+ 137          bool isRxCompleted(void)
+ 138          {
+ 139   1        if(isUartRxCompleted)
+ 140   1        {
+ 141   2          isUartRxCompleted = false;
+ 142   2          return true;
+ 143   2        }
+ 144   1        else
+ 145   1        {
+ 146   2          return false;
+ 147   2        }
+ 148   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    350    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     30       3
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

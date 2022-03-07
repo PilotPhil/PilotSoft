@@ -1,0 +1,8 @@
+示例中所有关于Arduino的代码均是在 Arduino Leonardo 下开发，并在 Arduino Leonardo 、 Arduino UNO 、 Arduino MEGA 2560 下测试通过。
+
+LOBOT_DEBUG 宏用于控制是否打印调试数据，在Arduino UNO 打开此宏可能引起未知错误，未对此深入做测试。
+
+
+为Arduino UNO 烧写程序时，请将Arduino UNO 与舵机间的连接断开，否则可能因冲突导致无法正常烧入程序
+
+

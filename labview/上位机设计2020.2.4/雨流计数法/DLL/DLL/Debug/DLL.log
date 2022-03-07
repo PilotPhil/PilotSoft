@@ -1,0 +1,8 @@
+﻿D:\Program Files\visualstudio\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(459,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (DLL.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  dllmain.cpp
+C:\Users\63291\Desktop\上位机设计2020.2.4\雨流计数法\DLL\DLL\dllmain.cpp(2,10): fatal error C1083: 无法打开预编译头文件: “Debug\DLLLL.pch”: No such file or directory
+  Labview.cpp
+C:\Users\63291\Desktop\上位机设计2020.2.4\雨流计数法\DLL\DLL\Labview.cpp(2,9): fatal error C1083: 无法打开预编译头文件: “Debug\DLLLL.pch”: No such file or directory
+  rainnew.cpp
+C:\Users\63291\Desktop\上位机设计2020.2.4\雨流计数法\DLL\DLL\rainnew.cpp(3,9): fatal error C1083: 无法打开预编译头文件: “Debug\DLLLL.pch”: No such file or directory
+  正在生成代码...

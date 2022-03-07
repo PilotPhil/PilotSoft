@@ -1,0 +1,7 @@
+﻿  pch.cpp
+  dllmain.cpp
+  rainnew.cpp
+  正在生成代码...
+    正在创建库 C:\Users\63291\Desktop\上位机设计2020.2.4\雨流计数法\雨流计数法\Debug\导出为DLL.lib 和对象 C:\Users\63291\Desktop\上位机设计2020.2.4\雨流计数法\雨流计数法\Debug\导出为DLL.exp
+LINK : warning LNK4232: 名称 导出为DLL.dll 包含非 ASCII 字符，在具有除 936 以外的 ANSI 代码页的系统上可能不能加载 DLL
+  导出为DLL.vcxproj -> C:\Users\63291\Desktop\上位机设计2020.2.4\雨流计数法\雨流计数法\Debug\导出为DLL.dll
